@@ -318,6 +318,79 @@ body.no-nav main{padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}
 .temp-pw{font-family:var(--f-code);font-size:30px;letter-spacing:.12em;text-align:center;padding:16px;border-radius:14px;background:var(--sunk);user-select:all}
 .tag{font-size:12px;padding:1px 8px;border-radius:999px;background:var(--stamp-soft);color:var(--stamp);font-weight:600;margin-left:6px;vertical-align:2px}
 .sec-title{font-family:var(--f-display);font-size:16px;margin:4px 0 -4px}
+/* v3: images, camera, review, notifications */
+.icon-btn{position:relative}
+.icon-btn .dot{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--bad);color:var(--card);font-size:12px;font-weight:600;display:grid;place-items:center;font-variant-numeric:tabular-nums}
+.icon-btn .dot:empty{display:none}
+.cat-ic.img{padding:0;overflow:hidden;background:var(--sunk)}
+.cat-ic.img img{width:100%;height:100%;object-fit:cover;display:block}
+.hero-img{position:relative;width:100%;max-width:100%;aspect-ratio:4/3;border-radius:16px;overflow:hidden;background:var(--sunk);display:grid;place-items:center;cursor:zoom-in;border:0;padding:0}
+.hero-img img{width:100%;height:100%;object-fit:cover;display:block}
+.hero-img .loading-tag{position:absolute;right:10px;bottom:10px;font-size:12px;padding:2px 10px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff}
+.picked .cat-ic{width:64px;height:64px;font-size:28px;border-radius:14px}
+.photo-box{border:2px dashed var(--line-strong);border-radius:16px;padding:14px;display:grid;gap:10px;justify-items:center;background:var(--sunk)}
+.photo-box img{width:100%;max-width:100%;max-height:340px;object-fit:contain;border-radius:12px;background:#000}
+.img-edit{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.img-prev{width:120px;height:120px;border-radius:14px;background:var(--sunk);border:1.5px dashed var(--line-strong);display:grid;place-items:center;overflow:hidden;flex:none;color:var(--muted);font-size:13px;text-align:center}
+.img-prev img{width:100%;height:100%;object-fit:cover}
+.img-actions{display:grid;gap:8px;flex:1 1 160px;min-width:0}
+.codebox{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;padding:12px;border-radius:14px;background:var(--stamp-soft)}
+.codebox .field{flex:1 1 140px;min-width:0}
+.codebox input{text-transform:uppercase;font-family:var(--f-code)}
+.code-prev{display:grid;gap:2px;flex:1 1 140px;min-width:0}
+.code-prev b{font-family:var(--f-code);font-size:22px;color:var(--stamp);overflow-wrap:anywhere}
+.code-prev.off b{color:var(--muted);text-decoration:line-through}
+.pill.info{background:var(--stamp-soft);color:var(--stamp)}
+.admin-msg{padding:10px 12px;border-radius:12px;background:var(--warn-soft);color:var(--ink);font-size:14px;white-space:pre-line;overflow-wrap:anywhere}
+.admin-msg b{color:var(--warn)}
+.admin-msg.bad{background:var(--bad-soft)} .admin-msg.bad b{color:var(--bad)}
+.admin-msg.ok{background:var(--ok-soft)} .admin-msg.ok b{color:var(--ok)}
+.review-strip{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:14px;background:var(--stamp-soft);color:var(--ink);border:1.5px solid var(--stamp);cursor:pointer;width:100%;font:inherit;text-align:left}
+.review-strip b{color:var(--stamp)}
+.choices{display:grid;gap:8px}
+.choices label{position:relative;cursor:pointer}
+.choices input{position:absolute;opacity:0;inset:0}
+.choices span{display:grid;gap:2px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line-strong);background:var(--card)}
+.choices small{color:var(--muted);font-size:13px}
+.choices input:checked+span{border-color:var(--stamp);background:var(--stamp-soft)}
+.choices input:focus-visible+span{outline:3px solid var(--stamp);outline-offset:2px}
+textarea{width:100%;min-height:88px;padding:10px 14px;border:1.5px solid var(--line-strong);border-radius:12px;background:var(--card);font-size:16px;resize:vertical}
+.evidence{display:grid;gap:6px}
+.evidence .hero-img{aspect-ratio:3/4;max-height:58dvh;background:#000}
+.evidence .hero-img img{object-fit:contain}
+.nlist{display:grid;gap:10px}
+.nitem{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;padding:12px 14px;border-radius:14px;background:var(--sunk);border:1px solid transparent}
+.nitem.unread{background:var(--stamp-soft);border-color:var(--stamp)}
+.nitem .ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:17px;background:var(--card)}
+.nitem b{display:block;font-weight:600}
+.nitem p{font-size:14px;white-space:pre-line;overflow-wrap:anywhere}
+.nitem time{font-size:12px;color:var(--muted)}
+.ph-btn{appearance:none;border:0;background:none;color:var(--stamp);font:inherit;font-size:14px;cursor:pointer;padding:4px 0;text-decoration:underline;text-underline-offset:3px}
+/* camera */
+dialog.cam{width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;background:#000;color:#fff}
+.cam-wrap{position:relative;height:100%;display:flex;flex-direction:column}
+.cam-stage{position:relative;flex:1;min-height:0;display:grid;place-items:center;overflow:hidden;background:#000}
+.cam-stage video,.cam-stage img{width:100%;height:100%;object-fit:contain;display:block}
+.cam-stage video.mirror{transform:scaleX(-1)}
+.cam-guide{position:absolute;inset:0;pointer-events:none;display:grid;place-items:center}
+.cam-guide .g-frame{position:relative;width:min(78vw,52dvh);aspect-ratio:3/4}
+.cam-guide .g-oval{position:absolute;left:50%;top:6%;width:46%;aspect-ratio:3/4;transform:translateX(-50%);border:3px dashed rgba(255,255,255,.85);border-radius:50%}
+.cam-guide .g-box{position:absolute;left:14%;right:14%;bottom:4%;height:34%;border:3px dashed rgba(255,214,102,.9);border-radius:14px}
+.cam-guide .g-t{position:absolute;left:50%;transform:translateX(-50%);font-size:13px;padding:2px 10px;border-radius:999px;background:rgba(0,0,0,.55);white-space:nowrap}
+.cam-guide .g-t1{top:calc(6% - 26px)} .cam-guide .g-t2{bottom:calc(38% + 6px);color:#FFD666}
+.cam-err{position:absolute;left:16px;right:16px;top:50%;transform:translateY(-50%);padding:16px;border-radius:14px;background:rgba(179,38,30,.92);text-align:center;font-weight:500}
+.cam-bar{display:flex;align-items:center;justify-content:space-around;gap:12px;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:#0B0C12}
+.cam-bar .btn{flex:1 1 0;background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff;min-height:52px;font-size:17px}
+.cam-bar .btn.primary{background:#6E68FF;border-color:#6E68FF}
+.shutter{appearance:none;width:76px;height:76px;border-radius:50%;border:5px solid #fff;background:#fff;box-shadow:inset 0 0 0 4px #0B0C12;cursor:pointer;flex:none}
+.shutter:disabled{opacity:.4}
+.cam-side{width:56px;height:56px;flex:none;appearance:none;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:24px;cursor:pointer;display:grid;place-items:center}
+dialog.lightbox{width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;background:rgba(0,0,0,.94);color:#fff;padding:0}
+.lb-wrap{height:100%;display:flex;flex-direction:column}
+.lb-wrap .sc-top .x{background:rgba(255,255,255,.18);color:#fff}
+.lb-img{flex:1;min-height:0;display:grid;place-items:center;padding:8px}
+.lb-img img{max-width:100%;max-height:100%;object-fit:contain}
+.lb-cap{padding:10px 16px calc(16px + env(safe-area-inset-bottom,0px));text-align:center;font-size:14px;color:#ddd}
 .toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + 18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:100;width:max-content;max-width:calc(100vw - 32px);padding:12px 18px;border-radius:14px;background:var(--ink);color:var(--card);font-weight:500;box-shadow:var(--shadow-lg);text-align:center}
 .toast.ok{background:var(--ok);color:var(--card)}
 .toast.bad{background:var(--bad);color:var(--card)}
@@ -332,6 +405,10 @@ body.no-nav main{padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}
       <h1>สมุดยืมอุปกรณ์</h1>
       <p class="sub" id="roomLine"><span class="sync-dot wait"></span>กำลังเชื่อมต่อ…</p>
     </div>
+    <button class="icon-btn" id="btnBell" type="button" aria-label="การแจ้งเตือน" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      <span class="dot" id="bellDot"></span>
+    </button>
     <button class="avatar" id="btnAccount" type="button" aria-label="บัญชีของฉัน" hidden></button>
     <button class="icon-btn" id="btnRefresh" type="button" aria-label="โหลดข้อมูลใหม่">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
@@ -426,6 +503,7 @@ body.no-nav main{padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}
 
   <!-- items -->
   <section class="view" id="view-items" hidden>
+    <button class="review-strip" type="button" id="reviewStrip" data-goto-review hidden></button>
     <div class="stats" id="stats"></div>
     <div class="row">
       <input class="grow" type="search" id="qItems" placeholder="ค้นหาชื่อหรือรหัสอุปกรณ์" autocomplete="off">
@@ -444,6 +522,7 @@ body.no-nav main{padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}
 
   <!-- history -->
   <section class="view" id="view-history" hidden>
+    <p class="help" id="histNote"></p>
     <input type="search" id="qHist" placeholder="ค้นหาในประวัติ" autocomplete="off">
     <div class="list" id="histList"></div>
   </section>
@@ -538,17 +617,47 @@ body.no-nav main{padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}
   </form>
 </dialog>
 
-<!-- return -->
+<!-- return: member sends photo evidence -->
 <dialog class="sheet" id="dlgReturn" aria-labelledby="rTitle">
   <form id="fReturn" novalidate>
-    <div class="sh-head"><h2 id="rTitle">รับคืนอุปกรณ์</h2><button class="x" type="button" data-close aria-label="ปิด">×</button></div>
+    <div class="sh-head"><h2 id="rTitle">แจ้งคืนอุปกรณ์</h2><button class="x" type="button" data-close aria-label="ปิด">×</button></div>
     <div class="sh-body">
       <dl class="sumgrid" id="rSum"></dl>
       <p class="state" id="rState"></p>
-      <label class="field"><span class="lbl">สภาพของตอนคืน (ไม่ใส่ก็ได้)</span><input type="text" id="rNote" placeholder="เช่น ครบ ใช้งานได้ปกติ" maxlength="200"></label>
+      <p class="admin-msg bad" id="rAdminNote" hidden></p>
+      <div class="field">
+        <div class="step"><i>1</i>ถ่ายรูปตัวคุณคู่กับอุปกรณ์</div>
+        <p class="help">ถืออุปกรณ์ไว้ข้างหน้า ให้เห็น <b>หน้าของคุณ</b> และ <b>อุปกรณ์</b> ชัดเจนในรูปเดียวกัน ต้องถ่ายจากกล้องตอนนี้เท่านั้น เลือกรูปจากคลังรูปไม่ได้</p>
+        <div class="photo-box" id="rPhotoBox"></div>
+      </div>
+      <label class="field"><span class="step"><i>2</i>สภาพของตอนคืน (ไม่ใส่ก็ได้)</span><input type="text" id="rNote" placeholder="เช่น ครบ ใช้งานได้ปกติ" maxlength="200"></label>
       <p class="err" id="rErr" hidden></p>
     </div>
-    <div class="sh-foot"><button class="btn" type="button" data-close>ยกเลิก</button><button class="btn ok" type="submit" id="rSubmit">ยืนยันรับคืน</button></div>
+    <div class="sh-foot"><button class="btn" type="button" data-close>ยกเลิก</button><button class="btn primary" type="submit" id="rSubmit">ส่งหลักฐานการคืน</button></div>
+  </form>
+</dialog>
+
+<!-- review: admin checks a return -->
+<dialog class="sheet" id="dlgReview" aria-labelledby="vTitle">
+  <form id="fReview" novalidate>
+    <div class="sh-head"><h2 id="vTitle">ตรวจสอบการคืน</h2><button class="x" type="button" data-close aria-label="ปิด">×</button></div>
+    <div class="sh-body">
+      <div class="evidence" id="vPhoto"></div>
+      <dl class="sumgrid" id="vSum"></dl>
+      <div class="field"><span class="lbl">ผลการตรวจสอบ</span>
+        <div class="choices" role="radiogroup" aria-label="ผลการตรวจสอบ">
+          <label><input type="radio" name="vResult" value="ok"><span><b>✅ ยืนยันการคืน</b><small>ได้รับของครบ สภาพปกติ</small></span></label>
+          <label><input type="radio" name="vResult" value="problem"><span><b>⚠️ คืนแล้ว แต่มีปัญหา</b><small>ได้รับของแล้ว แต่ชำรุด สกปรก หรือไม่ครบ</small></span></label>
+          <label id="vRedoWrap"><input type="radio" name="vResult" value="redo"><span><b>↩️ ไม่ผ่าน ให้ส่งใหม่</b><small>รูปไม่ชัด ไม่เห็นหน้า หรือยังไม่ได้รับของจริง</small></span></label>
+        </div>
+      </div>
+      <label class="help" id="vRepairWrap" hidden><input type="checkbox" id="vRepair"> ตั้งอุปกรณ์นี้เป็น “ชำรุด / ส่งซ่อม” (ยืมต่อไม่ได้จนกว่าจะแก้)</label>
+      <label class="field"><span class="lbl" id="vNoteLbl">ข้อความถึงผู้ยืม (ไม่ใส่ก็ได้)</span><textarea id="vNote" maxlength="400" placeholder="เช่น ขอบคุณที่คืนตรงเวลา"></textarea></label>
+      <label class="help" id="vMailWrap"><input type="checkbox" id="vMail" checked> ส่งอีเมลแจ้งผู้ยืมด้วย</label>
+      <p class="help" id="vNoAcct" hidden>ผู้ยืมรายนี้ไม่มีบัญชีในแอป จึงจะไม่ได้รับแจ้งเตือน</p>
+      <p class="err" id="vErr" hidden></p>
+    </div>
+    <div class="sh-foot"><button class="btn" type="button" data-close>ยกเลิก</button><button class="btn primary" type="submit" id="vSubmit">บันทึกและแจ้งผู้ยืม</button></div>
   </form>
 </dialog>
 
@@ -559,10 +668,25 @@ body.no-nav main{padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}
     <div class="sh-body">
       <label class="field"><span class="lbl">ชื่ออุปกรณ์</span><input type="text" id="iName" placeholder="เช่น โปรเจกเตอร์ Epson" maxlength="80"></label>
       <label class="field"><span class="lbl">หมวดหมู่</span><select id="iCat"></select></label>
+      <div class="field"><span class="lbl">รูปอุปกรณ์ (ไม่ใส่ก็ได้)</span>
+        <div class="img-edit">
+          <div class="img-prev" id="iImgPrev"></div>
+          <div class="img-actions">
+            <button class="btn" type="button" id="btnICam">📷 ถ่ายรูป</button>
+            <label class="btn" for="iFile">🖼️ เลือกจากคลังรูป</label>
+            <input type="file" id="iFile" accept="image/*" class="vh" tabindex="-1">
+            <button class="btn small danger" type="button" id="btnIRemove" hidden>ลบรูป</button>
+          </div>
+        </div>
+      </div>
       <div class="field"><span class="lbl">รหัสสำหรับสแกน</span>
-        <div class="row"><input class="grow" type="text" id="iCode" placeholder="เว้นว่าง ระบบตั้งให้ เช่น EQ-0001" maxlength="40" autocomplete="off">
+        <div class="codebox" id="iAuto">
+          <label class="field"><span class="help">ตัวอักษรนำหน้า</span><input type="text" id="iPrefix" maxlength="10" autocomplete="off" placeholder="EQ"></label>
+          <div class="code-prev" id="iCodePrevBox"><span class="help">รหัสที่จะได้</span><b id="iCodePrev">–</b></div>
+        </div>
+        <div class="row"><input class="grow" type="text" id="iCode" placeholder="หรือพิมพ์รหัสเอง / ใช้บาร์โค้ดเดิม" maxlength="40" autocomplete="off">
         <button class="btn" type="button" id="btnScanCode">สแกนบาร์โค้ดเดิม</button></div>
-        <span class="help">ถ้าของมีบาร์โค้ดหรือ QR ติดอยู่แล้ว กดสแกนเพื่อใช้รหัสนั้นได้เลย</span>
+        <span class="help" id="iCodeHelp">เว้นช่องรหัสว่างไว้ ระบบจะรันเลขต่อจากตัวอักษรนำหน้าให้เอง</span>
       </div>
       <div class="two-col">
         <div class="field"><span class="lbl">มีทั้งหมดกี่ชิ้น</span>
@@ -590,6 +714,7 @@ body.no-nav main{padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}
     <div class="sh-head"><h2 id="cTitle">เพิ่มหมวดหมู่</h2><button class="x" type="button" data-close aria-label="ปิด">×</button></div>
     <div class="sh-body">
       <label class="field"><span class="lbl">ชื่อหมวดหมู่</span><input type="text" id="cName" placeholder="เช่น อุปกรณ์กล้อง" maxlength="60"></label>
+      <label class="field"><span class="lbl">ตัวอักษรนำหน้ารหัส (ไม่ใส่ก็ได้)</span><input type="text" id="cPrefix" maxlength="10" placeholder="เช่น CAM → CAM-0001" autocomplete="off" style="text-transform:uppercase;font-family:var(--f-code)"><span class="help" id="cPrefixHelp">เว้นว่าง = ใช้ค่าเริ่มต้นในชีต “ตั้งค่า”</span></label>
       <div class="field"><span class="lbl">ไอคอน</span>
         <div class="row"><input type="text" id="cIcon" maxlength="4" style="width:84px;text-align:center;font-size:22px" aria-label="ไอคอน"><div class="icons grow" id="cIcons"></div></div>
       </div>
@@ -680,6 +805,46 @@ body.no-nav main{padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}
   </div>
 </dialog>
 
+<!-- notifications -->
+<dialog class="sheet" id="dlgNotifs" aria-labelledby="nTitle">
+  <div class="sheet-wrap">
+    <div class="sh-head"><h2 id="nTitle">การแจ้งเตือน</h2><button class="x" type="button" data-close aria-label="ปิด">×</button></div>
+    <div class="sh-body"><div class="nlist" id="nList"></div></div>
+  </div>
+</dialog>
+
+<!-- camera -->
+<dialog class="cam" id="dlgCam" aria-labelledby="camTitle">
+  <div class="cam-wrap">
+    <div class="sc-top"><h2 id="camTitle">ถ่ายรูป</h2><button class="x" type="button" id="btnCamClose" aria-label="ปิดกล้อง" style="background:rgba(255,255,255,.18);color:#fff">×</button></div>
+    <div class="cam-stage">
+      <video id="camVideo" playsinline muted autoplay></video>
+      <img id="camShot" alt="รูปที่ถ่าย" hidden>
+      <div class="cam-guide" id="camGuide" hidden><div class="g-frame"><span class="g-t g-t1">หน้าของคุณ</span><div class="g-oval"></div><span class="g-t g-t2">อุปกรณ์</span><div class="g-box"></div></div></div>
+      <p class="cam-err" id="camErr" hidden></p>
+    </div>
+    <p class="sc-msg" id="camHint"></p>
+    <div class="cam-bar" id="camLive">
+      <span class="cam-side" aria-hidden="true" style="visibility:hidden"></span>
+      <button class="shutter" id="btnShutter" type="button" aria-label="ถ่ายรูป" disabled></button>
+      <button class="cam-side" id="btnFlip" type="button" aria-label="สลับกล้องหน้า/หลัง">⟲</button>
+    </div>
+    <div class="cam-bar" id="camReview" hidden>
+      <button class="btn" id="btnRetake" type="button">ถ่ายใหม่</button>
+      <button class="btn primary" id="btnUseShot" type="button">ใช้รูปนี้</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- photo viewer -->
+<dialog class="lightbox" id="dlgPhoto" aria-labelledby="phTitle">
+  <div class="lb-wrap">
+    <div class="sc-top"><h2 id="phTitle" style="color:#fff;font-size:18px">รูปภาพ</h2><button class="x" type="button" data-close aria-label="ปิด">×</button></div>
+    <div class="lb-img"><img id="phImg" alt=""></div>
+    <p class="lb-cap" id="phCap"></p>
+  </div>
+</dialog>
+
 <datalist id="nameList"></datalist>
 <datalist id="groupList"></datalist>
 <div id="printArea"></div>
@@ -688,7 +853,8 @@ body.no-nav main{padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}
 <script>
 (function(){
 'use strict';
-const VERSION = '2.0.0';
+const VERSION = '3.0.0';
+const NEED_BACKEND = 3;
 const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -696,7 +862,7 @@ const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const DAY = 86400000;
 const LS = {
   get(k, d){ try { const v = localStorage.getItem('lend.' + k); return v == null ? d : JSON.parse(v); } catch (e){ return d; } },
-  set(k, v){ try { localStorage.setItem('lend.' + k, JSON.stringify(v)); } catch (e){} },
+  set(k, v){ try { localStorage.setItem('lend.' + k, JSON.stringify(v)); return true; } catch (e){ return false; } },
   del(k){ try { localStorage.removeItem('lend.' + k); } catch (e){} }
 };
 
@@ -708,6 +874,10 @@ const dayDiff = (a, b) => Math.round((startOfDay(b) - startOfDay(a)) / DAY);
 const fmtDate = ms => new Date(ms).toLocaleDateString('th-TH', {day:'numeric', month:'short', year:'2-digit'});
 const fmtDateLong = ms => new Date(ms).toLocaleDateString('th-TH', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
 const fmtTime = ms => new Date(ms).toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'});
+const fmtWhen = ms => {
+  const d = dayDiff(ms, Date.now());
+  return (d === 0 ? 'วันนี้' : d === 1 ? 'เมื่อวาน' : fmtDate(ms)) + ' ' + fmtTime(ms) + ' น.';
+};
 
 /* ---------- state ---------- */
 const S = {
@@ -715,32 +885,40 @@ const S = {
   data: null, loading: false, lastSync: 0, error: '', offline: !navigator.onLine,
   tab: 'items', authMode: 'login', resetEmail: '',
   cat: 'all', onlyFree: false, qItems: '', qLoans: '', qHist: '', loanFilter: 'all',
-  confirm: null, installEvt: null, gReady: '', tempFor: ''
+  confirm: null, installEvt: null, gReady: '', seenNotif: LS.get('seenNotif', '')
 };
+const TH = LS.get('thumbs', {});          // imageId → thumbnail data URL
+const IMGS = new Map();                   // fileId → full image data URL (in memory)
 const ICONS = ['💻','🖥️','📽️','📷','🎤','🎧','🔌','🔋','🔧','🪛','✂️','✏️','📐','📚','📦','🧪','🪑','🛰️'];
 
-const D = () => S.data || {cats: [], items: [], loans: [], users: []};
+const D = () => S.data || {cats: [], items: [], loans: [], users: [], notifs: [], unread: 0};
 const catByName = n => D().cats.find(c => c.name === n);
 const catOf = it => it ? catByName(it.category) : null;
 const catLabel = c => c ? c.name : 'ไม่มีหมวด';
 const catIcon = c => (c && c.icon) || '📦';
 const itemById = id => D().items.find(i => i.id === id);
 const loanById = id => D().loans.find(l => l.id === id);
-const activeLoans = () => D().loans.filter(l => !l.returnedAt);
-const activeFor = id => activeLoans().filter(l => l.itemId === id);
-const borrowedOf = it => activeFor(it.id).reduce((s, l) => s + (l.qty || 1), 0);
+const isOpen = l => l.status === 'active' || l.status === 'review';
+const openLoans = () => D().loans.filter(isOpen);
+const openFor = id => openLoans().filter(l => l.itemId === id);
+const borrowedOf = it => openFor(it.id).reduce((s, l) => s + (l.qty || 1), 0);
 const availableOf = it => Math.max(0, (it.qty || 1) - borrowedOf(it));
 const loanItemName = l => { const it = itemById(l.itemId); return it ? it.name : (l.itemName || 'อุปกรณ์ที่ถูกลบ'); };
 const sortedCats = () => D().cats.slice().sort((a, b) => (a.order || 999) - (b.order || 999) || a.name.localeCompare(b.name, 'th'));
 const isAdmin = () => !!(S.data && S.data.isAdmin);
-const isMine = l => !!(S.me && l.userId && l.userId === S.me.id);
+const isMine = l => !!l.mine;
+const visibleLoans = () => D().loans.filter(l => !l.other);          // สมาชิกได้รับเฉพาะของตัวเองแบบเต็ม
 const initial = n => (String(n || '?').trim().charAt(0) || '?').toUpperCase();
+const thumbOf = it => (it && it.imageId && TH[it.imageId]) || '';
+const backendOld = () => { const v = (S.data && S.data.version) || (S.info && S.info.version) || 0; return !!S.token && !!(S.data || S.info) && v < NEED_BACKEND; };
 
 function loanState(l, now){
-  if (l.returnedAt){
-    const late = dayDiff(l.dueAt, l.returnedAt);
+  if (l.status === 'returned' || l.status === 'problem'){
+    const late = l.returnedAt && l.dueAt ? dayDiff(l.dueAt, l.returnedAt) : 0;
+    if (l.status === 'problem') return {k:'problem', cls:'warn', text:'คืนแล้ว (มีปัญหา)' + (late > 0 ? ' · ช้า ' + late + ' วัน' : '')};
     return late > 0 ? {k:'late', cls:'warn', text:'คืนช้า ' + late + ' วัน'} : {k:'returned', cls:'ok', text:'คืนตรงเวลา'};
   }
+  if (l.status === 'review') return {k:'review', cls:'info', text:'อยู่ระหว่างตรวจสอบ'};
   if (now > l.dueAt){ const d = dayDiff(l.dueAt, now); return {k:'overdue', cls:'bad', text:'เกินกำหนด ' + d + ' วัน', days: d}; }
   const left = dayDiff(now, l.dueAt);
   if (left <= 0) return {k:'today', cls:'warn', text:'ต้องคืนวันนี้'};
@@ -752,7 +930,7 @@ function loanState(l, now){
 let toastT = null;
 function toast(msg, kind){
   const t = $('#toast'); t.textContent = msg; t.className = 'toast' + (kind ? ' ' + kind : ''); t.hidden = false;
-  clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 3600);
+  clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 3800);
 }
 function vibrate(ms){ try { navigator.vibrate && navigator.vibrate(ms); } catch (e){} }
 function busy(btn, on, label){
@@ -763,19 +941,26 @@ function busy(btn, on, label){
 
 /* ---------- API ---------- */
 class ApiError extends Error { constructor(msg, code){ super(msg); this.code = code || 'ERR'; } }
+/** ลิงก์ที่คัดลอกตอนล็อกอินหลายบัญชีจะมี /u/1/ ซึ่งใช้ไม่ได้ ตัดออกให้อัตโนมัติ */
+function normApi(u){ return String(u || '').trim().replace(/\/macros\/u\/\d+\/s\//, '/macros/s/').replace(/[?#].*$/, ''); }
 function validApi(u){ return /^https:\/\/script\.google(usercontent)?\.com\/.+/.test(u || ''); }
-async function call(body, apiOverride){
+async function call(body, apiOverride, timeoutMs){
   const api = apiOverride || S.api;
   if (!api) throw new ApiError('ยังไม่ได้ใส่ลิงก์เว็บแอป', 'NOAPI');
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 30000);
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs || 40000);
   try {
-    const res = await fetch(api, {method: 'POST', body: JSON.stringify(Object.assign({token: S.token}, body)), headers: {'Content-Type': 'text/plain;charset=utf-8'}, signal: ctrl.signal, redirect: 'follow'});
+    const payload = Object.assign({token: S.token}, body);
+    if (S.token && !('haveThumbs' in payload) && body.action !== 'image') payload.haveThumbs = Object.keys(TH);
+    const res = await fetch(api, {method: 'POST', body: JSON.stringify(payload), headers: {'Content-Type': 'text/plain;charset=utf-8'}, signal: ctrl.signal, redirect: 'follow'});
     const txt = await res.text();
     let j;
     try { j = JSON.parse(txt); }
     catch (e){ throw new ApiError(/<html/i.test(txt) ? 'ลิงก์นี้ไม่ใช่หลังบ้านของสมุดยืม หรือยังไม่ได้ตั้งสิทธิ์เป็น “ทุกคน”' : 'อ่านข้อมูลจากหลังบ้านไม่ได้', 'BADJSON'); }
-    if (!j.ok) throw new ApiError(j.error || 'เกิดข้อผิดพลาด', j.code);
+    if (!j.ok){
+      if (/ไม่รู้จักคำสั่ง/.test(j.error || '')) throw new ApiError('หลังบ้านยังเป็นเวอร์ชันเก่า ผู้ดูแลต้องอัปเดต Code.gs ก่อน (ดูคู่มือหัวข้อ “อัปเดตแอป”)', 'OLDBACKEND');
+      throw new ApiError(j.error || 'เกิดข้อผิดพลาด', j.code);
+    }
     return j;
   } catch (e){
     if (e instanceof ApiError) throw e;
@@ -788,37 +973,189 @@ function handleAuthError(e){
   if (e.code === 'PENDING'){ logout(true); S.pending = true; S.pendingMsg = e.message; render(); return true; }
   return false;
 }
+function saveThumbs(items){
+  let changed = false;
+  const used = new Set();
+  items.forEach(it => {
+    if (it.imageId) used.add(it.imageId);
+    if (it.thumb){ TH[it.imageId] = it.thumb; changed = true; delete it.thumb; }
+  });
+  Object.keys(TH).forEach(k => { if (!used.has(k)){ delete TH[k]; changed = true; } });
+  if (changed && !LS.set('thumbs', TH)) LS.del('thumbs');
+}
 function applyData(j){
   if (j.token){ S.token = j.token; LS.set('token', j.token); }
   if (j.me) S.me = j.me;
-  S.data = {roomName: j.roomName || '', isAdmin: !!j.isAdmin, sheetUrl: j.sheetUrl || '', settings: j.settings || null,
-    cats: j.cats || [], items: j.items || [], loans: j.loans || [], users: j.users || []};
+  const items = j.items || [];
+  saveThumbs(items);
+  const prevTop = S.data && S.data.notifs && S.data.notifs[0] ? S.data.notifs[0].id : S.seenNotif;
+  S.data = {version: j.version || 2, roomName: j.roomName || '', isAdmin: !!j.isAdmin, sheetUrl: j.sheetUrl || '', settings: j.settings || null,
+    cats: j.cats || [], items, loans: j.loans || [], users: j.users || [], notifs: j.notifs || [], unread: j.unread || 0};
   S.lastSync = Date.now(); S.error = '';
   LS.set('cache', {at: S.lastSync, api: S.api, me: S.me, data: S.data});
+  const top = S.data.notifs[0];
+  if (top && !top.read && prevTop && top.id !== prevTop){ toast('🔔 ' + top.title, top.kind === 'bad' ? 'bad' : (top.kind === 'ok' ? 'ok' : '')); vibrate([60, 80, 60]); }
+  if (top){ S.seenNotif = top.id; LS.set('seenNotif', top.id); }
 }
 async function loadInfo(){
   try { S.info = await call({action: 'info'}); LS.set('info', S.info); }
   catch (e){ S.info = S.info || LS.get('info', null); if (!S.info) S.error = e.message; }
 }
 async function refresh(silent){
-  if (!S.api || !S.token || S.loading) return;
+  if (!S.api || !S.token) return;
+  if (S.loading){ if (!silent) S.again = true; return; }
   S.loading = true; if (!silent) renderHeader();
   try { applyData(await call({action: 'all'})); }
   catch (e){ if (!handleAuthError(e)){ S.error = e.message; if (!silent) toast(e.message, 'bad'); } }
-  finally { S.loading = false; render(); }
+  finally {
+    S.loading = false; render();
+    if (S.again){ S.again = false; setTimeout(() => refresh(true), 30); }
+  }
 }
 /** Send a write; on success the server returns fresh data. */
-async function write(body, btn){
-  busy(btn, true);
+async function write(body, btn, label, quiet){
+  busy(btn, true, label);
   try {
-    const j = await call(body);
+    const j = await call(body, null, body.photo || (body.item && body.item.image) ? 90000 : 40000);
     applyData(j); render();
-    if (j.message) toast(j.message, 'ok');
+    if (j.message && !quiet) toast(j.message, 'ok');
     return j;
   } catch (e){
     if (!handleAuthError(e)) toast(e.message, 'bad');
     return null;
   } finally { busy(btn, false); }
+}
+
+/* ---------- full-size images (served privately by the backend) ---------- */
+const imgQueue = []; let imgActive = 0;
+function loadImg(fileId){
+  if (!fileId) return Promise.reject(new Error('no id'));
+  const hit = IMGS.get(fileId);
+  if (hit) return Promise.resolve(hit);
+  return new Promise((resolve, reject) => { imgQueue.push({fileId, resolve, reject}); pumpImgs(); });
+}
+function pumpImgs(){
+  while (imgActive < 2 && imgQueue.length){
+    const job = imgQueue.shift();
+    if (IMGS.has(job.fileId)){ job.resolve(IMGS.get(job.fileId)); continue; }
+    imgActive++;
+    call({action: 'image', fileId: job.fileId}, null, 60000)
+      .then(j => { IMGS.set(job.fileId, j.dataUrl); job.resolve(j.dataUrl); })
+      .catch(job.reject)
+      .finally(() => { imgActive--; pumpImgs(); });
+  }
+}
+/** <img data-file="ID"> → โหลดรูปเต็มมาใส่ */
+function hydrate(root){
+  (root || document).querySelectorAll('img[data-file]').forEach(img => {
+    const id = img.dataset.file; if (!id || img.dataset.loaded) return;
+    img.dataset.loaded = '1';
+    const tag = img.parentElement && img.parentElement.querySelector('.loading-tag');
+    loadImg(id).then(src => { img.src = src; if (tag) tag.remove(); })
+      .catch(e => { if (tag) tag.textContent = 'โหลดรูปไม่สำเร็จ'; delete img.dataset.loaded; });
+  });
+}
+function heroImg(fileId, thumb, caption){
+  if (!fileId) return '';
+  return '<button type="button" class="hero-img" data-photo="' + esc(fileId) + '" data-cap="' + esc(caption || '') + '" aria-label="ดูรูปขนาดใหญ่">' +
+    '<img alt="" ' + (IMGS.has(fileId) ? 'src="' + IMGS.get(fileId) + '"' : (thumb ? 'src="' + thumb + '" ' : '') + 'data-file="' + esc(fileId) + '"') + '>' +
+    (IMGS.has(fileId) ? '' : '<span class="loading-tag">กำลังโหลดรูป…</span>') + '</button>';
+}
+function iconHtml(it, c){
+  const t = thumbOf(it);
+  return t ? '<span class="cat-ic img"><img src="' + t + '" alt=""></span>' : '<span class="cat-ic">' + esc(catIcon(c || catOf(it))) + '</span>';
+}
+function openPhoto(fileId, caption){
+  $('#phCap').textContent = caption || '';
+  const img = $('#phImg'); img.removeAttribute('src');
+  openDlg($('#dlgPhoto'));
+  loadImg(fileId).then(src => { img.src = src; }).catch(() => { $('#phCap').textContent = 'โหลดรูปไม่สำเร็จ'; });
+}
+
+/* ---------- image processing ---------- */
+function drawToJpeg(src, sw, sh, max, q, stamp){
+  const scale = Math.min(1, max / Math.max(sw, sh));
+  const w = Math.round(sw * scale), h = Math.round(sh * scale);
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d');
+  g.drawImage(src, 0, 0, w, h);
+  if (stamp){
+    const fs = Math.max(14, Math.round(Math.min(w, h) * 0.035));
+    const lines = [stamp, new Date().toLocaleString('th-TH', {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}) + ' น.'];
+    const band = fs * 1.35 * lines.length + fs * 0.8;
+    g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(0, h - band, w, band);
+    g.fillStyle = '#fff'; g.font = '600 ' + fs + 'px "IBM Plex Sans Thai", Tahoma, sans-serif'; g.textBaseline = 'top';
+    lines.forEach((t, i) => g.fillText(t, fs * 0.6, h - band + fs * 0.4 + i * fs * 1.35, w - fs * 1.2));
+  }
+  const full = c.toDataURL('image/jpeg', q);
+  const ts = Math.min(1, 240 / Math.max(w, h));
+  const t = document.createElement('canvas'); t.width = Math.round(w * ts); t.height = Math.round(h * ts);
+  t.getContext('2d').drawImage(c, 0, 0, t.width, t.height);
+  return {full, thumb: t.toDataURL('image/jpeg', 0.72)};
+}
+function processFile(file){
+  return new Promise((resolve, reject) => {
+    if (!file || !/^image\//.test(file.type)) return reject(new Error('ไฟล์นี้ไม่ใช่รูปภาพ'));
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { try { resolve(drawToJpeg(img, img.naturalWidth, img.naturalHeight, 1280, 0.85)); } catch (e){ reject(e); } finally { URL.revokeObjectURL(url); } };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('เปิดรูปนี้ไม่ได้ ลองรูปอื่น')); };
+    img.src = url;
+  });
+}
+
+/* ---------- in-app camera (live only — no gallery) ---------- */
+const CAM = {stream: null, facing: 'environment', resolve: null, opts: {}, shot: null};
+function takePhoto(opts){
+  return new Promise(resolve => {
+    CAM.resolve = resolve; CAM.opts = opts || {}; CAM.facing = CAM.opts.facing || 'environment'; CAM.shot = null;
+    $('#camTitle').textContent = CAM.opts.title || 'ถ่ายรูป';
+    $('#camHint').textContent = CAM.opts.hint || '';
+    $('#camGuide').hidden = CAM.opts.guide !== 'face';
+    camLiveMode();
+    openDlg($('#dlgCam'));
+    startCam();
+  });
+}
+function camLiveMode(){
+  $('#camVideo').hidden = false; $('#camShot').hidden = true;
+  $('#camLive').hidden = false; $('#camReview').hidden = true;
+  if (CAM.opts.guide === 'face') $('#camGuide').hidden = false;
+}
+function camErr(msg){ const e = $('#camErr'); e.textContent = msg || ''; e.hidden = !msg; }
+async function startCam(){
+  stopCam(); camErr(''); $('#btnShutter').disabled = true;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    camErr(location.protocol !== 'https:' && location.hostname !== 'localhost' ? 'ต้องเปิดแอปผ่าน https จึงจะใช้กล้องได้' : 'เบราว์เซอร์นี้เปิดกล้องไม่ได้ ลองใช้ Chrome (Android) หรือ Safari (iPhone)');
+    return;
+  }
+  try {
+    const s = await navigator.mediaDevices.getUserMedia({video: {facingMode: {ideal: CAM.facing}, width: {ideal: 1280}, height: {ideal: 960}}, audio: false});
+    if (!$('#dlgCam').open){ s.getTracks().forEach(t => t.stop()); return; }
+    CAM.stream = s;
+    const v = $('#camVideo');
+    v.srcObject = s; v.classList.toggle('mirror', CAM.facing === 'user');
+    try { await v.play(); } catch (e){}
+    $('#btnShutter').disabled = false;
+  } catch (e){ camErr(camErrText(e)); }
+}
+function stopCam(){
+  if (CAM.stream){ CAM.stream.getTracks().forEach(t => t.stop()); CAM.stream = null; }
+  const v = $('#camVideo'); if (v) v.srcObject = null;
+}
+function snap(){
+  const v = $('#camVideo');
+  if (!v.videoWidth){ camErr('กล้องยังไม่พร้อม รอสักครู่แล้วกดอีกครั้ง'); return; }
+  CAM.shot = drawToJpeg(v, v.videoWidth, v.videoHeight, 1280, 0.82, CAM.opts.stamp);
+  const img = $('#camShot'); img.src = CAM.shot.full; img.hidden = false;
+  v.hidden = true; $('#camGuide').hidden = true;
+  $('#camLive').hidden = true; $('#camReview').hidden = false;
+  vibrate(40); stopCam();
+}
+function finishCam(result){
+  stopCam(); if ($('#dlgCam').open) rawClose($('#dlgCam'));
+  const r = CAM.resolve; CAM.resolve = null;
+  if (r) r(result || null);
 }
 
 /* ---------- session ---------- */
@@ -844,6 +1181,7 @@ function currentView(){
   if (!S.token) return 'auth';
   return S.tab;
 }
+const reviewCount = () => isAdmin() ? D().loans.filter(l => l.status === 'review').length : 0;
 function renderHeader(){
   const rl = $('#roomLine'), view = currentView();
   const room = (S.data && S.data.roomName) || (S.info && S.info.roomName) || '';
@@ -857,15 +1195,21 @@ function renderHeader(){
   $('#btnRefresh').classList.toggle('spin', S.loading);
   $('#btnRefresh').hidden = !S.token;
   const av = $('#btnAccount'); av.hidden = !(S.token && S.me); if (S.me) av.textContent = initial(S.me.name);
+  $('#btnBell').hidden = !(S.token && S.me);
+  $('#bellDot').textContent = D().unread ? (D().unread > 9 ? '9+' : D().unread) : '';
   document.body.classList.toggle('no-nav', ['setup','auth','pending'].includes(view));
-  const act = activeLoans(), now = Date.now(), over = act.filter(l => now > l.dueAt).length;
-  const b = $('#badgeLoans'); b.textContent = act.length ? act.length : ''; b.className = 'dot' + (over ? ' bad' : '');
+  const now = Date.now(), mineOpen = isAdmin() ? openLoans() : openLoans().filter(isMine);
+  const over = mineOpen.filter(l => l.status === 'active' && now > l.dueAt).length, rev = reviewCount();
+  const b = $('#badgeLoans');
+  if (rev){ b.textContent = rev; b.className = 'dot bad'; }
+  else { b.textContent = mineOpen.length ? mineOpen.length : ''; b.className = 'dot' + (over ? ' bad' : ''); }
   const pend = isAdmin() ? (D().users || []).filter(u => u.status === 'pending').length : 0;
   $('#badgeManage').textContent = pend ? pend : '';
   $$('.nb[data-tab]').forEach(n => { if (n.dataset.tab === S.tab) n.setAttribute('aria-current', 'page'); else n.removeAttribute('aria-current'); });
   const bn = $('#banner');
   let msg = '', cls = '';
-  if (S.token && S.data && S.error){ msg = 'ซิงก์ข้อมูลไม่ได้: ' + S.error; cls = 'bad'; }
+  if (backendOld()){ msg = isAdmin() ? 'หลังบ้านยังเป็นเวอร์ชันเก่า กรุณาอัปเดต Code.gs และรัน setup ตามคู่มือหัวข้อ “อัปเดตแอป” ก่อนใช้งานฟีเจอร์ใหม่' : 'ระบบกำลังอัปเดต บางเมนูอาจยังใช้ไม่ได้ชั่วคราว'; cls = 'bad'; }
+  else if (S.token && S.data && S.error){ msg = 'ซิงก์ข้อมูลไม่ได้: ' + S.error; cls = 'bad'; }
   else if (S.offline && S.data){ msg = 'ไม่มีอินเทอร์เน็ต กำลังแสดงข้อมูลล่าสุดที่มี (ยืม-คืนไม่ได้จนกว่าจะออนไลน์)'; }
   else if (!S.token && S.api && S.error && !S.info){ msg = S.error; cls = 'bad'; }
   bn.textContent = msg; bn.className = 'banner ' + cls; bn.hidden = !msg;
@@ -886,6 +1230,7 @@ function render(){
   else if (current === 'loans') renderLoans();
   else if (current === 'history') renderHistory();
   else renderManage();
+  if ($('#dlgNotifs').open) renderNotifs();
 }
 const notReady = el => {
   if (S.data) return false;
@@ -940,10 +1285,8 @@ async function renderGoogle(clientId){
 }
 async function onGoogleCredential(resp){
   showErr($('#gErr'), '');
-  try {
-    const j = await call({action: 'googleLogin', credential: resp && resp.credential});
-    afterLogin(j);
-  } catch (e){
+  try { afterLogin(await call({action: 'googleLogin', credential: resp && resp.credential})); }
+  catch (e){
     if (e.code === 'PENDING'){ S.pending = true; S.pendingMsg = e.message; render(); return; }
     showErr($('#gErr'), e.message);
   }
@@ -1000,11 +1343,14 @@ function renderItems(){
   const d = D(), now = Date.now();
   let total = 0, free = 0;
   d.items.forEach(it => { total += it.qty || 1; if (it.status === 'lendable') free += availableOf(it); });
-  const act = activeLoans(), borrowed = act.reduce((s, l) => s + (l.qty || 1), 0), over = act.filter(l => now > l.dueAt).length;
-  const mine = act.filter(isMine).length;
+  const open = openLoans(), borrowed = open.reduce((s, l) => s + (l.qty || 1), 0);
+  const mine = open.filter(isMine), over = (isAdmin() ? open : mine).filter(l => l.status === 'active' && now > l.dueAt).length;
   $('#stats').innerHTML = S.data ? '<span class="stat">ทั้งหมด <b>' + total + '</b> ชิ้น</span><span class="stat">ว่าง <b>' + free + '</b></span><span class="stat">ถูกยืม <b>' + borrowed + '</b></span>' +
-    (mine ? '<button type="button" class="stat" data-goto-mine>ฉันยืมอยู่ <b>' + mine + '</b></button>' : '') +
+    (mine.length ? '<button type="button" class="stat" data-goto-mine>ฉันยืมอยู่ <b>' + mine.length + '</b></button>' : '') +
     (over ? '<button type="button" class="stat is-bad" data-goto-overdue>เกินกำหนด <b>' + over + '</b></button>' : '') : '';
+  const rev = reviewCount(), strip = $('#reviewStrip');
+  strip.hidden = !rev;
+  if (rev) strip.innerHTML = '<span>📷 มี <b>' + rev + ' รายการ</b> รอตรวจสอบการคืน</span><b>ตรวจเลย ›</b>';
   const cats = sortedCats(), counts = {all: d.items.length};
   d.items.forEach(it => { const k = catOf(it) ? it.category : '_none'; counts[k] = (counts[k] || 0) + 1; });
   if (S.cat !== 'all' && S.cat !== '_none' && !catByName(S.cat)) S.cat = 'all';
@@ -1034,22 +1380,26 @@ function renderItems(){
   box.innerHTML = list.map(it => itemCard(it, now)).join('');
 }
 function itemStatus(it){
-  const qty = it.qty || 1, avail = availableOf(it), act = activeFor(it.id).sort((a, b) => a.dueAt - b.dueAt);
+  const qty = it.qty || 1, avail = availableOf(it), open = openFor(it.id).sort((a, b) => a.dueAt - b.dueAt);
   if (it.status === 'locked') return {pill: '<span class="pill off">ห้ามยืมออก · ใช้ในห้องเท่านั้น</span>', ok: false, reason: 'อุปกรณ์นี้ใช้ได้ในห้องเท่านั้น'};
   if (it.status === 'repair') return {pill: '<span class="pill bad">ชำรุด / ส่งซ่อม</span>', ok: false, reason: 'ยืมไม่ได้จนกว่าจะซ่อมเสร็จ'};
   if (avail > 0) return {pill: '<span class="pill ok">ว่าง ' + avail + ' จาก ' + qty + ' ชิ้น</span>', ok: true, reason: ''};
-  return {pill: '<span class="pill warn">ถูกยืมหมดแล้ว</span>', ok: false, reason: act.length ? 'จะว่างเร็วสุด ' + fmtDate(act[0].dueAt) : 'ไม่มีชิ้นที่ว่าง'};
+  return {pill: '<span class="pill warn">ถูกยืมหมดแล้ว</span>', ok: false, reason: open.length ? 'จะว่างเร็วสุด ' + fmtDate(open[0].dueAt) : 'ไม่มีชิ้นที่ว่าง'};
 }
 function whoList(it, now, max){
-  const act = activeFor(it.id).sort((a, b) => a.dueAt - b.dueAt);
-  if (!act.length) return '';
-  return '<ul class="who">' + act.slice(0, max).map(l => '<li><b>' + esc(l.borrower) + '</b>' + (isMine(l) ? '<span class="tag">ฉัน</span>' : '') + ((l.qty || 1) > 1 ? ' ×' + l.qty : '') + ' · ' +
-    (now > l.dueAt ? '<span class="late">เกินกำหนด</span>' : 'คืน ' + esc(fmtDate(l.dueAt))) + '</li>').join('') +
-    (act.length > max ? '<li class="muted">และอีก ' + (act.length - max) + ' คน</li>' : '') + '</ul>';
+  const open = openFor(it.id).sort((a, b) => a.dueAt - b.dueAt);
+  if (!open.length) return '';
+  const shown = open.filter(l => !l.other);
+  const others = open.filter(l => l.other).reduce((s, l) => s + (l.qty || 1), 0);
+  const row = l => '<li><b>' + esc(l.borrower) + '</b>' + (isMine(l) ? '<span class="tag">ฉัน</span>' : '') + ((l.qty || 1) > 1 ? ' ×' + l.qty : '') + ' · ' +
+    (l.status === 'review' ? '<span>รอตรวจคืน</span>' : now > l.dueAt ? '<span class="late">เกินกำหนด</span>' : 'คืน ' + esc(fmtDate(l.dueAt))) + '</li>';
+  return '<ul class="who">' + shown.slice(0, max).map(row).join('') +
+    (shown.length > max ? '<li class="muted">และอีก ' + (shown.length - max) + ' รายการ</li>' : '') +
+    (others ? '<li class="muted">คนอื่นกำลังยืมอยู่ ' + others + ' ชิ้น</li>' : '') + '</ul>';
 }
 function itemCard(it, now){
   const c = catOf(it), st = itemStatus(it), canGo = st.ok && !S.offline;
-  return '<article class="card"><div class="card-head"><span class="cat-ic">' + esc(catIcon(c)) + '</span><div class="txt">' +
+  return '<article class="card"><div class="card-head">' + iconHtml(it, c) + '<div class="txt">' +
     '<button type="button" class="linkish" data-detail="' + esc(it.id) + '"><h3>' + esc(it.name) + '</h3></button>' +
     '<div class="meta">' + (it.code ? '<span class="code">' + esc(it.code) + '</span>' : '') + '<span>' + esc(catLabel(c)) + '</span>' + (it.status === 'lendable' ? '<span>ยืมได้ ' + it.maxDays + ' วัน</span>' : '') + '</div>' +
     st.pill + '</div></div>' + whoList(it, now, 2) +
@@ -1058,62 +1408,87 @@ function itemCard(it, now){
 }
 
 /* ---------- loans ---------- */
+function returnButton(l){
+  const dis = S.offline ? ' disabled' : '';
+  if (isAdmin()){
+    if (l.status === 'review') return '<button type="button" class="btn primary" data-review="' + esc(l.id) + '"' + dis + '>📷 ตรวจสอบการคืน</button>';
+    return '<button type="button" class="btn ok" data-review="' + esc(l.id) + '"' + dis + '>รับคืน</button>';
+  }
+  if (!isMine(l)) return '';
+  if (l.status === 'review') return '<button type="button" class="btn" disabled>อยู่ระหว่างตรวจสอบ</button>';
+  return '<button type="button" class="btn ok" data-return="' + esc(l.id) + '"' + dis + '>📷 แจ้งคืน</button>';
+}
+function adminMsgHtml(l){
+  if (!l.adminNote) return '';
+  const cls = l.status === 'active' ? 'bad' : (l.status === 'problem' ? '' : 'ok');
+  const head = l.status === 'active' ? 'การคืนยังไม่ผ่าน · ข้อความจากผู้ดูแล' : 'ข้อความจากผู้ดูแล';
+  return '<p class="admin-msg ' + cls + '"><b>' + head + ':</b> ' + esc(l.adminNote) + '</p>';
+}
 function renderLoans(){
-  const now = Date.now(), act = activeLoans();
-  const isOver = l => now > l.dueAt, isSoon = l => !isOver(l) && dayDiff(now, l.dueAt) <= 1;
-  const n = {all: act.length, mine: act.filter(isMine).length, overdue: act.filter(isOver).length, soon: act.filter(isSoon).length};
-  $('#loanChips').innerHTML = [['all','ทั้งหมด'],['mine','ของที่ฉันยืม'],['overdue','เกินกำหนด'],['soon','ต้องคืนวันนี้–พรุ่งนี้']].map(([k, t]) =>
+  const now = Date.now(), admin = isAdmin();
+  const act = visibleLoans().filter(isOpen);
+  const isOver = l => l.status === 'active' && now > l.dueAt, isSoon = l => l.status === 'active' && !isOver(l) && dayDiff(now, l.dueAt) <= 1;
+  const n = {all: act.length, review: act.filter(l => l.status === 'review').length, overdue: act.filter(isOver).length, soon: act.filter(isSoon).length};
+  const chips = [['all', admin ? 'ทั้งหมด' : 'ของที่ฉันยืม'], ['review', admin ? 'รอตรวจสอบ' : 'รอตรวจคืน'], ['overdue','เกินกำหนด'], ['soon','ต้องคืนวันนี้–พรุ่งนี้']];
+  if (!['all','review','overdue','soon'].includes(S.loanFilter)) S.loanFilter = 'all';
+  $('#loanChips').innerHTML = chips.map(([k, t]) =>
     '<button type="button" class="chip" data-loanf="' + k + '" aria-pressed="' + (S.loanFilter === k) + '">' + t + ' <span class="n">' + n[k] + '</span></button>').join('');
   const box = $('#loanList');
   if (notReady(box)) return;
-  if (!act.length){ box.innerHTML = '<div class="empty"><h3>ตอนนี้ไม่มีใครยืมของอยู่</h3><p>อุปกรณ์อยู่ครบทุกชิ้น เมื่อมีคนยืม รายการจะขึ้นที่นี่พร้อมวันกำหนดคืน</p></div>'; return; }
+  if (!act.length){
+    box.innerHTML = admin ? '<div class="empty"><h3>ตอนนี้ไม่มีใครยืมของอยู่</h3><p>อุปกรณ์อยู่ครบทุกชิ้น เมื่อมีคนยืม รายการจะขึ้นที่นี่พร้อมวันกำหนดคืน</p></div>'
+      : '<div class="empty"><h3>คุณไม่ได้ยืมอะไรอยู่</h3><p>เมื่อยืมของ รายการของคุณจะขึ้นที่นี่ ตอนคืนให้กด “แจ้งคืน” แล้วถ่ายรูปคู่กับอุปกรณ์</p></div>';
+    return;
+  }
   const q = S.qLoans.trim().toLowerCase();
   const list = act.filter(l => {
-    if (S.loanFilter === 'mine' && !isMine(l)) return false;
+    if (S.loanFilter === 'review' && l.status !== 'review') return false;
     if (S.loanFilter === 'overdue' && !isOver(l)) return false;
     if (S.loanFilter === 'soon' && !isSoon(l)) return false;
     if (q && ![l.borrower, l.group, loanItemName(l), l.code, l.note].join(' ').toLowerCase().includes(q)) return false;
     return true;
-  }).sort((a, b) => a.dueAt - b.dueAt);
-  if (!list.length){
-    box.innerHTML = S.loanFilter === 'mine' ? '<div class="empty"><h3>คุณไม่ได้ยืมอะไรอยู่</h3><p>เมื่อยืมของ รายการของคุณจะขึ้นที่นี่</p></div>' : '<div class="empty"><h3>ไม่พบรายการ</h3><p>ลองเปลี่ยนคำค้นหา หรือกด “ทั้งหมด”</p></div>';
-    return;
-  }
+  }).sort((a, b) => (a.status === 'review' ? 0 : 1) - (b.status === 'review' ? 0 : 1) || a.dueAt - b.dueAt);
+  if (!list.length){ box.innerHTML = '<div class="empty"><h3>ไม่พบรายการ</h3><p>ลองเปลี่ยนคำค้นหา หรือกด “' + (admin ? 'ทั้งหมด' : 'ของที่ฉันยืม') + '”</p></div>'; return; }
   box.innerHTML = list.map(l => {
     const s = loanState(l, now), it = itemById(l.itemId), c = it ? catOf(it) : null;
+    const stampCls = s.k === 'review' ? '' : s.cls;
     return '<article class="slip' + (s.k === 'overdue' ? ' is-bad' : '') + '"><div class="slip-main">' +
-      '<div class="slip-item"><span>' + esc(catIcon(c)) + '</span><span>' + esc(loanItemName(l)) + '</span>' + ((l.qty || 1) > 1 ? '<span class="qty">×' + l.qty + ' ชิ้น</span>' : '') + '</div>' +
+      '<div class="slip-item">' + (thumbOf(it) ? '<span class="cat-ic img" style="width:40px;height:40px"><img src="' + thumbOf(it) + '" alt=""></span>' : '<span>' + esc(catIcon(c)) + '</span>') + '<span>' + esc(loanItemName(l)) + '</span>' + ((l.qty || 1) > 1 ? '<span class="qty">×' + l.qty + ' ชิ้น</span>' : '') + '</div>' +
       '<div class="slip-who"><span class="lbl">คนยืม</span><b>' + esc(l.borrower) + '</b>' + (isMine(l) ? '<span class="tag">ฉัน</span>' : '') + (l.group ? ' <span class="muted">· ' + esc(l.group) + '</span>' : '') + '</div>' +
-      '<dl class="kv"><div><dt>ยืมเมื่อ</dt><dd>' + esc(fmtDate(l.borrowedAt)) + ' · ' + esc(fmtTime(l.borrowedAt)) + ' น.</dd></div><div><dt>จำนวนวันที่ยืม</dt><dd>' + l.days + ' วัน</dd></div></dl>' +
-      (l.note ? '<p class="note">หมายเหตุ: ' + esc(l.note) + '</p>' : '') + '</div>' +
-      '<div class="slip-side"><div class="stamp ' + s.cls + '"><span class="stamp-k">กำหนดคืน</span><span class="stamp-d">' + esc(fmtDate(l.dueAt)) + '</span></div>' +
-      '<p class="state ' + s.cls + '">' + s.text + '</p>' +
-      '<button type="button" class="btn ok" data-return="' + esc(l.id) + '"' + (S.offline ? ' disabled' : '') + '>รับคืน</button></div></article>';
+      '<dl class="kv"><div><dt>ยืมเมื่อ</dt><dd>' + esc(fmtDate(l.borrowedAt)) + ' · ' + esc(fmtTime(l.borrowedAt)) + ' น.</dd></div><div><dt>จำนวนวันที่ยืม</dt><dd>' + l.days + ' วัน</dd></div>' +
+      (l.status === 'review' && l.returnReqAt ? '<div><dt>ส่งหลักฐานคืนเมื่อ</dt><dd>' + esc(fmtWhen(l.returnReqAt)) + '</dd></div>' : '') + '</dl>' +
+      (l.note ? '<p class="note">หมายเหตุ: ' + esc(l.note) + '</p>' : '') +
+      (l.status === 'active' ? adminMsgHtml(l) : '') + '</div>' +
+      '<div class="slip-side"><div class="stamp ' + stampCls + '"><span class="stamp-k">กำหนดคืน</span><span class="stamp-d">' + esc(fmtDate(l.dueAt)) + '</span></div>' +
+      '<p class="state ' + (s.cls === 'info' ? '' : s.cls) + '">' + s.text + '</p>' + returnButton(l) + '</div></article>';
   }).join('');
 }
 
 /* ---------- history ---------- */
 function renderHistory(){
-  const box = $('#histList');
+  const box = $('#histList'), admin = isAdmin();
+  $('#histNote').textContent = admin ? 'ผู้ดูแลเห็นประวัติของทุกคน' : 'แสดงเฉพาะประวัติการยืมของคุณ';
   if (notReady(box)) return;
-  const now = Date.now(), q = S.qHist.trim().toLowerCase(), admin = isAdmin();
-  const all = D().loans.slice().sort((a, b) => b.borrowedAt - a.borrowedAt);
-  if (!all.length){ box.innerHTML = '<div class="empty"><h3>ยังไม่มีประวัติการยืม</h3><p>ทุกครั้งที่ยืมและคืน จะบันทึกลง Google Sheets และแสดงที่นี่</p></div>'; return; }
-  const list = all.filter(l => !q || [l.borrower, l.group, loanItemName(l), l.code, l.note, l.returnNote].join(' ').toLowerCase().includes(q));
+  const now = Date.now(), q = S.qHist.trim().toLowerCase();
+  const all = visibleLoans().slice().sort((a, b) => b.borrowedAt - a.borrowedAt);
+  if (!all.length){ box.innerHTML = '<div class="empty"><h3>ยังไม่มีประวัติการยืม</h3><p>' + (admin ? 'ทุกครั้งที่ยืมและคืน จะบันทึกลง Google Sheets และแสดงที่นี่' : 'เมื่อคุณยืมและคืนของ ประวัติจะแสดงที่นี่') + '</p></div>'; return; }
+  const list = all.filter(l => !q || [l.borrower, l.group, loanItemName(l), l.code, l.note, l.returnNote, l.adminNote].join(' ').toLowerCase().includes(q));
   if (!list.length){ box.innerHTML = '<div class="empty"><h3>ไม่พบรายการ</h3><p>ลองใช้คำค้นหาอื่น</p></div>'; return; }
   box.innerHTML = list.slice(0, 300).map(l => {
     const s0 = loanState(l, now);
-    const s = l.returnedAt ? s0 : {cls: s0.k === 'overdue' ? 'bad' : 'off', text: s0.k === 'overdue' ? 'ยังไม่คืน · ' + s0.text : 'ยังไม่คืน'};
+    const s = isOpen(l) && s0.k !== 'review' ? {cls: s0.k === 'overdue' ? 'bad' : 'off', text: s0.k === 'overdue' ? 'ยังไม่คืน · ' + s0.text : 'ยังไม่คืน'} : s0;
     const key = 'loan:' + l.id;
     const del = !admin || S.offline ? '' : (S.confirm === key
       ? '<div class="row"><span class="err grow">ลบรายการนี้ใช่ไหม?</span><button type="button" class="btn small danger solid" data-do-del="' + esc(key) + '">ลบเลย</button><button type="button" class="btn small" data-cancel-del>ไม่ลบ</button></div>'
       : '<div class="row"><button type="button" class="btn small" data-ask-del="' + esc(key) + '">ลบ (บันทึกผิด)</button></div>');
-    return '<div class="hrow"><div class="hrow-top"><div><b>' + esc(loanItemName(l)) + ((l.qty || 1) > 1 ? ' ×' + l.qty : '') + '</b><div class="muted">' + esc(l.borrower) + (isMine(l) ? '<span class="tag">ฉัน</span>' : '') + (l.group ? ' · ' + esc(l.group) : '') + '</div></div>' +
+    return '<div class="hrow"><div class="hrow-top"><div><b>' + esc(loanItemName(l)) + ((l.qty || 1) > 1 ? ' ×' + l.qty : '') + '</b><div class="muted">' + esc(l.borrower) + (isMine(l) && admin ? '<span class="tag">ฉัน</span>' : '') + (l.group ? ' · ' + esc(l.group) : '') + '</div></div>' +
       '<span class="pill ' + s.cls + '">' + esc(s.text) + '</span></div>' +
       '<div class="dates">ยืม ' + esc(fmtDate(l.borrowedAt)) + ' ' + esc(fmtTime(l.borrowedAt)) + ' น. · ' + l.days + ' วัน · กำหนดคืน ' + esc(fmtDate(l.dueAt)) +
       (l.returnedAt ? ' · คืน ' + esc(fmtDate(l.returnedAt)) + ' ' + esc(fmtTime(l.returnedAt)) + ' น.' : '') + '</div>' +
-      (l.returnNote ? '<p class="note">สภาพตอนคืน: ' + esc(l.returnNote) + '</p>' : '') + del + '</div>';
-  }).join('') + '<p class="help">แสดงล่าสุด ' + Math.min(list.length, 300) + ' รายการ · ประวัติทั้งหมดอยู่ในชีต “การยืม”</p>';
+      (l.returnNote ? '<p class="note">ผู้ยืมแจ้งสภาพ: ' + esc(l.returnNote) + '</p>' : '') +
+      (l.adminNote ? adminMsgHtml(l) : '') +
+      (l.photoId ? '<button type="button" class="ph-btn" data-photo="' + esc(l.photoId) + '" data-cap="รูปตอนคืน · ' + esc(loanItemName(l) + ' · ' + l.borrower) + '">📷 ดูรูปตอนคืน</button>' : '') + del + '</div>';
+  }).join('') + '<p class="help">แสดงล่าสุด ' + Math.min(list.length, 300) + ' รายการ' + (admin ? ' · ประวัติทั้งหมดอยู่ในชีต “การยืม”' : '') + '</p>';
 }
 
 /* ---------- manage ---------- */
@@ -1135,15 +1510,16 @@ function renderManage(){
   const confirmRow = (key, text) => '<div class="mrow confirm"><span class="ask">' + text + '</span><div class="mrow-act"><button type="button" class="btn small danger solid" data-do-del="' + esc(key) + '">ลบเลย</button><button type="button" class="btn small" data-cancel-del>ไม่ลบ</button></div></div>';
   $('#manageItems').innerHTML = !items.length ? '<div class="mrow"><div class="mrow-main"><b>ยังไม่มีอุปกรณ์</b><span>กด “+ เพิ่มอุปกรณ์” เพื่อเริ่ม</span></div></div>' : items.map(it => {
     const key = 'item:' + it.id, out = borrowedOf(it);
-    if (S.confirm === key) return confirmRow(key, 'ลบ “' + esc(it.name) + '” ใช่ไหม?');
+    if (S.confirm === key) return confirmRow(key, 'ลบ “' + esc(it.name) + '” ใช่ไหม? (รูปของอุปกรณ์จะถูกย้ายไปถังขยะใน Drive)');
     const pill = it.status === 'locked' ? '<span class="pill off">ห้ามยืมออก</span>' : it.status === 'repair' ? '<span class="pill bad">ส่งซ่อม</span>' : '<span class="pill ok">ให้ยืมได้</span>';
-    return '<div class="mrow"><span class="cat-ic">' + esc(catIcon(catOf(it))) + '</span><div class="mrow-main"><b>' + esc(it.name) + '</b><span>' + esc(it.code) + ' · ' + esc(catLabel(catOf(it))) + ' · มี ' + it.qty + ' ชิ้น' + (out ? ' (ถูกยืม ' + out + ')' : '') + ' · ยืมได้ ' + it.maxDays + ' วัน</span></div>' + pill +
+    return '<div class="mrow">' + iconHtml(it) + '<div class="mrow-main"><b>' + esc(it.name) + '</b><span>' + esc(it.code) + ' · ' + esc(catLabel(catOf(it))) + ' · มี ' + it.qty + ' ชิ้น' + (out ? ' (ถูกยืม ' + out + ')' : '') + ' · ยืมได้ ' + it.maxDays + ' วัน</span></div>' + pill +
       '<div class="mrow-act"><button type="button" class="btn small" data-edit-item="' + esc(it.id) + '"' + dis + '>แก้ไข</button><button type="button" class="btn small danger" data-ask-del="' + esc(key) + '"' + dis + '>ลบ</button></div></div>';
   }).join('');
+  const defPrefix = (S.data.settings && S.data.settings.codePrefix) || 'EQ';
   $('#manageCats').innerHTML = !cats.length ? '<div class="mrow"><div class="mrow-main"><b>ยังไม่มีหมวดหมู่</b></div></div>' : cats.map(c => {
     const key = 'cat:' + c.id, n = D().items.filter(i => i.category === c.name).length;
     if (S.confirm === key) return confirmRow(key, 'ลบหมวด “' + esc(c.name) + '” ใช่ไหม?');
-    return '<div class="mrow"><span class="cat-ic">' + esc(catIcon(c)) + '</span><div class="mrow-main"><b>' + esc(c.name) + '</b><span>' + n + ' รายการ</span></div>' +
+    return '<div class="mrow"><span class="cat-ic">' + esc(catIcon(c)) + '</span><div class="mrow-main"><b>' + esc(c.name) + '</b><span>' + n + ' รายการ · รหัสขึ้นต้น <span class="code">' + esc((c.prefix || defPrefix) + '-') + '</span></span></div>' +
       '<div class="mrow-act"><button type="button" class="btn small" data-edit-cat="' + esc(c.id) + '"' + dis + '>แก้ไข</button><button type="button" class="btn small danger" data-ask-del="' + esc(key) + '"' + dis + '>ลบ</button></div></div>';
   }).join('');
   renderUsers(dis);
@@ -1173,9 +1549,24 @@ function renderUsers(dis){
   }).join('');
 }
 
+/* ---------- notifications ---------- */
+function renderNotifs(){
+  const list = D().notifs || [];
+  const icon = k => k === 'ok' ? '✅' : k === 'bad' ? '↩️' : k === 'warn' ? '⚠️' : '🔔';
+  $('#nList').innerHTML = !list.length ? '<div class="empty"><h3>ยังไม่มีการแจ้งเตือน</h3><p>เมื่อผู้ดูแลตรวจการคืนของคุณ ผลจะแจ้งที่นี่และทางอีเมล</p></div>'
+    : list.map(n => '<div class="nitem' + (n.read ? '' : ' unread') + '"><span class="ic">' + icon(n.kind) + '</span><div><b>' + esc(n.title) + '</b><p>' + esc(n.msg) + '</p><time>' + (n.time ? esc(fmtWhen(n.time)) : '') + '</time></div></div>').join('');
+}
+async function openNotifs(){
+  renderNotifs(); openDlg($('#dlgNotifs'));
+  if (D().unread && !S.offline){
+    try { applyData(await call({action: 'readNotifs'})); renderHeader(); } catch (e){ handleAuthError(e); }
+  }
+}
+
 /* ---------- dialogs ---------- */
 function openDlg(d){ if (d.open) return; try { d.showModal(); } catch (e){ d.setAttribute('open', ''); } }
-function closeDlg(d){ if (!d) return; try { d.close(); } catch (e){ d.removeAttribute('open'); } }
+function rawClose(d){ try { d.close(); } catch (e){ d.removeAttribute('open'); } }
+function closeDlg(d){ if (!d) return; if (d.id === 'dlgCam'){ finishCam(null); return; } rawClose(d); }
 function closeAll(){ $$('dialog[open]').forEach(d => { if (d.id === 'dlgScan') closeScanner(); else closeDlg(d); }); }
 function showErr(el, msg){ el.textContent = msg || ''; el.hidden = !msg; }
 
@@ -1187,16 +1578,21 @@ function openDetail(id){
 }
 function fillDetail(){
   const it = itemById(DET); if (!it){ closeDlg($('#dlgDetail')); return; }
-  const c = catOf(it), st = itemStatus(it), now = Date.now(), act = activeFor(it.id).sort((a, b) => a.dueAt - b.dueAt);
-  $('#dBody').innerHTML = '<div class="detail-head"><span class="cat-ic">' + esc(catIcon(c)) + '</span><div><h3>' + esc(it.name) + '</h3><div class="muted">' +
+  const c = catOf(it), st = itemStatus(it), now = Date.now();
+  const open = openFor(it.id).sort((a, b) => a.dueAt - b.dueAt);
+  const shown = open.filter(l => !l.other), others = open.filter(l => l.other);
+  $('#dBody').innerHTML = heroImg(it.imageId, thumbOf(it), it.name + (it.code ? ' · ' + it.code : '')) +
+    '<div class="detail-head">' + (it.imageId ? '' : '<span class="cat-ic">' + esc(catIcon(c)) + '</span>') + '<div><h3>' + esc(it.name) + '</h3><div class="muted">' +
       (it.code ? '<span class="code">' + esc(it.code) + '</span> ' : '') + esc(catLabel(c)) + '</div></div></div>' + st.pill +
     (it.status === 'lendable' ? '<p class="muted">ยืมได้นานสุด ' + it.maxDays + ' วัน · มีทั้งหมด ' + it.qty + ' ชิ้น</p>' : '') +
     (it.note ? '<p class="note">' + esc(it.note) + '</p>' : '') +
-    (act.length ? '<div class="field"><span class="lbl">กำลังถูกยืม</span>' + act.map(l => {
+    (shown.length ? '<div class="field"><span class="lbl">' + (isAdmin() ? 'กำลังถูกยืม' : 'ที่คุณยืมอยู่') + '</span>' + shown.map(l => {
       const s = loanState(l, now);
-      return '<div class="loanrow"><div class="t"><b>' + esc(l.borrower) + (isMine(l) ? '<span class="tag">ฉัน</span>' : '') + ((l.qty || 1) > 1 ? ' ×' + l.qty : '') + '</b><span class="' + (s.k === 'overdue' ? 'late' : '') + '">คืน ' + esc(fmtDate(l.dueAt)) + ' · ' + esc(s.text) + '</span></div>' +
-        '<button type="button" class="btn ok small" data-return="' + esc(l.id) + '"' + (S.offline ? ' disabled' : '') + '>รับคืน</button></div>';
-    }).join('') + '</div>' : '');
+      return '<div class="loanrow"><div class="t"><b>' + esc(l.borrower) + (isMine(l) && isAdmin() ? '<span class="tag">ฉัน</span>' : '') + ((l.qty || 1) > 1 ? ' ×' + l.qty : '') + '</b><span class="' + (s.k === 'overdue' ? 'late' : '') + '">คืน ' + esc(fmtDate(l.dueAt)) + ' · ' + esc(s.text) + '</span></div>' +
+        returnButton(l).replace('class="btn ', 'class="btn small ') + '</div>';
+    }).join('') + '</div>' : '') +
+    (others.length ? '<p class="muted">คนอื่นกำลังยืมอยู่ ' + others.reduce((s, l) => s + (l.qty || 1), 0) + ' ชิ้น</p>' : '');
+  hydrate($('#dBody'));
   const canGo = st.ok && !S.offline;
   $('#dFoot').innerHTML = (isAdmin() ? '<button type="button" class="btn" data-edit-item="' + esc(it.id) + '"' + (S.offline ? ' disabled' : '') + '>แก้ไข</button>' : '') +
     '<button type="button" class="btn primary" data-borrow="' + esc(it.id) + '"' + (canGo ? '' : ' disabled') + '>' + (st.ok ? 'ยืมชิ้นนี้' : esc(st.reason || 'ยืมไม่ได้')) + '</button>';
@@ -1209,7 +1605,12 @@ function openBorrow(id){
   const avail = availableOf(it), max = it.maxDays || 7;
   if (it.status !== 'lendable' || avail < 1) return toast('ตอนนี้ยืมชิ้นนี้ไม่ได้', 'bad');
   B = {id};
-  $('#bIcon').textContent = catIcon(catOf(it));
+  const ic = $('#bIcon');
+  const t = thumbOf(it);
+  ic.className = 'cat-ic' + (t ? ' img' : '');
+  ic.innerHTML = t ? '<img src="' + t + '" alt="">' : esc(catIcon(catOf(it)));
+  ic.style.cursor = it.imageId ? 'zoom-in' : '';
+  ic.dataset.photo = it.imageId || ''; ic.dataset.cap = it.name;
   $('#bItem').textContent = it.name;
   $('#bAvail').textContent = (it.code ? it.code + ' · ' : '') + 'ว่าง ' + avail + ' จาก ' + it.qty + ' ชิ้น';
   $('#bQtyField').hidden = avail <= 1;
@@ -1236,8 +1637,9 @@ function updateBorrowPreview(anim){
   if (anim){ const s = $('#bStampBox'); s.classList.remove('thunk'); void s.offsetWidth; s.classList.add('thunk'); }
 }
 function fillDatalists(){
-  const names = [...new Set(D().loans.map(l => (l.borrower || '').trim()).filter(Boolean))].slice(0, 200);
-  const groups = [...new Set(D().loans.map(l => (l.group || '').trim()).filter(Boolean))].slice(0, 100);
+  const ls = visibleLoans();
+  const names = [...new Set(ls.map(l => (l.borrower || '').trim()).filter(Boolean))].slice(0, 200);
+  const groups = [...new Set(ls.map(l => (l.group || '').trim()).filter(Boolean))].slice(0, 100);
   $('#nameList').innerHTML = names.map(n => '<option value="' + esc(n) + '"></option>').join('');
   $('#groupList').innerHTML = groups.map(n => '<option value="' + esc(n) + '"></option>').join('');
 }
@@ -1254,38 +1656,143 @@ async function submitBorrow(e){
   if (j){ closeDlg($('#dlgBorrow')); vibrate([40, 60, 40]); }
 }
 
-/* return */
+/* return (member): live photo with face + item */
 let R = null;
-function openReturn(id){
-  const l = loanById(id); if (!l) return;
-  R = id; const now = Date.now(), s = loanState(l, now);
-  const rows = [
-    ['อุปกรณ์', loanItemName(l) + ((l.qty || 1) > 1 ? ' ×' + l.qty : '')],
+function sumRows(l, extra){
+  return [
+    ['อุปกรณ์', loanItemName(l) + ((l.qty || 1) > 1 ? ' ×' + l.qty : '') + (l.code ? ' (' + l.code + ')' : '')],
     ['คนยืม', l.borrower + (l.group ? ' (' + l.group + ')' : '')],
     ['ยืมเมื่อ', fmtDate(l.borrowedAt) + ' · ' + fmtTime(l.borrowedAt) + ' น.'],
     ['จำนวนวันที่ยืม', l.days + ' วัน'],
-    ['กำหนดคืน', fmtDate(l.dueAt)],
-    ['คืนวันนี้', fmtDate(now) + ' · ' + fmtTime(now) + ' น.']
-  ];
-  $('#rSum').innerHTML = rows.map(([k, v]) => '<div><dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd></div>').join('');
+    ['กำหนดคืน', fmtDate(l.dueAt)]
+  ].concat(extra || []).map(([k, v]) => '<div><dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd></div>').join('');
+}
+function openReturn(id){
+  const l = loanById(id); if (!l) return;
+  if (isAdmin()) return openReview(id);
+  R = {id, shot: null};
+  const now = Date.now(), s = loanState(l, now);
+  $('#rSum').innerHTML = sumRows(l, [['คืนวันนี้', fmtDate(now) + ' · ' + fmtTime(now) + ' น.']]);
   const st = $('#rState');
   st.textContent = s.k === 'overdue' ? 'คืนช้ากว่ากำหนด ' + s.days + ' วัน' : 'คืนตรงเวลา 👍';
   st.className = 'state ' + (s.k === 'overdue' ? 'bad' : 'ok');
+  const an = $('#rAdminNote');
+  an.innerHTML = l.adminNote ? '<b>ครั้งก่อนยังไม่ผ่าน · ข้อความจากผู้ดูแล:</b> ' + esc(l.adminNote) : '';
+  an.hidden = !l.adminNote;
   $('#rNote').value = ''; showErr($('#rErr'), '');
+  renderReturnPhoto();
   closeDlg($('#dlgDetail'));
   openDlg($('#dlgReturn'));
 }
+function renderReturnPhoto(){
+  const box = $('#rPhotoBox');
+  box.innerHTML = R && R.shot
+    ? '<img src="' + R.shot.full + '" alt="รูปหลักฐานการคืน"><button type="button" class="btn" id="btnRPhoto">📷 ถ่ายใหม่</button>'
+    : '<button type="button" class="btn primary big" id="btnRPhoto">📷 เปิดกล้องถ่ายรูป</button>';
+  $('#rSubmit').disabled = !(R && R.shot);
+}
+async function shootReturn(){
+  const l = R && loanById(R.id); if (!l) return;
+  const shot = await takePhoto({
+    title: 'ถ่ายรูปคืนอุปกรณ์', facing: 'user', guide: 'face',
+    hint: 'ถือ “' + loanItemName(l) + '” ไว้ข้างหน้า ให้เห็นหน้าคุณและอุปกรณ์ชัดเจน',
+    stamp: 'คืน ' + (l.code || loanItemName(l)) + ' · ' + l.borrower
+  });
+  if (shot && R){ R.shot = shot; showErr($('#rErr'), ''); }
+  renderReturnPhoto();
+}
 async function submitReturn(e){
   e.preventDefault();
-  const l = R && loanById(R); if (!l) return;
-  const j = await write({action: 'return', loanId: l.id, returnNote: $('#rNote').value.trim()}, $('#rSubmit'));
-  if (j){ closeDlg($('#dlgReturn')); vibrate([40, 60, 40]); }
+  const l = R && loanById(R.id); if (!l) return;
+  if (!R.shot){ showErr($('#rErr'), 'กรุณาถ่ายรูปตัวคุณคู่กับอุปกรณ์ก่อนส่ง'); return; }
+  const j = await write({action: 'requestReturn', loanId: l.id, photo: R.shot.full, returnNote: $('#rNote').value.trim()}, $('#rSubmit'), 'กำลังส่งรูป…');
+  if (j){ IMGS.clear(); closeDlg($('#dlgReturn')); vibrate([40, 60, 40]); }
+  else $('#rSubmit').disabled = !(R && R.shot);
+}
+
+/* review (admin) */
+let V = null;
+function openReview(id){
+  const l = loanById(id); if (!l) return;
+  const mode = l.status === 'review' ? 'review' : 'direct';
+  V = {id, mode};
+  $('#vTitle').textContent = mode === 'review' ? 'ตรวจสอบการคืน' : 'รับคืนอุปกรณ์ (ต่อหน้า)';
+  $('#vPhoto').innerHTML = mode === 'review'
+    ? (l.photoId ? heroImg(l.photoId, '', 'รูปตอนคืน · ' + loanItemName(l) + ' · ' + l.borrower) + '<p class="help">ตรวจว่าเห็นหน้าผู้ยืมและอุปกรณ์ชัดเจน แตะรูปเพื่อดูขนาดใหญ่</p>' : '<p class="note-box">ไม่มีรูปแนบ</p>')
+    : '<p class="note-box">ผู้ดูแลรับของคืนด้วยตัวเอง ไม่ต้องถ่ายรูป</p>';
+  const now = Date.now(), s = loanState(l, now);
+  const extra = [];
+  if (mode === 'review' && l.returnReqAt) extra.push(['ส่งหลักฐานเมื่อ', fmtWhen(l.returnReqAt)]);
+  const lateAt = mode === 'review' && l.returnReqAt ? l.returnReqAt : now;
+  const late = dayDiff(l.dueAt, lateAt);
+  extra.push(['สถานะเวลา', late > 0 ? 'คืนช้ากว่ากำหนด ' + late + ' วัน' : 'คืนตรงเวลา']);
+  if (l.returnNote) extra.push(['ผู้ยืมแจ้งสภาพ', l.returnNote]);
+  $('#vSum').innerHTML = sumRows(l, extra);
+  $('#vRedoWrap').hidden = mode !== 'review';
+  $$('input[name=vResult]').forEach(r => { r.checked = mode === 'direct' && r.value === 'ok'; });
+  $('#vRepair').checked = false; $('#vNote').value = ''; showErr($('#vErr'), '');
+  const users = D().users || [];
+  const hasAcct = !!l.userId || (!!l.recordedBy && users.some(u => u.email === l.recordedBy));
+  const mailOn = !!(S.data.settings && S.data.settings.mailOn);
+  $('#vMailWrap').hidden = !(hasAcct && mailOn); $('#vMail').checked = true;
+  $('#vNoAcct').hidden = hasAcct;
+  $('#vSubmit').textContent = hasAcct ? 'บันทึกและแจ้งผู้ยืม' : 'บันทึกผล';
+  $('#vSubmit').dataset.label = '';
+  updateReviewForm();
+  closeDlg($('#dlgDetail'));
+  openDlg($('#dlgReview'));
+  hydrate($('#vPhoto'));
+}
+function updateReviewForm(){
+  const r = (document.querySelector('input[name=vResult]:checked') || {}).value;
+  $('#vRepairWrap').hidden = r !== 'problem';
+  const lbl = $('#vNoteLbl'), ta = $('#vNote');
+  if (r === 'problem'){ lbl.textContent = 'พบปัญหาอะไร (จำเป็น · ผู้ยืมจะเห็นข้อความนี้)'; ta.placeholder = 'เช่น สาย HDMI หายไป 1 เส้น / เลนส์มีรอยขีดข่วน'; }
+  else if (r === 'redo'){ lbl.textContent = 'เหตุผลที่ยังไม่ผ่าน (จำเป็น · ผู้ยืมจะเห็นข้อความนี้)'; ta.placeholder = 'เช่น รูปไม่เห็นหน้า กรุณาถ่ายใหม่ให้เห็นหน้าและอุปกรณ์'; }
+  else { lbl.textContent = 'ข้อความถึงผู้ยืม (ไม่ใส่ก็ได้)'; ta.placeholder = 'เช่น ขอบคุณที่คืนตรงเวลา'; }
+}
+async function submitReview(e){
+  e.preventDefault();
+  const l = V && loanById(V.id); if (!l) return;
+  const result = (document.querySelector('input[name=vResult]:checked') || {}).value;
+  if (!result){ showErr($('#vErr'), 'กรุณาเลือกผลการตรวจสอบ'); return; }
+  const note = $('#vNote').value.trim();
+  if ((result === 'problem' || result === 'redo') && !note){ showErr($('#vErr'), result === 'problem' ? 'กรุณาเขียนว่าพบปัญหาอะไร' : 'กรุณาเขียนเหตุผล เพื่อให้ผู้ยืมส่งใหม่ได้ถูกต้อง'); $('#vNote').focus(); return; }
+  showErr($('#vErr'), '');
+  const j = await write({action: 'reviewReturn', loanId: l.id, result, note, markRepair: result === 'problem' && $('#vRepair').checked, sendEmail: !$('#vMailWrap').hidden && $('#vMail').checked}, $('#vSubmit'));
+  if (j){ closeDlg($('#dlgReview')); vibrate(40); }
 }
 
 /* item form */
 let I = null;
+const cleanPrefix = p => String(p || '').toUpperCase().replace(/[^A-Z0-9ก-๙]/g, '').slice(0, 10);
+function nextCode(prefix){
+  const digits = (S.data.settings && S.data.settings.codeDigits) || 4;
+  const re = new RegExp('^' + prefix + '-(\\d+)$', 'i');
+  let max = 0;
+  D().items.forEach(it => { const m = re.exec(it.code || ''); if (m) max = Math.max(max, parseInt(m[1], 10)); });
+  return prefix + '-' + String(max + 1).padStart(digits, '0');
+}
+function catPrefix(name){ const c = catByName(name); return (c && c.prefix) || (S.data.settings && S.data.settings.codePrefix) || 'EQ'; }
+function updateCodePreview(){
+  if (!I || I.id) return;
+  const typed = $('#iCode').value.trim();
+  const p = cleanPrefix($('#iPrefix').value) || catPrefix($('#iCat').value);
+  $('#iCodePrev').textContent = nextCode(p);
+  $('#iCodePrevBox').classList.toggle('off', !!typed);
+  $('#iCodeHelp').textContent = typed ? 'จะใช้รหัสที่พิมพ์ไว้: ' + typed : 'เว้นช่องรหัสว่างไว้ ระบบจะรันเลขต่อจากตัวอักษรนำหน้าให้เอง';
+}
+function renderItemImage(){
+  const prev = $('#iImgPrev');
+  let src = '';
+  if (I.img === 'new') src = I.thumb;
+  else if (I.img === 'keep' && I.imageId) src = TH[I.imageId] || '';
+  prev.innerHTML = src ? '<img src="' + src + '" alt="รูปอุปกรณ์">' : '<span>' + (I.img === 'remove' ? 'จะลบรูปเมื่อกดบันทึก' : (I.img === 'keep' && I.imageId ? 'มีรูปอยู่แล้ว' : 'ยังไม่มีรูป')) + '</span>';
+  $('#btnIRemove').hidden = !(I.img === 'new' || (I.img === 'keep' && I.imageId));
+}
 function openItem(id, preset){
-  const it = id ? itemById(id) : null; I = it ? it.id : null;
+  const it = id ? itemById(id) : null;
+  I = {id: it ? it.id : null, img: 'keep', imageId: it ? it.imageId : '', full: '', thumb: '', prefixTouched: false};
   $('#iTitle').textContent = it ? 'แก้ไขอุปกรณ์' : 'เพิ่มอุปกรณ์';
   const cats = sortedCats();
   $('#iCat').innerHTML = cats.map(c => '<option value="' + esc(c.name) + '">' + esc(catIcon(c) + ' ' + c.name) + '</option>').join('') + '<option value="">ไม่มีหมวด</option>';
@@ -1293,25 +1800,33 @@ function openItem(id, preset){
   $('#iCat').value = catByName(cur) ? cur : '';
   $('#iName').value = it ? it.name : '';
   $('#iCode').value = it ? it.code : ((preset && preset.code) || '');
+  $('#iAuto').hidden = !!it;
+  $('#iPrefix').value = it ? '' : catPrefix($('#iCat').value);
+  if (it) $('#iCodeHelp').textContent = 'แก้รหัสได้ ถ้าแก้แล้วต้องพิมพ์ป้าย QR ใหม่';
   $('#iQty').value = it ? it.qty : 1;
   $('#iMax').value = it ? it.maxDays : 7;
   const st = it ? it.status : 'lendable';
   $$('input[name=iStatus]').forEach(r => { r.checked = r.value === st; });
   $('#iNote').value = it ? it.note : '';
+  $('#iFile').value = '';
   showErr($('#iErr'), '');
+  renderItemImage(); updateCodePreview();
   closeDlg($('#dlgDetail'));
   openDlg($('#dlgItem'));
 }
+function setItemShot(shot){ if (!shot || !I) return; I.img = 'new'; I.full = shot.full; I.thumb = shot.thumb; renderItemImage(); }
 async function submitItem(e){
   e.preventDefault();
   const name = $('#iName').value.trim();
   if (!name){ showErr($('#iErr'), 'กรุณาใส่ชื่ออุปกรณ์'); $('#iName').focus(); return; }
   const item = {
-    id: I || '', name, category: $('#iCat').value, code: $('#iCode').value.trim(),
+    id: I.id || '', name, category: $('#iCat').value, code: $('#iCode').value.trim(), prefix: I.id ? '' : cleanPrefix($('#iPrefix').value),
     qty: clamp(parseInt($('#iQty').value, 10) || 1, 1, 999), maxDays: clamp(parseInt($('#iMax').value, 10) || 7, 1, 365),
     status: (document.querySelector('input[name=iStatus]:checked') || {}).value || 'lendable', note: $('#iNote').value.trim()
   };
-  if (await write({action: 'saveItem', item}, $('#iSubmit'))) closeDlg($('#dlgItem'));
+  if (I.img === 'new'){ item.image = I.full; item.thumb = I.thumb; }
+  if (I.img === 'remove') item.removeImage = true;
+  if (await write({action: 'saveItem', item}, $('#iSubmit'), I.img === 'new' ? 'กำลังอัปโหลดรูป…' : '')) closeDlg($('#dlgItem'));
 }
 
 /* category form */
@@ -1320,6 +1835,8 @@ function openCat(id){
   const c = id ? D().cats.find(x => x.id === id) : null; C = c ? c.id : null;
   $('#cTitle').textContent = c ? 'แก้ไขหมวดหมู่' : 'เพิ่มหมวดหมู่';
   $('#cName').value = c ? c.name : '';
+  $('#cPrefix').value = c ? (c.prefix || '') : '';
+  $('#cPrefixHelp').textContent = 'เว้นว่าง = ใช้ค่าเริ่มต้น ' + ((S.data.settings && S.data.settings.codePrefix) || 'EQ') + ' (แก้ค่าเริ่มต้นได้ในชีต “ตั้งค่า”) · รหัสของอุปกรณ์เดิมจะไม่เปลี่ยน';
   $('#cIcon').value = c ? (c.icon || '') : '📦';
   $('#cIcons').innerHTML = ICONS.map(x => '<button type="button" data-icon="' + x + '" aria-label="ใช้ไอคอน ' + x + '">' + x + '</button>').join('');
   showErr($('#cErr'), '');
@@ -1329,7 +1846,7 @@ async function submitCat(e){
   e.preventDefault();
   const name = $('#cName').value.trim();
   if (!name){ showErr($('#cErr'), 'กรุณาใส่ชื่อหมวดหมู่'); $('#cName').focus(); return; }
-  if (await write({action: 'saveCat', cat: {id: C || '', name, icon: $('#cIcon').value.trim() || '📦'}}, $('#cSubmit'))) closeDlg($('#dlgCat'));
+  if (await write({action: 'saveCat', cat: {id: C || '', name, icon: $('#cIcon').value.trim() || '📦', prefix: cleanPrefix($('#cPrefix').value)}}, $('#cSubmit'))) closeDlg($('#dlgCat'));
 }
 
 async function doDelete(key){
@@ -1358,7 +1875,7 @@ function openAccount(){
   const m = S.me;
   $('#aAvatar').textContent = initial(m.name);
   $('#aName').textContent = m.name;
-  $('#aMeta').textContent = m.email + ' · ' + (m.role === 'admin' ? 'ผู้ดูแล' : 'สมาชิก') + (m.method ? ' · เข้าด้วย ' + m.method : '');
+  $('#aMeta').textContent = m.email + ' · ' + (m.role === 'admin' ? 'ผู้ดูแล' : 'สมาชิก') + (m.method ? ' · เข้าด้วย ' + m.method : '') + ' · แอปเวอร์ชัน ' + VERSION;
   $('#pName').value = m.name || ''; $('#pGroup').value = m.group || '';
   $('#pwTitle').textContent = m.hasPassword ? 'เปลี่ยนรหัสผ่าน' : 'ตั้งรหัสผ่าน (เพื่อเข้าด้วยอีเมลได้ด้วย)';
   $('#pwCurWrap').hidden = !m.hasPassword;
@@ -1392,7 +1909,7 @@ function openSettings(){
   openDlg($('#dlgSettings'));
 }
 async function connect(url, errEl, btn){
-  url = (url || '').trim();
+  url = normApi(url);
   if (!validApi(url)){ showErr(errEl, 'ลิงก์ต้องขึ้นต้นด้วย https://script.google.com/ และลงท้ายด้วย /exec'); return false; }
   if (/\/dev(\?|$)/.test(url)){ showErr(errEl, 'นี่คือลิงก์ทดสอบ (/dev) ให้ใช้ลิงก์ที่ลงท้ายด้วย /exec'); return false; }
   showErr(errEl, ''); busy(btn, true, 'กำลังทดสอบ…');
@@ -1445,11 +1962,11 @@ let scanner = null, scanMode = 'lookup', scanBusy = false;
 function setScanMsg(t){ $('#scMsg').textContent = t; }
 function camErrText(e){
   const m = String((e && (e.name || e.message)) || e || '');
-  if (/NotAllowed|Permission/i.test(m)) return 'แอปยังไม่ได้รับสิทธิ์ใช้กล้อง กดอนุญาตในการตั้งค่าเบราว์เซอร์ หรือใช้ปุ่มถ่ายรูปแทน';
-  if (/NotFound|no camera|Requested device/i.test(m)) return 'ไม่พบกล้องในเครื่องนี้ ใช้ปุ่มถ่ายรูปหรือพิมพ์รหัสแทน';
+  if (/NotAllowed|Permission/i.test(m)) return 'แอปยังไม่ได้รับสิทธิ์ใช้กล้อง ให้กดอนุญาตกล้องในการตั้งค่าเบราว์เซอร์ แล้วลองใหม่';
+  if (/NotFound|no camera|Requested device|Overconstrained/i.test(m)) return 'ไม่พบกล้องในเครื่องนี้';
   if (/NotReadable|Could not start/i.test(m)) return 'กล้องถูกแอปอื่นใช้อยู่ ปิดแอปนั้นแล้วลองใหม่';
   if (location.protocol !== 'https:' && location.hostname !== 'localhost') return 'ต้องเปิดแอปผ่าน https เท่านั้นจึงจะใช้กล้องได้';
-  return 'เปิดกล้องไม่ได้ ใช้ปุ่มถ่ายรูปหรือพิมพ์รหัสแทน';
+  return 'เปิดกล้องไม่ได้ ลองปิดแล้วเปิดแอปใหม่';
 }
 async function ensureScanner(){
   await loadScript('vendor/html5-qrcode.min.js');
@@ -1475,11 +1992,11 @@ async function openScanner(mode){
       qrbox: (w, h) => { const base = Math.min(w || 300, h > 0 ? h : (w || 300)); const s = Math.max(150, Math.floor(base * 0.72)); return {width: s, height: Math.max(120, Math.floor(s * 0.8))}; }
     }, onScanned, () => {});
     setScanMsg('หันกล้องไปที่ QR หรือบาร์โค้ดบนอุปกรณ์');
-    if (!$('#dlgScan').open) stopCamera();
-  } catch (e){ setScanMsg(camErrText(e)); }
+    if (!$('#dlgScan').open) stopScanCam();
+  } catch (e){ setScanMsg(camErrText(e) + ' หรือพิมพ์รหัสแทน'); }
 }
-async function stopCamera(){ if (scanner && scanner.isScanning){ try { await scanner.stop(); } catch (e){} } }
-async function closeScanner(){ await stopCamera(); closeDlg($('#dlgScan')); }
+async function stopScanCam(){ if (scanner && scanner.isScanning){ try { await scanner.stop(); } catch (e){} } }
+async function closeScanner(){ await stopScanCam(); try { $('#dlgScan').close(); } catch (e){ $('#dlgScan').removeAttribute('open'); } }
 function onScanned(text){
   if (scanBusy) return; scanBusy = true;
   vibrate(80);
@@ -1490,14 +2007,14 @@ async function scanPhoto(file){
   setScanMsg('กำลังอ่านรหัสจากรูป…');
   try {
     const sc = await ensureScanner();
-    await stopCamera();
+    await stopScanCam();
     onScanned(await sc.scanFile(file, false));
   } catch (e){ setScanMsg('อ่านรหัสจากรูปไม่ได้ ลองถ่ายให้ใกล้และชัดขึ้น หรือพิมพ์รหัสแทน'); }
   finally { $('#scanFile').value = ''; }
 }
 function handleCode(code){
   if (!code) return;
-  if (scanMode === 'assign'){ $('#iCode').value = code; toast('ใช้รหัส ' + code, 'ok'); return; }
+  if (scanMode === 'assign'){ $('#iCode').value = code; updateCodePreview(); toast('ใช้รหัส ' + code, 'ok'); return; }
   if (!S.data) return toast('ยังโหลดข้อมูลไม่เสร็จ ลองใหม่อีกครั้ง', 'bad');
   const low = code.toLowerCase();
   const it = D().items.find(i => (i.code || '').toLowerCase() === low) || D().items.find(i => i.id === code);
@@ -1511,6 +2028,7 @@ function bind(){
   $$('.nb[data-tab]').forEach(n => n.addEventListener('click', () => setTab(n.dataset.tab)));
   $('#btnRefresh').addEventListener('click', () => refresh(false));
   $('#btnAccount').addEventListener('click', openAccount);
+  $('#btnBell').addEventListener('click', openNotifs);
   $('#qItems').addEventListener('input', e => { S.qItems = e.target.value; renderItems(); });
   $('#qLoans').addEventListener('input', e => { S.qLoans = e.target.value; renderLoans(); });
   $('#qHist').addEventListener('input', e => { S.qHist = e.target.value; renderHistory(); });
@@ -1522,6 +2040,8 @@ function bind(){
   $('#btnPendingBack').addEventListener('click', () => { S.pending = false; S.authMode = 'login'; render(); });
   $('#fBorrow').addEventListener('submit', submitBorrow);
   $('#fReturn').addEventListener('submit', submitReturn);
+  $('#fReview').addEventListener('submit', submitReview);
+  $$('input[name=vResult]').forEach(r => r.addEventListener('change', () => { updateReviewForm(); showErr($('#vErr'), ''); }));
   $('#fItem').addEventListener('submit', submitItem);
   $('#fCat').addEventListener('submit', submitCat);
   $('#fProfile').addEventListener('submit', submitProfile);
@@ -1539,6 +2059,25 @@ function bind(){
   $('#bForOther').addEventListener('change', e => { $('#bOther').hidden = !e.target.checked; if (e.target.checked) setTimeout(() => $('#bName').focus(), 30); showErr($('#bErr'), ''); });
   $('#bDays').addEventListener('input', () => updateBorrowPreview(true));
   $('#bName').addEventListener('input', () => showErr($('#bErr'), ''));
+  // item form
+  $('#iCat').addEventListener('change', () => { if (I && !I.id && !I.prefixTouched) $('#iPrefix').value = catPrefix($('#iCat').value); updateCodePreview(); });
+  $('#iPrefix').addEventListener('input', () => { if (I) I.prefixTouched = true; updateCodePreview(); });
+  $('#iCode').addEventListener('input', updateCodePreview);
+  $('#btnICam').addEventListener('click', async () => setItemShot(await takePhoto({title: 'ถ่ายรูปอุปกรณ์', facing: 'environment', hint: 'ถ่ายให้เห็นอุปกรณ์ทั้งชิ้น บนพื้นเรียบ แสงสว่าง'})));
+  $('#iFile').addEventListener('change', async e => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    try { setItemShot(await processFile(f)); } catch (err){ toast(err.message || 'เปิดรูปไม่ได้', 'bad'); }
+    e.target.value = '';
+  });
+  $('#btnIRemove').addEventListener('click', () => { if (!I) return; I.full = I.thumb = ''; I.img = I.imageId ? 'remove' : 'keep'; renderItemImage(); });
+  // camera
+  $('#btnShutter').addEventListener('click', snap);
+  $('#btnFlip').addEventListener('click', () => { CAM.facing = CAM.facing === 'user' ? 'environment' : 'user'; startCam(); });
+  $('#btnRetake').addEventListener('click', () => { CAM.shot = null; camLiveMode(); startCam(); });
+  $('#btnUseShot').addEventListener('click', () => finishCam(CAM.shot));
+  $('#btnCamClose').addEventListener('click', () => finishCam(null));
+  $('#dlgCam').addEventListener('cancel', e => { e.preventDefault(); finishCam(null); });
+  // labels + scanner
   $('#btnLabels').addEventListener('click', openLabels);
   $('#lCat').addEventListener('change', renderLabels);
   $('#btnPrint').addEventListener('click', printLabels);
@@ -1551,9 +2090,11 @@ function bind(){
   $$('dialog.sheet').forEach(d => d.addEventListener('click', e => { if (e.target === d) closeDlg(d); }));
 
   document.addEventListener('click', e => {
-    const t = e.target.closest('button,a'); if (!t) return;
+    const t = e.target.closest('button,a,[data-photo]'); if (!t) return;
     const ds = t.dataset;
+    if (t.id === 'btnRPhoto'){ shootReturn(); return; }
     if ('close' in ds){ closeDlg(t.closest('dialog')); return; }
+    if (ds.photo){ openPhoto(ds.photo, ds.cap); return; }
     if (ds.auth){ S.authMode = ds.auth; ['lErr','regErr','f1Err','f2Err','gErr'].forEach(id => showErr($('#' + id), '')); if (ds.auth === 'reset1') $('#f1Email').value = $('#lEmail').value; render(); return; }
     if (ds.eye){ const inp = document.getElementById(ds.eye); const show = inp.type === 'password'; inp.type = show ? 'text' : 'password'; t.textContent = show ? 'ซ่อน' : 'แสดง'; return; }
     if ('scan' in ds){ if (!S.token) return; openScanner('lookup'); return; }
@@ -1568,7 +2109,8 @@ function bind(){
     if (ds.cat){ S.cat = ds.cat; renderItems(); return; }
     if (ds.loanf){ S.loanFilter = ds.loanf; renderLoans(); return; }
     if ('gotoOverdue' in ds){ S.loanFilter = 'overdue'; setTab('loans'); return; }
-    if ('gotoMine' in ds){ S.loanFilter = 'mine'; setTab('loans'); return; }
+    if ('gotoMine' in ds){ S.loanFilter = 'all'; setTab('loans'); return; }
+    if ('gotoReview' in ds){ S.loanFilter = 'review'; setTab('loans'); return; }
     if (ds.goto){ setTab(ds.goto); return; }
     if ('refresh' in ds){ refresh(false); return; }
     if ('openSettings' in ds){ openSettings(); return; }
@@ -1576,6 +2118,7 @@ function bind(){
     if (ds.detail){ openDetail(ds.detail); return; }
     if (ds.borrow){ openBorrow(ds.borrow); return; }
     if (ds.return){ openReturn(ds.return); return; }
+    if (ds.review){ openReview(ds.review); return; }
     if ('addItem' in ds){ openItem(null); return; }
     if ('addCat' in ds){ openCat(null); return; }
     if (ds.editItem){ openItem(ds.editItem); return; }
@@ -1598,10 +2141,10 @@ function bind(){
 /* ---------- start ---------- */
 async function boot(){
   const params = new URLSearchParams(location.search);
-  const fromUrl = params.get('api');
+  const fromUrl = normApi(params.get('api'));
   if (fromUrl && validApi(fromUrl)){ LS.set('api', fromUrl); params.delete('api'); history.replaceState(null, '', location.pathname + (params.toString() ? '?' + params : '') + location.hash); }
-  const cfg = (window.LEND_CONFIG && window.LEND_CONFIG.API_URL || '').trim();
-  S.api = LS.get('api', '') || (validApi(cfg) ? cfg : '');
+  const cfg = normApi(window.LEND_CONFIG && window.LEND_CONFIG.API_URL);
+  S.api = normApi(LS.get('api', '')) || (validApi(cfg) ? cfg : '');
   S.token = LS.get('token', '');
   S.info = LS.get('info', null);
   const h = location.hash.slice(1), saved = LS.get('tab', 'items');
@@ -1610,7 +2153,7 @@ async function boot(){
   if (S.token && cache && cache.api === S.api && cache.data){ S.data = cache.data; S.me = cache.me || null; S.lastSync = cache.at || 0; }
   bind(); render();
   if (S.api){
-    loadInfo().then(() => { if (!S.token) render(); });
+    loadInfo().then(() => { if (!S.token) render(); else renderHeader(); });
     if (S.token) refresh(!!S.data);
   }
   if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});

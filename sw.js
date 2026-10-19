@@ -1,6 +1,6 @@
 /* สมุดยืมอุปกรณ์ — service worker: เก็บไฟล์แอปไว้ในเครื่องให้เปิดเร็วและเปิดได้แม้เน็ตหลุด
    (ข้อมูลยืม-คืนยังต้องใช้อินเทอร์เน็ตเสมอ) เปลี่ยนเลขเวอร์ชันเมื่ออัปเดตไฟล์แอป */
-const CACHE = 'lend-app-v2.0.0';
+const CACHE = 'lend-app-v3.0.0';
 const ASSETS = ['./', './index.html', './config.js', './manifest.webmanifest', './icon-192.png', './icon-512.png',
   './icon-maskable-512.png', './apple-touch-icon.png', './vendor/qrcode.js', './vendor/html5-qrcode.min.js'];
 
