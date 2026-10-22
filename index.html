@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>สมุดยืมอุปกรณ์</title>
-<meta name="description" content="แอปยืม-คืนอุปกรณ์ภายในห้อง สแกน QR ได้ เก็บข้อมูลใน Google Sheets">
+<meta name="description" content="แอปยืม-คืนอุปกรณ์ภายในห้อง สแกน QR ได้ เก็บข้อมูลใน Google Sheets · Equipment lending app with QR scanning">
 <meta name="theme-color" content="#3A35B0">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
@@ -16,401 +16,25 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Mitr:wght@400;500&display=swap">
+<link rel="stylesheet" href="app.css">
 <script src="config.js"></script>
+<script src="i18n-en.js"></script>
 <script src="vendor/qrcode.js" defer></script>
-<style>
-/* Layout: phone-first app shell — app bar on top, one scrolling view, bottom tab bar with a raised scan button. Due dates read as rubber date-due stamps in violet ink. */
-:root{
-  --paper:#F3F5F9; --card:#FFFFFF; --sunk:#EBEEF5; --ink:#1B1E2E; --muted:#5C6278; --line:#DCE0EA; --line-strong:#C2C8D8;
-  --stamp:#3A35B0; --stamp-soft:#E9E8FA; --on-stamp:#FFFFFF;
-  --ok:#17784A; --ok-soft:#DFF3E8; --warn:#935700; --warn-soft:#FCEFD6; --bad:#B3261E; --bad-soft:#FCE5E2; --off:#5F6577; --off-soft:#ECEEF3;
-  --shadow:0 1px 2px rgba(27,30,46,.06),0 4px 14px rgba(27,30,46,.06);
-  --shadow-lg:0 -10px 40px rgba(20,22,40,.22);
-  --f-display:'Mitr','IBM Plex Sans Thai','Leelawadee UI',Tahoma,sans-serif;
-  --f-body:'IBM Plex Sans Thai','Leelawadee UI',Tahoma,system-ui,sans-serif;
-  --f-code:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
-  --nav-h:68px;
-  color-scheme:light;
-}
-@media (prefers-color-scheme: dark){:root{
-  --paper:#10121A; --card:#191C27; --sunk:#141720; --ink:#E8EAF3; --muted:#9BA1B6; --line:#2A2F40; --line-strong:#3A4054;
-  --stamp:#A6A2FF; --stamp-soft:#262848; --on-stamp:#12131D;
-  --ok:#63D69E; --ok-soft:#15301F; --warn:#F2B654; --warn-soft:#352812; --bad:#FF8E80; --bad-soft:#3A1B18; --off:#A0A6BA; --off-soft:#232736;
-  --shadow:0 1px 2px rgba(0,0,0,.35),0 4px 14px rgba(0,0,0,.25);
-  --shadow-lg:0 -10px 40px rgba(0,0,0,.6);
-  color-scheme:dark;
-}}
-*{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
-h1,h2,h3{font-family:var(--f-display);font-weight:500;line-height:1.3;margin:0;text-wrap:balance}
-p{margin:0}
-button,input,select,textarea{font:inherit;color:inherit}
-[hidden]{display:none!important}
-:focus-visible{outline:3px solid var(--stamp);outline-offset:2px}
-.muted{color:var(--muted)}
-.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-
-/* app bar */
-.appbar{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
-.appbar-in{display:flex;align-items:center;gap:12px;min-height:60px;padding-block:8px}
-.appbar .title{flex:1;min-width:0}
-.appbar h1{font-size:21px}
-.appbar .sub{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sync-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px;vertical-align:1px}
-.sync-dot.off{background:var(--bad)} .sync-dot.wait{background:var(--warn)}
-.icon-btn{appearance:none;border:1.5px solid var(--line);background:var(--card);width:44px;height:44px;border-radius:12px;display:grid;place-items:center;cursor:pointer;flex:none;color:var(--ink)}
-.icon-btn svg{width:22px;height:22px}
-.spin svg{animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-main{padding-top:16px;padding-bottom:calc(var(--nav-h) + 28px + env(safe-area-inset-bottom,0px))}
-.view{display:grid;gap:14px}
-.banner{padding:12px 14px;border-radius:12px;background:var(--warn-soft);color:var(--warn);font-weight:500;font-size:15px}
-.banner.bad{background:var(--bad-soft);color:var(--bad)}
-
-/* stats */
-.stats{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -2px;padding:2px}
-.stats::-webkit-scrollbar{display:none}
-.stat{flex:none;display:inline-flex;align-items:baseline;gap:6px;padding:6px 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:14px;color:var(--muted)}
-.stat b{font-family:var(--f-display);font-weight:500;font-size:18px;color:var(--ink);font-variant-numeric:tabular-nums}
-button.stat{appearance:none;cursor:pointer}
-.stat.is-bad{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
-.stat.is-bad b{color:var(--bad)}
-
-/* controls */
-input[type=search],input[type=text],input[type=email],input[type=url],input[type=password],input[type=number],input[type=datetime-local],select,textarea{width:100%;min-height:50px;padding:10px 14px;border:1.5px solid var(--line-strong);border-radius:12px;background:var(--card);font-size:16px}
-input:focus,select:focus,textarea:focus{border-color:var(--stamp);outline:none;box-shadow:0 0 0 3px var(--stamp-soft)}
-.btn{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 18px;border-radius:12px;border:1.5px solid var(--line-strong);background:var(--card);font-weight:500;cursor:pointer;white-space:nowrap;text-decoration:none;color:var(--ink)}
-.btn:active{transform:translateY(1px)}
-.btn.primary{background:var(--stamp);border-color:var(--stamp);color:var(--on-stamp)}
-.btn.ok{background:var(--ok);border-color:var(--ok);color:var(--card)}
-.btn.big{min-height:56px;font-size:19px;font-family:var(--f-display);font-weight:400;width:100%}
-.btn.small{min-height:38px;padding:0 12px;font-size:14px;border-radius:10px}
-.btn.danger{color:var(--bad);border-color:var(--bad)}
-.btn.danger.solid{background:var(--bad);color:var(--card)}
-.btn:disabled{opacity:.42;cursor:not-allowed;transform:none}
-.btn svg{width:20px;height:20px}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.row>.grow{flex:1 1 200px;min-width:0}
-.toggle{display:inline-flex;align-items:center;gap:8px;min-height:50px;padding:0 14px;border:1.5px solid var(--line-strong);border-radius:12px;background:var(--card);cursor:pointer;user-select:none;white-space:nowrap}
-.toggle input{width:20px;height:20px;accent-color:var(--stamp)}
-.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:2px max(16px,env(safe-area-inset-left,0px))}
-.chips::-webkit-scrollbar{display:none}
-.chip{appearance:none;flex:none;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);cursor:pointer;font-size:15px;color:var(--ink)}
-.chip .n{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
-.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--card)}
-.chip[aria-pressed="true"] .n{color:inherit;opacity:.75}
-
-.pill{display:inline-flex;align-items:center;gap:6px;padding:3px 12px;border-radius:999px;font-size:14px;font-weight:500;width:fit-content}
-.pill::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
-.pill.ok{background:var(--ok-soft);color:var(--ok)}
-.pill.warn{background:var(--warn-soft);color:var(--warn)}
-.pill.bad{background:var(--bad-soft);color:var(--bad)}
-.pill.off{background:var(--off-soft);color:var(--off)}
-.code{font-family:var(--f-code);font-size:12px;padding:1px 8px;border-radius:6px;background:var(--sunk);color:var(--muted);white-space:nowrap}
-.cat-ic{width:44px;height:44px;border-radius:12px;background:var(--sunk);display:grid;place-items:center;font-size:22px;flex:none}
-
-/* item cards */
-.list{display:grid;gap:12px}
-@media (min-width:720px){.list.two{grid-template-columns:1fr 1fr}}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;display:grid;gap:10px;box-shadow:var(--shadow);min-width:0}
-.card-head{display:flex;gap:12px;align-items:flex-start;min-width:0}
-.card-head .txt{flex:1;min-width:0;display:grid;gap:4px}
-.linkish{appearance:none;border:0;background:none;padding:0;text-align:left;cursor:pointer;color:inherit;font:inherit}
-.card h3{font-size:19px;overflow-wrap:anywhere}
-.card .meta{font-size:13px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.who{list-style:none;margin:0;padding:10px 12px;border-radius:10px;background:var(--sunk);display:grid;gap:4px;font-size:14px}
-.who li{overflow-wrap:anywhere}
-.who .late{color:var(--bad);font-weight:600}
-.reason{font-size:13px;color:var(--muted);text-align:center}
-
-/* slips */
-.slip{display:grid;grid-template-columns:minmax(0,1fr) auto;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
-.slip.is-bad{border-color:var(--bad)}
-.slip-main{padding:14px 16px;display:grid;gap:6px;min-width:0}
-.slip-item{font-family:var(--f-display);font-size:19px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;overflow-wrap:anywhere}
-.qty{font-family:var(--f-body);font-size:13px;padding:1px 9px;border-radius:999px;background:var(--stamp-soft);color:var(--stamp);font-weight:600}
-.slip-who{font-size:16px;overflow-wrap:anywhere}
-.slip-who b{font-weight:600}
-.lbl{font-size:13px;color:var(--muted);margin-right:4px}
-.kv{display:flex;flex-wrap:wrap;gap:4px 18px;margin:0;font-size:14px}
-.kv dt{color:var(--muted);font-size:12px}
-.kv dd{margin:0;font-variant-numeric:tabular-nums}
-.note{font-size:14px;color:var(--muted);overflow-wrap:anywhere}
-.slip-side{display:grid;justify-items:center;align-content:center;gap:10px;padding:14px 16px;border-left:2px dashed var(--line-strong);min-width:160px}
-.state{font-weight:600;font-size:15px;text-align:center}
-.state.ok{color:var(--ok)} .state.warn{color:var(--warn)} .state.bad{color:var(--bad)}
-@media (max-width:540px){
-  .slip{grid-template-columns:1fr}
-  .slip-side{border-left:0;border-top:2px dashed var(--line-strong);grid-template-columns:auto 1fr;justify-items:start;align-items:center;min-width:0}
-  .slip-side .btn{grid-column:1/-1;width:100%}
-}
-.stamp{display:inline-grid;justify-items:center;padding:6px 14px 8px;border:2.5px solid currentColor;border-radius:7px;color:var(--stamp);transform:rotate(-4deg);box-shadow:inset 0 0 0 2px var(--card),inset 0 0 0 3.5px currentColor;font-family:var(--f-display);line-height:1.25;background:var(--card)}
-.stamp-k{font-size:12px;letter-spacing:.08em}
-.stamp-d{font-size:20px;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
-.stamp.warn{color:var(--warn)} .stamp.bad{color:var(--bad)} .stamp.ok{color:var(--ok)}
-.stamp.thunk{animation:thunk .28s ease-out}
-@keyframes thunk{0%{transform:rotate(-4deg) scale(1.25);opacity:.4}100%{transform:rotate(-4deg) scale(1);opacity:1}}
-
-/* history */
-.hrow{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;gap:6px}
-.hrow-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.hrow-top b{font-weight:600;overflow-wrap:anywhere}
-.hrow .dates{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
-
-/* manage */
-.box{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
-.box-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.box-head h2{font-size:18px}
-.mrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;padding:12px 14px;border-bottom:1px solid var(--line)}
-.mrow:last-child{border-bottom:0}
-.mrow .cat-ic{width:38px;height:38px;font-size:19px}
-.mrow-main{flex:1 1 180px;min-width:0;display:grid}
-.mrow-main b{font-weight:600;overflow-wrap:anywhere}
-.mrow-main span{font-size:13px;color:var(--muted)}
-.mrow-act{display:flex;gap:8px;flex-wrap:wrap}
-.mrow.confirm{background:var(--bad-soft)}
-.mrow.confirm .ask{color:var(--bad);font-weight:500;flex:1 1 180px}
-.tools{display:grid;gap:10px;padding:14px}
-.tools .btn{justify-content:flex-start}
-
-.empty{background:var(--card);border:2px dashed var(--line-strong);border-radius:18px;padding:28px 20px;display:grid;gap:10px;justify-items:center;text-align:center}
-.empty h3{font-size:20px}
-.empty p{color:var(--muted);max-width:44ch}
-.loading{padding:28px;text-align:center;color:var(--muted)}
-.setup{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 18px;display:grid;gap:14px}
-.setup h2{font-size:22px}
-.setup ol{margin:0;padding-left:22px;display:grid;gap:6px;color:var(--muted)}
-
-/* bottom nav */
-.bnav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
-.bnav-in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:var(--nav-h)}
-.nb{appearance:none;border:0;background:none;display:grid;justify-items:center;align-content:center;gap:2px;font-size:12px;color:var(--muted);cursor:pointer;position:relative;padding:0}
-.nb svg{width:24px;height:24px}
-.nb[aria-current="page"]{color:var(--stamp);font-weight:600}
-.nb .dot{position:absolute;top:8px;left:calc(50% + 6px);min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--stamp);color:var(--on-stamp);font-size:12px;font-weight:600;display:grid;place-items:center;font-variant-numeric:tabular-nums}
-.nb .dot.bad{background:var(--bad);color:var(--card)}
-.nb .dot:empty{display:none}
-.nb.scan .ring{width:58px;height:58px;margin-top:-26px;border-radius:50%;background:var(--stamp);color:var(--on-stamp);display:grid;place-items:center;box-shadow:0 6px 18px rgba(58,53,176,.35);border:4px solid var(--card)}
-.nb.scan .ring svg{width:28px;height:28px}
-.nb.scan{color:var(--stamp);font-weight:600}
-
-/* sheets */
-dialog{border:0;padding:0;background:var(--card);color:var(--ink)}
-dialog::backdrop{background:rgba(12,14,24,.55)}
-dialog.sheet{width:100%;max-width:640px;margin:auto auto 0;border-radius:22px 22px 0 0;max-height:92dvh;box-shadow:var(--shadow-lg)}
-@media (min-width:700px){dialog.sheet{margin:auto;border-radius:22px;max-height:88dvh}}
-dialog.sheet[open]{animation:up .22s ease-out}
-@keyframes up{from{transform:translateY(40px)}to{transform:none}}
-dialog form,.sheet-wrap{display:flex;flex-direction:column;max-height:inherit}
-.sh-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line)}
-.sh-head h2{font-size:20px}
-.x{appearance:none;border:0;background:var(--sunk);width:42px;height:42px;border-radius:50%;font-size:22px;line-height:1;cursor:pointer;flex:none;color:var(--ink)}
-.sh-body{padding:16px 18px;display:grid;gap:16px;overflow:auto;-webkit-overflow-scrolling:touch}
-.sh-foot{display:flex;gap:10px;padding:12px 18px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--sunk);flex-wrap:wrap}
-.sh-foot .btn{flex:1 1 130px}
-.field{display:grid;gap:6px}
-.field>.lbl{font-size:15px;color:var(--ink);font-weight:500;margin:0}
-.help{font-size:13px;color:var(--muted)}
-.err{font-size:14px;color:var(--bad);font-weight:500}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media (max-width:440px){.two-col{grid-template-columns:1fr}}
-.step{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-size:17px}
-.step i{font-style:normal;width:28px;height:28px;border-radius:50%;background:var(--stamp);color:var(--on-stamp);display:grid;place-items:center;font-size:15px;flex:none}
-.picked{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:14px;background:var(--sunk)}
-.picked b{font-family:var(--f-display);font-weight:500;font-size:19px;display:block;overflow-wrap:anywhere}
-.picked span{font-size:14px;color:var(--muted)}
-.stepper{display:flex;align-items:center;gap:8px}
-.stepper button{appearance:none;width:50px;height:50px;border-radius:12px;border:1.5px solid var(--line-strong);background:var(--card);font-size:24px;cursor:pointer;flex:none;color:var(--ink)}
-.stepper input{width:84px;text-align:center;font-size:20px;font-family:var(--f-display);font-variant-numeric:tabular-nums}
-.stepper .unit{color:var(--muted);font-size:14px}
-.quick{display:flex;flex-wrap:wrap;gap:8px}
-.duebox{display:flex;align-items:center;gap:18px;padding:14px 16px;border-radius:14px;background:var(--stamp-soft);flex-wrap:wrap}
-.duebox .txt{display:grid;min-width:0}
-.duebox .txt span{font-size:14px;color:var(--muted)}
-.duebox .txt b{font-weight:600;font-size:16px}
-.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-@media (max-width:440px){.seg{grid-template-columns:1fr}}
-.seg label{position:relative;cursor:pointer}
-.seg input{position:absolute;opacity:0;inset:0}
-.seg span{display:grid;gap:2px;min-height:56px;align-content:center;padding:8px 12px;border-radius:12px;border:1.5px solid var(--line-strong);background:var(--card);font-weight:500;text-align:center;height:100%}
-.seg small{font-weight:400;font-size:12px;color:var(--muted)}
-.seg input:checked+span{border-color:var(--stamp);background:var(--stamp-soft);color:var(--stamp)}
-.seg input:focus-visible+span{outline:3px solid var(--stamp);outline-offset:2px}
-.icons{display:flex;flex-wrap:wrap;gap:6px}
-.icons button{appearance:none;width:44px;height:44px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);font-size:20px;cursor:pointer}
-.sumgrid{display:grid;gap:8px;padding:14px 16px;border-radius:14px;background:var(--sunk);margin:0}
-.sumgrid div{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.sumgrid dt{color:var(--muted)}
-.sumgrid dd{margin:0;font-weight:500;text-align:right;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
-.detail-head{display:flex;gap:14px;align-items:center}
-.detail-head .cat-ic{width:56px;height:56px;font-size:28px;border-radius:16px}
-.detail-head h3{font-size:22px;overflow-wrap:anywhere}
-.loanrow{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:12px;background:var(--sunk);flex-wrap:wrap}
-.loanrow .t{min-width:0;flex:1 1 160px}
-.loanrow b{font-weight:600;overflow-wrap:anywhere}
-.loanrow span{display:block;font-size:13px;color:var(--muted)}
-.loanrow span.late{color:var(--bad);font-weight:600}
-
-/* scanner */
-dialog.scanner{width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;background:#000;color:#fff}
-.scanner .sc-wrap{position:relative;height:100%;display:flex;flex-direction:column}
-.sc-top{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px))}
-.sc-top h2{font-size:19px;color:#fff}
-.sc-top .x{background:rgba(255,255,255,.18);color:#fff}
-.sc-stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#000}
-#reader{width:100%;max-width:560px;position:relative;background:#000}
-#reader video{display:block;margin:0 auto;max-width:100%}
-.vh{position:absolute!important;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
-.sc-msg{padding:12px 16px;text-align:center;font-size:16px;color:#fff;background:rgba(255,255,255,.08)}
-.sc-bottom{display:grid;gap:10px;padding:12px max(16px,env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:#0B0C12}
-.sc-bottom .btn{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff}
-.sc-manual{display:flex;flex-direction:row;gap:8px}
-.sc-manual input{flex:1;min-width:0}
-.sc-manual input{background:#fff;color:#1B1E2E;border-color:#fff}
-.sc-manual .btn{flex:none}
-
-/* labels */
-.labels-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
-.label{border:1.5px dashed var(--line-strong);border-radius:10px;padding:10px;display:grid;justify-items:center;gap:4px;text-align:center;background:#fff;color:#111}
-.label svg{width:100%;max-width:130px;height:auto;display:block}
-.label .ln{font-family:var(--f-display);font-size:14px;line-height:1.3;overflow-wrap:anywhere}
-.label .lc{font-family:var(--f-code);font-size:12px;letter-spacing:.04em}
-#printArea{display:none}
-@media print{
-  @page{size:A4;margin:10mm}
-  body{background:#fff}
-  body>*:not(#printArea){display:none!important}
-  #printArea{display:block}
-  #printArea .labels-grid{grid-template-columns:repeat(4,1fr);gap:4mm}
-  #printArea .label{border:1px dashed #999;break-inside:avoid;page-break-inside:avoid}
-  #printArea.big .labels-grid{grid-template-columns:repeat(3,1fr)}
-}
-
-/* auth */
-body.no-nav .bnav{display:none}
-body.no-nav main{padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}
-.auth{display:grid;gap:16px}
-.auth-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px 18px;display:grid;gap:14px;box-shadow:var(--shadow)}
-.auth-hero{display:flex;gap:14px;align-items:center}
-.auth-hero img{width:56px;height:56px;border-radius:14px;flex:none}
-.auth-hero h2{font-size:22px}
-.auth-hero p{color:var(--muted);font-size:14px}
-.tabs2{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:14px;background:var(--sunk)}
-.tabs2 button{appearance:none;border:0;background:none;min-height:44px;border-radius:10px;font-family:var(--f-display);font-size:16px;color:var(--muted);cursor:pointer}
-.tabs2 button[aria-pressed="true"]{background:var(--card);color:var(--stamp);box-shadow:var(--shadow)}
-.pw{position:relative}
-.pw input{padding-right:58px}
-.pw button{position:absolute;right:6px;top:50%;transform:translateY(-50%);appearance:none;border:0;background:none;color:var(--muted);font-size:14px;padding:8px;cursor:pointer}
-.or{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px}
-.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
-#gBtn{display:flex;justify-content:center;min-height:44px}
-.linkbtn{appearance:none;border:0;background:none;color:var(--stamp);font:inherit;font-size:15px;cursor:pointer;padding:6px 0;text-decoration:underline;text-underline-offset:3px;justify-self:center}
-.note-box{padding:12px 14px;border-radius:12px;background:var(--stamp-soft);color:var(--ink);font-size:14px}
-.avatar{appearance:none;width:44px;height:44px;border-radius:50%;border:2px solid var(--stamp-soft);background:var(--stamp);color:var(--on-stamp);font-family:var(--f-display);font-size:18px;display:grid;place-items:center;cursor:pointer;flex:none}
-.me-card{display:flex;gap:14px;align-items:center;padding:14px;border-radius:14px;background:var(--sunk)}
-.me-card .avatar{width:54px;height:54px;font-size:22px;cursor:default}
-.me-card b{font-family:var(--f-display);font-weight:500;font-size:19px;display:block;overflow-wrap:anywhere}
-.me-card span{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
-.whoami{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:var(--sunk);flex-wrap:wrap}
-.whoami b{font-weight:600}
-.temp-pw{font-family:var(--f-code);font-size:30px;letter-spacing:.12em;text-align:center;padding:16px;border-radius:14px;background:var(--sunk);user-select:all}
-.tag{font-size:12px;padding:1px 8px;border-radius:999px;background:var(--stamp-soft);color:var(--stamp);font-weight:600;margin-left:6px;vertical-align:2px}
-.sec-title{font-family:var(--f-display);font-size:16px;margin:4px 0 -4px}
-/* v3: images, camera, review, notifications */
-.icon-btn{position:relative}
-.icon-btn .dot{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--bad);color:var(--card);font-size:12px;font-weight:600;display:grid;place-items:center;font-variant-numeric:tabular-nums}
-.icon-btn .dot:empty{display:none}
-.cat-ic.img{padding:0;overflow:hidden;background:var(--sunk)}
-.cat-ic.img img{width:100%;height:100%;object-fit:cover;display:block}
-.hero-img{position:relative;width:100%;max-width:100%;aspect-ratio:4/3;border-radius:16px;overflow:hidden;background:var(--sunk);display:grid;place-items:center;cursor:zoom-in;border:0;padding:0}
-.hero-img img{width:100%;height:100%;object-fit:cover;display:block}
-.hero-img .loading-tag{position:absolute;right:10px;bottom:10px;font-size:12px;padding:2px 10px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff}
-.picked .cat-ic{width:64px;height:64px;font-size:28px;border-radius:14px}
-.photo-box{border:2px dashed var(--line-strong);border-radius:16px;padding:14px;display:grid;gap:10px;justify-items:center;background:var(--sunk)}
-.photo-box img{width:100%;max-width:100%;max-height:340px;object-fit:contain;border-radius:12px;background:#000}
-.img-edit{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
-.img-prev{width:120px;height:120px;border-radius:14px;background:var(--sunk);border:1.5px dashed var(--line-strong);display:grid;place-items:center;overflow:hidden;flex:none;color:var(--muted);font-size:13px;text-align:center}
-.img-prev img{width:100%;height:100%;object-fit:cover}
-.img-actions{display:grid;gap:8px;flex:1 1 160px;min-width:0}
-.codebox{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;padding:12px;border-radius:14px;background:var(--stamp-soft)}
-.codebox .field{flex:1 1 140px;min-width:0}
-.codebox input{text-transform:uppercase;font-family:var(--f-code)}
-.code-prev{display:grid;gap:2px;flex:1 1 140px;min-width:0}
-.code-prev b{font-family:var(--f-code);font-size:22px;color:var(--stamp);overflow-wrap:anywhere}
-.code-prev.off b{color:var(--muted);text-decoration:line-through}
-.pill.info{background:var(--stamp-soft);color:var(--stamp)}
-.admin-msg{padding:10px 12px;border-radius:12px;background:var(--warn-soft);color:var(--ink);font-size:14px;white-space:pre-line;overflow-wrap:anywhere}
-.admin-msg b{color:var(--warn)}
-.admin-msg.bad{background:var(--bad-soft)} .admin-msg.bad b{color:var(--bad)}
-.admin-msg.ok{background:var(--ok-soft)} .admin-msg.ok b{color:var(--ok)}
-.review-strip{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:14px;background:var(--stamp-soft);color:var(--ink);border:1.5px solid var(--stamp);cursor:pointer;width:100%;font:inherit;text-align:left}
-.review-strip b{color:var(--stamp)}
-.choices{display:grid;gap:8px}
-.choices label{position:relative;cursor:pointer}
-.choices input{position:absolute;opacity:0;inset:0}
-.choices span{display:grid;gap:2px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line-strong);background:var(--card)}
-.choices small{color:var(--muted);font-size:13px}
-.choices input:checked+span{border-color:var(--stamp);background:var(--stamp-soft)}
-.choices input:focus-visible+span{outline:3px solid var(--stamp);outline-offset:2px}
-textarea{width:100%;min-height:88px;padding:10px 14px;border:1.5px solid var(--line-strong);border-radius:12px;background:var(--card);font-size:16px;resize:vertical}
-.evidence{display:grid;gap:6px}
-.evidence .hero-img{aspect-ratio:3/4;max-height:58dvh;background:#000}
-.evidence .hero-img img{object-fit:contain}
-.nlist{display:grid;gap:10px}
-.nitem{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;padding:12px 14px;border-radius:14px;background:var(--sunk);border:1px solid transparent}
-.nitem.unread{background:var(--stamp-soft);border-color:var(--stamp)}
-.nitem .ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:17px;background:var(--card)}
-.nitem b{display:block;font-weight:600}
-.nitem p{font-size:14px;white-space:pre-line;overflow-wrap:anywhere}
-.nitem time{font-size:12px;color:var(--muted)}
-.ph-btn{appearance:none;border:0;background:none;color:var(--stamp);font:inherit;font-size:14px;cursor:pointer;padding:4px 0;text-decoration:underline;text-underline-offset:3px}
-/* camera */
-dialog.cam{width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;background:#000;color:#fff}
-.cam-wrap{position:relative;height:100%;display:flex;flex-direction:column}
-.cam-stage{position:relative;flex:1;min-height:0;display:grid;place-items:center;overflow:hidden;background:#000}
-.cam-stage video,.cam-stage img{width:100%;height:100%;object-fit:contain;display:block}
-.cam-stage video.mirror{transform:scaleX(-1)}
-.cam-guide{position:absolute;inset:0;pointer-events:none;display:grid;place-items:center}
-.cam-guide .g-frame{position:relative;width:min(78vw,52dvh);aspect-ratio:3/4}
-.cam-guide .g-oval{position:absolute;left:50%;top:6%;width:46%;aspect-ratio:3/4;transform:translateX(-50%);border:3px dashed rgba(255,255,255,.85);border-radius:50%}
-.cam-guide .g-box{position:absolute;left:14%;right:14%;bottom:4%;height:34%;border:3px dashed rgba(255,214,102,.9);border-radius:14px}
-.cam-guide .g-t{position:absolute;left:50%;transform:translateX(-50%);font-size:13px;padding:2px 10px;border-radius:999px;background:rgba(0,0,0,.55);white-space:nowrap}
-.cam-guide .g-t1{top:calc(6% - 26px)} .cam-guide .g-t2{bottom:calc(38% + 6px);color:#FFD666}
-.cam-err{position:absolute;left:16px;right:16px;top:50%;transform:translateY(-50%);padding:16px;border-radius:14px;background:rgba(179,38,30,.92);text-align:center;font-weight:500}
-.cam-bar{display:flex;align-items:center;justify-content:space-around;gap:12px;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:#0B0C12}
-.cam-bar .btn{flex:1 1 0;background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff;min-height:52px;font-size:17px}
-.cam-bar .btn.primary{background:#6E68FF;border-color:#6E68FF}
-.shutter{appearance:none;width:76px;height:76px;border-radius:50%;border:5px solid #fff;background:#fff;box-shadow:inset 0 0 0 4px #0B0C12;cursor:pointer;flex:none}
-.shutter:disabled{opacity:.4}
-.cam-side{width:56px;height:56px;flex:none;appearance:none;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:24px;cursor:pointer;display:grid;place-items:center}
-dialog.lightbox{width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;background:rgba(0,0,0,.94);color:#fff;padding:0}
-.lb-wrap{height:100%;display:flex;flex-direction:column}
-.lb-wrap .sc-top .x{background:rgba(255,255,255,.18);color:#fff}
-.lb-img{flex:1;min-height:0;display:grid;place-items:center;padding:8px}
-.lb-img img{max-width:100%;max-height:100%;object-fit:contain}
-.lb-cap{padding:10px 16px calc(16px + env(safe-area-inset-bottom,0px));text-align:center;font-size:14px;color:#ddd}
-.toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + 18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:100;width:max-content;max-width:calc(100vw - 32px);padding:12px 18px;border-radius:14px;background:var(--ink);color:var(--card);font-weight:500;box-shadow:var(--shadow-lg);text-align:center}
-.toast.ok{background:var(--ok);color:var(--card)}
-.toast.bad{background:var(--bad);color:var(--card)}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-</style>
 </head>
 <body>
 
 <header class="appbar">
   <div class="wrap appbar-in">
     <div class="title">
-      <h1>สมุดยืมอุปกรณ์</h1>
-      <p class="sub" id="roomLine"><span class="sync-dot wait"></span>กำลังเชื่อมต่อ…</p>
+      <h1 data-t="สมุดยืมอุปกรณ์|short">สมุดยืมอุปกรณ์</h1>
+      <p class="sub" id="roomLine"><span class="sync-dot wait"></span>…</p>
     </div>
-    <button class="icon-btn" id="btnBell" type="button" aria-label="การแจ้งเตือน" hidden>
+    <button class="icon-btn" id="btnBell" type="button" data-ta="การแจ้งเตือน" aria-label="การแจ้งเตือน" hidden>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
       <span class="dot" id="bellDot"></span>
     </button>
-    <button class="avatar" id="btnAccount" type="button" aria-label="บัญชีของฉัน" hidden></button>
-    <button class="icon-btn" id="btnRefresh" type="button" aria-label="โหลดข้อมูลใหม่">
+    <button class="avatar" id="btnAccount" type="button" data-ta="บัญชีของฉัน" aria-label="บัญชีของฉัน" hidden></button>
+    <button class="icon-btn" id="btnRefresh" type="button" data-ta="โหลดข้อมูลใหม่" aria-label="โหลดข้อมูลใหม่">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
     </button>
   </div>
@@ -422,17 +46,13 @@ dialog.lightbox{width:100vw;height:100dvh;max-width:none;max-height:none;margin:
   <!-- setup (no API link yet) -->
   <section class="view" id="view-setup" hidden>
     <div class="setup">
-      <h2>เชื่อมแอปกับ Google Sheets</h2>
-      <p class="muted">วางลิงก์เว็บแอปจาก Apps Script (ลิงก์ที่ลงท้ายด้วย <b>/exec</b>) แล้วกดเชื่อมต่อ ทำแค่ครั้งแรกครั้งเดียว</p>
-      <ol>
-        <li>เปิด Google Sheet → ส่วนขยาย → Apps Script</li>
-        <li>กด ทำให้ใช้งานได้ → การทำให้ใช้งานได้รายการใหม่ → เว็บแอป</li>
-        <li>คัดลอกลิงก์เว็บแอปมาวางด้านล่าง</li>
-      </ol>
-      <label class="field"><span class="lbl">ลิงก์เว็บแอป</span>
+      <div class="auth-top"><button class="lang-btn" type="button" data-lang-toggle>English</button></div>
+      <h2 data-t>เชื่อมแอปกับ Google Sheets</h2>
+      <p class="muted" data-t>วางลิงก์เว็บแอปจาก Apps Script (ลิงก์ที่ลงท้ายด้วย /exec) แล้วกดเชื่อมต่อ ทำแค่ครั้งแรกครั้งเดียว</p>
+      <label class="field"><span class="lbl" data-t>ลิงก์เว็บแอป</span>
         <input type="url" id="setupUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" inputmode="url"></label>
       <p class="err" id="setupErr" hidden></p>
-      <button class="btn primary big" id="btnSetup" type="button">เชื่อมต่อ</button>
+      <button class="btn primary big" id="btnSetup" type="button" data-t>เชื่อมต่อ</button>
     </div>
   </section>
 
@@ -440,64 +60,65 @@ dialog.lightbox{width:100vw;height:100dvh;max-width:none;max-height:none;margin:
   <section class="view" id="view-auth" hidden>
     <div class="auth">
       <div class="auth-card">
-        <div class="auth-hero"><img src="icon-192.png" alt=""><div><h2 id="authRoom">สมุดยืมอุปกรณ์</h2><p>เข้าสู่ระบบเพื่อยืม-คืนอุปกรณ์</p></div></div>
-        <div class="tabs2" id="authTabs" role="group" aria-label="เลือก">
-          <button type="button" data-auth="login" aria-pressed="true">เข้าสู่ระบบ</button>
-          <button type="button" data-auth="register" aria-pressed="false">สมัครสมาชิก</button>
+        <div class="auth-top"><button class="lang-btn" type="button" data-lang-toggle>English</button></div>
+        <div class="auth-hero"><img src="icon-192.png" alt=""><div><h2 id="authRoom" data-t>สมุดยืมอุปกรณ์</h2><p data-t>เข้าสู่ระบบเพื่อยืม-คืนอุปกรณ์</p></div></div>
+        <div class="tabs2" id="authTabs" role="group">
+          <button type="button" data-auth="login" aria-pressed="true" data-t>เข้าสู่ระบบ</button>
+          <button type="button" data-auth="register" aria-pressed="false" data-t>สมัครสมาชิก</button>
         </div>
 
         <form id="fLogin" class="auth" novalidate>
-          <label class="field"><span class="lbl">อีเมล</span><input type="email" id="lEmail" autocomplete="username" inputmode="email" placeholder="you@example.com"></label>
-          <label class="field"><span class="lbl">รหัสผ่าน</span><span class="pw"><input type="password" id="lPw" autocomplete="current-password" placeholder="รหัสผ่าน"><button type="button" data-eye="lPw">แสดง</button></span></label>
+          <label class="field"><span class="lbl" data-t>อีเมล</span><input type="email" id="lEmail" autocomplete="username" inputmode="email" placeholder="you@example.com"></label>
+          <label class="field"><span class="lbl" data-t>รหัสผ่าน</span><span class="pw"><input type="password" id="lPw" autocomplete="current-password" data-tp="รหัสผ่าน" placeholder="รหัสผ่าน"><button type="button" data-eye="lPw" data-t>แสดง</button></span></label>
           <p class="err" id="lErr" hidden></p>
-          <button class="btn primary big" type="submit" id="lSubmit">เข้าสู่ระบบ</button>
-          <button class="linkbtn" type="button" data-auth="reset1">ลืมรหัสผ่าน?</button>
+          <button class="btn primary big" type="submit" id="lSubmit" data-t>เข้าสู่ระบบ</button>
+          <button class="linkbtn" type="button" data-auth="reset1" data-t>ลืมรหัสผ่าน?</button>
         </form>
 
         <form id="fRegister" class="auth" novalidate hidden>
           <p class="note-box" id="regNote" hidden></p>
-          <label class="field"><span class="lbl">ชื่อที่ใช้ในแอป</span><input type="text" id="regName" autocomplete="name" maxlength="60" placeholder="เช่น สมชาย ใจดี หรือ น้องเอ"></label>
-          <label class="field"><span class="lbl">ห้อง / แผนก (ไม่ใส่ก็ได้)</span><input type="text" id="regGroup" maxlength="80" placeholder="เช่น ม.2/1"></label>
-          <label class="field"><span class="lbl">อีเมล</span><input type="email" id="regEmail" autocomplete="email" inputmode="email" placeholder="you@example.com"></label>
-          <label class="field"><span class="lbl">ตั้งรหัสผ่าน (อย่างน้อย 6 ตัว)</span><span class="pw"><input type="password" id="regPw" autocomplete="new-password" placeholder="รหัสผ่าน"><button type="button" data-eye="regPw">แสดง</button></span></label>
+          <label class="field"><span class="lbl" data-t>ชื่อที่ใช้ในแอป</span><input type="text" id="regName" autocomplete="name" maxlength="60" data-tp="เช่น สมชาย ใจดี" placeholder="เช่น สมชาย ใจดี"></label>
+          <label class="field"><span class="lbl" data-t>ห้อง / แผนก (ไม่ใส่ก็ได้)</span><input type="text" id="regGroup" maxlength="80" data-tp="เช่น ฝ่าย Cal/Val" placeholder="เช่น ฝ่าย Cal/Val"></label>
+          <label class="field"><span class="lbl" data-t>อีเมล</span><input type="email" id="regEmail" autocomplete="email" inputmode="email" placeholder="you@example.com"></label>
+          <label class="field"><span class="lbl" data-t>ตั้งรหัสผ่าน (อย่างน้อย 6 ตัว)</span><span class="pw"><input type="password" id="regPw" autocomplete="new-password" data-tp="รหัสผ่าน" placeholder="รหัสผ่าน"><button type="button" data-eye="regPw" data-t>แสดง</button></span></label>
           <p class="err" id="regErr" hidden></p>
-          <button class="btn primary big" type="submit" id="regSubmit">สมัครสมาชิก</button>
+          <button class="btn primary big" type="submit" id="regSubmit" data-t>สมัครสมาชิก</button>
         </form>
 
         <form id="fReset1" class="auth" novalidate hidden>
-          <h3>ลืมรหัสผ่าน</h3>
-          <p class="muted">ใส่อีเมลที่สมัครไว้ ระบบจะส่งรหัส 6 หลักไปให้</p>
-          <label class="field"><span class="lbl">อีเมล</span><input type="email" id="f1Email" inputmode="email" autocomplete="username"></label>
+          <h3 data-t>ลืมรหัสผ่าน</h3>
+          <p class="muted" data-t>ใส่อีเมลที่สมัครไว้ ระบบจะส่งรหัส 6 หลักไปให้</p>
+          <label class="field"><span class="lbl" data-t>อีเมล</span><input type="email" id="f1Email" inputmode="email" autocomplete="username"></label>
           <p class="err" id="f1Err" hidden></p>
-          <button class="btn primary big" type="submit" id="f1Submit">ส่งรหัสไปที่อีเมล</button>
-          <button class="linkbtn" type="button" data-auth="login">กลับไปเข้าสู่ระบบ</button>
+          <button class="btn primary big" type="submit" id="f1Submit" data-t>ส่งรหัสไปที่อีเมล</button>
+          <button class="linkbtn" type="button" data-auth="login" data-t>กลับไปเข้าสู่ระบบ</button>
         </form>
 
         <form id="fReset2" class="auth" novalidate hidden>
-          <h3>ตั้งรหัสผ่านใหม่</h3>
+          <h3 data-t>ตั้งรหัสผ่านใหม่</h3>
           <p class="note-box" id="f2Note"></p>
-          <label class="field"><span class="lbl">รหัส 6 หลักจากอีเมล</span><input type="text" id="f2Code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000"></label>
-          <label class="field"><span class="lbl">รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)</span><span class="pw"><input type="password" id="f2Pw" autocomplete="new-password"><button type="button" data-eye="f2Pw">แสดง</button></span></label>
+          <label class="field"><span class="lbl" data-t>รหัส 6 หลักจากอีเมล</span><input type="text" id="f2Code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000"></label>
+          <label class="field"><span class="lbl" data-t>รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)</span><span class="pw"><input type="password" id="f2Pw" autocomplete="new-password"><button type="button" data-eye="f2Pw" data-t>แสดง</button></span></label>
           <p class="err" id="f2Err" hidden></p>
-          <button class="btn primary big" type="submit" id="f2Submit">ตั้งรหัสผ่านใหม่</button>
-          <button class="linkbtn" type="button" data-auth="reset1">ยังไม่ได้รับรหัส? ขอใหม่</button>
+          <button class="btn primary big" type="submit" id="f2Submit" data-t>ตั้งรหัสผ่านใหม่</button>
+          <button class="linkbtn" type="button" data-auth="reset1" data-t>ยังไม่ได้รับรหัส? ขอใหม่</button>
         </form>
 
         <div id="gWrap" class="auth" hidden>
-          <div class="or">หรือ</div>
+          <div class="or" data-t>หรือ</div>
           <div id="gBtn"></div>
           <p class="err" id="gErr" hidden></p>
         </div>
       </div>
-      <button class="linkbtn" type="button" data-open-settings>ตั้งค่าการเชื่อมต่อ</button>
+      <button class="linkbtn" type="button" data-open-settings data-t>ตั้งค่าการเชื่อมต่อ</button>
     </div>
   </section>
 
   <section class="view" id="view-pending" hidden>
     <div class="setup">
-      <h2>รอผู้ดูแลอนุมัติ</h2>
-      <p class="muted" id="pendingMsg">สมัครเรียบร้อยแล้ว เมื่อผู้ดูแลอนุมัติ ให้กลับมาเข้าสู่ระบบอีกครั้ง</p>
-      <button class="btn primary big" type="button" id="btnPendingBack">ไปหน้าเข้าสู่ระบบ</button>
+      <h2 data-t>รอผู้ดูแลอนุมัติ</h2>
+      <p class="muted" id="pendingMsg"></p>
+      <button class="btn primary big" type="button" id="btnPendingBack" data-t>ไปหน้าเข้าสู่ระบบ</button>
     </div>
   </section>
 
@@ -506,16 +127,17 @@ dialog.lightbox{width:100vw;height:100dvh;max-width:none;max-height:none;margin:
     <button class="review-strip" type="button" id="reviewStrip" data-goto-review hidden></button>
     <div class="stats" id="stats"></div>
     <div class="row">
-      <input class="grow" type="search" id="qItems" placeholder="ค้นหาชื่อหรือรหัสอุปกรณ์" autocomplete="off">
-      <label class="toggle"><input type="checkbox" id="onlyFree"> ว่าง</label>
+      <input class="grow" type="search" id="qItems" data-tp="ค้นหาชื่อ รหัส เลขครุภัณฑ์ หรือที่เก็บ" placeholder="ค้นหาชื่อ รหัส เลขครุภัณฑ์ หรือที่เก็บ" autocomplete="off">
+      <label class="toggle"><input type="checkbox" id="onlyFree"> <span data-t>ว่าง</span></label>
     </div>
+    <div class="chips" id="ownChips"></div>
     <div class="chips" id="catChips"></div>
     <div class="list two" id="itemList"></div>
   </section>
 
   <!-- loans -->
   <section class="view" id="view-loans" hidden>
-    <input type="search" id="qLoans" placeholder="ค้นหาชื่อคนยืม หรือชื่ออุปกรณ์" autocomplete="off">
+    <input type="search" id="qLoans" data-tp="ค้นหาชื่อคนยืม หรือชื่ออุปกรณ์" placeholder="ค้นหาชื่อคนยืม หรือชื่ออุปกรณ์" autocomplete="off">
     <div class="chips" id="loanChips"></div>
     <div class="list" id="loanList"></div>
   </section>
@@ -523,60 +145,62 @@ dialog.lightbox{width:100vw;height:100dvh;max-width:none;max-height:none;margin:
   <!-- history -->
   <section class="view" id="view-history" hidden>
     <p class="help" id="histNote"></p>
-    <input type="search" id="qHist" placeholder="ค้นหาในประวัติ" autocomplete="off">
+    <input type="search" id="qHist" data-tp="ค้นหาในประวัติ" placeholder="ค้นหาในประวัติ" autocomplete="off">
     <div class="list" id="histList"></div>
   </section>
 
   <!-- manage -->
   <section class="view" id="view-manage" hidden>
     <div id="manageGate" class="setup" hidden>
-      <h2>เมนูนี้สำหรับผู้ดูแล</h2>
-      <p class="muted">เพิ่ม แก้ไข หรือลบอุปกรณ์ได้เฉพาะผู้ดูแล ถ้าต้องการเพิ่มของ ให้แจ้งผู้ดูแลของห้อง</p>
-      <button class="btn" type="button" data-open-account>👤 บัญชีของฉัน</button>
-      <button class="btn" type="button" data-open-settings>⚙️ ตั้งค่าการเชื่อมต่อ</button>
+      <h2 data-t>เมนูนี้สำหรับผู้ดูแล</h2>
+      <p class="muted" data-t>เพิ่ม แก้ไข หรือลบอุปกรณ์ได้เฉพาะผู้ดูแล ถ้าต้องการเพิ่มของ ให้แจ้งผู้ดูแลของห้อง</p>
+      <button class="btn" type="button" data-open-policy data-t>📜 นโยบายการยืม</button>
+      <button class="btn" type="button" data-open-account data-t>👤 บัญชีของฉัน</button>
+      <button class="btn" type="button" data-open-settings data-t>⚙️ ตั้งค่าการเชื่อมต่อ</button>
     </div>
     <div id="manageBody" class="view" hidden>
       <div class="box">
-        <div class="box-head"><h2>อุปกรณ์ทั้งหมด</h2><button class="btn primary small" type="button" data-add-item>+ เพิ่มอุปกรณ์</button></div>
+        <div class="box-head"><h2 data-t>อุปกรณ์ทั้งหมด</h2><button class="btn primary small" type="button" data-add-item data-t>+ เพิ่มอุปกรณ์</button></div>
         <div id="manageItems"></div>
       </div>
       <div class="box">
-        <div class="box-head"><h2>หมวดหมู่</h2><button class="btn small" type="button" data-add-cat>+ เพิ่มหมวด</button></div>
+        <div class="box-head"><h2 data-t>หมวดหมู่ทั้งหมด</h2><button class="btn small" type="button" data-add-cat data-t>+ เพิ่มหมวด</button></div>
         <div id="manageCats"></div>
       </div>
       <div class="box" id="boxUsers">
-        <div class="box-head"><h2>สมาชิก <span class="tag" id="pendTag" hidden></span></h2><span class="help" id="regMode"></span></div>
+        <div class="box-head"><h2><span data-t>สมาชิก</span> <span class="tag" id="pendTag" hidden></span></h2><span class="help" id="regMode"></span></div>
         <div id="manageUsers"></div>
       </div>
       <div class="box">
-        <div class="box-head"><h2>เครื่องมือ</h2></div>
+        <div class="box-head"><h2 data-t>เครื่องมือ</h2></div>
         <div class="tools">
-          <button class="btn" type="button" id="btnLabels">🏷️ พิมพ์ป้าย QR ติดอุปกรณ์</button>
-          <a class="btn" id="lnkSheet" href="#" target="_blank" rel="noopener">📄 เปิดข้อมูลใน Google Sheets</a>
-          <button class="btn" type="button" id="btnInstall" hidden>📲 ติดตั้งแอปลงหน้าจอ</button>
+          <button class="btn" type="button" id="btnPolicyEdit" data-t>📜 แก้ไขนโยบายการยืม</button>
+          <button class="btn" type="button" id="btnLabels" data-t>🏷️ พิมพ์ป้าย QR ติดอุปกรณ์</button>
+          <a class="btn" id="lnkSheet" href="#" target="_blank" rel="noopener" data-t>📄 เปิดข้อมูลใน Google Sheets</a>
+          <button class="btn" type="button" id="btnInstall" hidden data-t>📲 ติดตั้งแอปลงหน้าจอ</button>
           <p class="help" id="installHint"></p>
-          <button class="btn" type="button" data-open-settings>⚙️ ตั้งค่าการเชื่อมต่อ</button>
-          <button class="btn" type="button" data-open-account>👤 บัญชีของฉัน</button>
+          <button class="btn" type="button" data-open-settings data-t>⚙️ ตั้งค่าการเชื่อมต่อ</button>
+          <button class="btn" type="button" data-open-account data-t>👤 บัญชีของฉัน</button>
         </div>
       </div>
     </div>
   </section>
 </main>
 
-<nav class="bnav" aria-label="เมนูหลัก">
+<nav class="bnav" data-ta="เมนูหลัก" aria-label="เมนูหลัก">
   <div class="bnav-in">
-    <button class="nb" type="button" data-tab="items"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg>อุปกรณ์</button>
-    <button class="nb" type="button" data-tab="loans"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>กำลังยืม<span class="dot" id="badgeLoans"></span></button>
-    <button class="nb scan" type="button" data-scan><span class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M7 12h10"/></svg></span>สแกน</button>
-    <button class="nb" type="button" data-tab="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h12M9 12h12M9 18h12"/><circle cx="4.5" cy="6" r="1.2"/><circle cx="4.5" cy="12" r="1.2"/><circle cx="4.5" cy="18" r="1.2"/></svg>ประวัติ</button>
-    <button class="nb" type="button" data-tab="manage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg>จัดการ<span class="dot bad" id="badgeManage"></span></button>
+    <button class="nb" type="button" data-tab="items"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg><span data-t>อุปกรณ์</span></button>
+    <button class="nb" type="button" data-tab="loans"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span data-t>กำลังยืม</span><span class="dot" id="badgeLoans"></span></button>
+    <button class="nb scan" type="button" data-scan><span class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M7 12h10"/></svg></span><span data-t>สแกน</span></button>
+    <button class="nb" type="button" data-tab="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h12M9 12h12M9 18h12"/><circle cx="4.5" cy="6" r="1.2"/><circle cx="4.5" cy="12" r="1.2"/><circle cx="4.5" cy="18" r="1.2"/></svg><span data-t>ประวัติ</span></button>
+    <button class="nb" type="button" data-tab="manage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg><span data-t>จัดการ</span><span class="dot bad" id="badgeManage"></span></button>
   </div>
 </nav>
 
 <!-- detail -->
 <dialog class="sheet" id="dlgDetail" aria-labelledby="dTitle">
   <div class="sheet-wrap">
-    <div class="sh-head"><h2 id="dTitle">อุปกรณ์</h2><button class="x" type="button" data-close aria-label="ปิด">×</button></div>
+    <div class="sh-head"><h2 id="dTitle" data-t>อุปกรณ์</h2><button class="x" type="button" data-close data-ta="ปิด" aria-label="ปิด">×</button></div>
     <div class="sh-body" id="dBody"></div>
     <div class="sh-foot" id="dFoot"></div>
   </div>
@@ -585,184 +209,232 @@ dialog.lightbox{width:100vw;height:100dvh;max-width:none;max-height:none;margin:
 <!-- borrow -->
 <dialog class="sheet" id="dlgBorrow" aria-labelledby="bTitle">
   <form id="fBorrow" novalidate>
-    <div class="sh-head"><h2 id="bTitle">ยืมอุปกรณ์</h2><button class="x" type="button" data-close aria-label="ปิด">×</button></div>
+    <div class="sh-head"><h2 id="bTitle" data-t>ยืมอุปกรณ์</h2><button class="x" type="button" data-close data-ta="ปิด" aria-label="ปิด">×</button></div>
     <div class="sh-body">
-      <div class="picked"><span class="cat-ic" id="bIcon"></span><div><b id="bItem"></b><span id="bAvail"></span></div></div>
-      <div class="field" id="bQtyField">
-        <span class="lbl">ยืมกี่ชิ้น</span>
-        <div class="stepper"><button type="button" data-step="-1" data-for="bQty" aria-label="ลด">−</button><input type="number" id="bQty" min="1" inputmode="numeric"><button type="button" data-step="1" data-for="bQty" aria-label="เพิ่ม">+</button><span class="unit">ชิ้น</span></div>
-      </div>
-      <div class="field">
-        <div class="step"><i>1</i>ใครยืม</div>
-        <div class="whoami"><span>ผู้ยืม: <b id="bMe"></b></span><label class="help"><input type="checkbox" id="bForOther"> ยืมแทนคนอื่น</label></div>
-        <div class="field" id="bOther" hidden>
-          <input type="text" id="bName" list="nameList" placeholder="ชื่อคนที่ยืม" autocomplete="off" maxlength="80">
-          <input type="text" id="bGroup" list="groupList" placeholder="ห้อง / แผนก / เบอร์โทร (ไม่ใส่ก็ได้)" autocomplete="off" maxlength="80">
-          <span class="help">ระบบจะบันทึกว่าคุณเป็นคนกดยืมให้</span>
+      <div class="picked"><span class="cat-ic" id="bIcon"></span><div><b id="bItem"></b><span id="bAvail"></span><div class="facts" id="bFacts"></div></div></div>
+      <div class="field" id="bKindField">
+        <div class="step"><i>1</i><span data-t>รูปแบบการยืม</span></div>
+        <div class="kind-seg" role="radiogroup">
+          <label><input type="radio" name="bKind" value="temp" checked><span><span data-t>ยืมชั่วคราว</span><small data-t>มีกำหนดวันคืน</small></span></label>
+          <label><input type="radio" name="bKind" value="perm" id="bKindPerm"><span><span data-t>ยืมถาวร</span><small id="bPermNote"></small></span></label>
         </div>
       </div>
+      <div class="field" id="bQtyField">
+        <span class="lbl" data-t>ยืมกี่ชิ้น</span>
+        <div class="stepper"><button type="button" data-step="-1" data-for="bQty" data-ta="ลด" aria-label="ลด">−</button><input type="number" id="bQty" min="1" inputmode="numeric"><button type="button" data-step="1" data-for="bQty" data-ta="เพิ่ม" aria-label="เพิ่ม">+</button><span class="unit" data-t>ชิ้น</span></div>
+      </div>
       <div class="field">
-        <div class="step"><i>2</i>ยืมกี่วัน</div>
-        <div class="stepper"><button type="button" data-step="-1" data-for="bDays" aria-label="ลดวัน">−</button><input type="number" id="bDays" min="1" inputmode="numeric"><button type="button" data-step="1" data-for="bDays" aria-label="เพิ่มวัน">+</button><span class="unit" id="bMaxNote">วัน</span></div>
+        <div class="step"><i>2</i><span data-t>ใครยืม</span></div>
+        <div class="whoami"><span><span data-t>ผู้ยืม:</span> <b id="bMe"></b></span><label class="help"><input type="checkbox" id="bForOther"> <span data-t>ยืมแทนคนอื่น</span></label></div>
+        <div class="field" id="bOther" hidden>
+          <input type="text" id="bName" list="nameList" data-tp="ชื่อคนที่ยืม" placeholder="ชื่อคนที่ยืม" autocomplete="off" maxlength="80">
+          <input type="text" id="bGroup" list="groupList" data-tp="ห้อง / แผนก / เบอร์โทร (ไม่ใส่ก็ได้)" placeholder="ห้อง / แผนก / เบอร์โทร (ไม่ใส่ก็ได้)" autocomplete="off" maxlength="80">
+          <span class="help" data-t>ระบบจะบันทึกว่าคุณเป็นคนกดยืมให้</span>
+        </div>
+      </div>
+      <div class="field" id="bDaysField">
+        <div class="step"><i>3</i><span data-t>ยืมกี่วัน</span></div>
+        <div class="stepper"><button type="button" data-step="-1" data-for="bDays" data-ta="ลดวัน" aria-label="ลดวัน">−</button><input type="number" id="bDays" min="1" inputmode="numeric"><button type="button" data-step="1" data-for="bDays" data-ta="เพิ่มวัน" aria-label="เพิ่มวัน">+</button><span class="unit" id="bMaxNote"></span></div>
         <div class="quick" id="bQuick"></div>
+        <div class="duebox">
+          <div class="stamp" id="bStampBox"><span class="stamp-k" data-t>กำหนดคืน</span><span class="stamp-d" id="bStamp">–</span></div>
+          <div class="txt"><span data-t>ต้องคืนภายใน</span><b id="bDueLong">–</b></div>
+        </div>
       </div>
-      <div class="duebox">
-        <div class="stamp" id="bStampBox"><span class="stamp-k">กำหนดคืน</span><span class="stamp-d" id="bStamp">–</span></div>
-        <div class="txt"><span>ต้องคืนภายใน</span><b id="bDueLong">–</b></div>
+      <div class="field" id="bReasonField" hidden>
+        <div class="step"><i>3</i><span data-t>เหตุผลที่ขอยืมถาวร</span></div>
+        <textarea id="bReason" maxlength="500" data-tp="เช่น ใช้ประจำในโครงการสอบเทียบดาวเทียม" placeholder="เช่น ใช้ประจำในโครงการสอบเทียบดาวเทียม"></textarea>
+        <span class="help" data-t>ผู้ดูแลจะได้รับคำขอ ระหว่างรออนุมัติ ระบบจะกันของไว้ให้คุณ</span>
       </div>
-      <label class="field"><span class="lbl">หมายเหตุ (ไม่ใส่ก็ได้)</span><input type="text" id="bNote" placeholder="เช่น เอาไปใช้ห้อง 302" maxlength="200"></label>
+      <div class="field">
+        <div class="step"><i>4</i><span data-t>นำไปใช้ที่ไหน (ไม่ใส่ก็ได้)</span></div>
+        <div class="gps-row"><input type="text" id="bUseAt" maxlength="200" data-tp="เช่น สนามทดสอบ / ห้อง 405" placeholder="เช่น สนามทดสอบ / ห้อง 405" autocomplete="off"><button class="btn" type="button" id="btnGps" data-t>📍 ใช้ตำแหน่งตอนนี้</button></div>
+        <a class="maplink" id="bMapLink" href="#" target="_blank" rel="noopener" hidden data-t>เปิดดูในแผนที่</a>
+      </div>
+      <div class="field" id="bPhotoField">
+        <div class="step"><i>5</i><span id="bPhotoTitle"></span></div>
+        <p class="help" data-t>ถ่ายให้เห็นสภาพทุกด้าน เช่น ด้านหน้า ด้านหลัง ป้ายเลขครุภัณฑ์ และอุปกรณ์เสริม ต้องถ่ายจากกล้องในแอปเท่านั้น</p>
+        <div class="photo-box" id="bPhotoBox"></div>
+      </div>
+      <label class="field"><span class="lbl" data-t>หมายเหตุ (ไม่ใส่ก็ได้)</span><input type="text" id="bNote" maxlength="300"></label>
+      <div class="field" id="bPolicyField" hidden>
+        <label class="accept"><input type="checkbox" id="bAccept"><span data-t>ฉันอ่านและยอมรับนโยบายการยืมแล้ว</span></label>
+        <button type="button" class="linkbtn" data-open-policy data-t>อ่านนโยบายการยืม</button>
+      </div>
       <p class="err" id="bErr" hidden></p>
     </div>
-    <div class="sh-foot"><button class="btn" type="button" data-close>ยกเลิก</button><button class="btn primary" type="submit" id="bSubmit">ยืนยันการยืม</button></div>
+    <div class="sh-foot"><button class="btn" type="button" data-close data-t>ยกเลิก</button><button class="btn primary" type="submit" id="bSubmit"></button></div>
   </form>
 </dialog>
 
-<!-- return: member sends photo evidence -->
+<!-- return: borrower sends photo evidence -->
 <dialog class="sheet" id="dlgReturn" aria-labelledby="rTitle">
   <form id="fReturn" novalidate>
-    <div class="sh-head"><h2 id="rTitle">แจ้งคืนอุปกรณ์</h2><button class="x" type="button" data-close aria-label="ปิด">×</button></div>
+    <div class="sh-head"><h2 id="rTitle" data-t>แจ้งคืนอุปกรณ์</h2><button class="x" type="button" data-close data-ta="ปิด" aria-label="ปิด">×</button></div>
     <div class="sh-body">
       <dl class="sumgrid" id="rSum"></dl>
       <p class="state" id="rState"></p>
       <p class="admin-msg bad" id="rAdminNote" hidden></p>
       <div class="field">
-        <div class="step"><i>1</i>ถ่ายรูปตัวคุณคู่กับอุปกรณ์</div>
-        <p class="help">ถืออุปกรณ์ไว้ข้างหน้า ให้เห็น <b>หน้าของคุณ</b> และ <b>อุปกรณ์</b> ชัดเจนในรูปเดียวกัน ต้องถ่ายจากกล้องตอนนี้เท่านั้น เลือกรูปจากคลังรูปไม่ได้</p>
+        <div class="step"><i>1</i><span id="rPhotoTitle"></span></div>
+        <p class="help" data-t>รูปแรก: ถืออุปกรณ์ไว้ข้างหน้า ให้เห็นหน้าของคุณและอุปกรณ์ชัดเจน · รูปต่อไป: ถ่ายอุปกรณ์หลายมุมให้เห็นสภาพ ต้องถ่ายจากกล้องในแอปเท่านั้น</p>
         <div class="photo-box" id="rPhotoBox"></div>
       </div>
-      <label class="field"><span class="step"><i>2</i>สภาพของตอนคืน (ไม่ใส่ก็ได้)</span><input type="text" id="rNote" placeholder="เช่น ครบ ใช้งานได้ปกติ" maxlength="200"></label>
+      <label class="field"><span class="step"><i>2</i><span data-t>สภาพของตอนคืน (ไม่ใส่ก็ได้)</span></span><input type="text" id="rNote" data-tp="เช่น ครบ ใช้งานได้ปกติ" placeholder="เช่น ครบ ใช้งานได้ปกติ" maxlength="300"></label>
       <p class="err" id="rErr" hidden></p>
     </div>
-    <div class="sh-foot"><button class="btn" type="button" data-close>ยกเลิก</button><button class="btn primary" type="submit" id="rSubmit">ส่งหลักฐานการคืน</button></div>
+    <div class="sh-foot"><button class="btn" type="button" data-close data-t>ยกเลิก</button><button class="btn primary" type="submit" id="rSubmit" data-t>ส่งหลักฐานการคืน</button></div>
   </form>
 </dialog>
 
-<!-- review: admin checks a return -->
+<!-- review: admin checks a return / a permanent request -->
 <dialog class="sheet" id="dlgReview" aria-labelledby="vTitle">
   <form id="fReview" novalidate>
-    <div class="sh-head"><h2 id="vTitle">ตรวจสอบการคืน</h2><button class="x" type="button" data-close aria-label="ปิด">×</button></div>
+    <div class="sh-head"><h2 id="vTitle"></h2><button class="x" type="button" data-close data-ta="ปิด" aria-label="ปิด">×</button></div>
     <div class="sh-body">
-      <div class="evidence" id="vPhoto"></div>
+      <div class="compare" id="vPhotos"></div>
       <dl class="sumgrid" id="vSum"></dl>
-      <div class="field"><span class="lbl">ผลการตรวจสอบ</span>
-        <div class="choices" role="radiogroup" aria-label="ผลการตรวจสอบ">
-          <label><input type="radio" name="vResult" value="ok"><span><b>✅ ยืนยันการคืน</b><small>ได้รับของครบ สภาพปกติ</small></span></label>
-          <label><input type="radio" name="vResult" value="problem"><span><b>⚠️ คืนแล้ว แต่มีปัญหา</b><small>ได้รับของแล้ว แต่ชำรุด สกปรก หรือไม่ครบ</small></span></label>
-          <label id="vRedoWrap"><input type="radio" name="vResult" value="redo"><span><b>↩️ ไม่ผ่าน ให้ส่งใหม่</b><small>รูปไม่ชัด ไม่เห็นหน้า หรือยังไม่ได้รับของจริง</small></span></label>
+      <div class="field" id="vReturnChoices"><span class="lbl" data-t>ผลการตรวจสอบ</span>
+        <div class="choices" role="radiogroup">
+          <label><input type="radio" name="vResult" value="ok"><span><b data-t>✅ ยืนยันการคืน</b><small data-t>ได้รับของครบ สภาพปกติ</small></span></label>
+          <label><input type="radio" name="vResult" value="problem"><span><b data-t>⚠️ คืนแล้ว แต่มีปัญหา</b><small data-t>ได้รับของแล้ว แต่ชำรุด สกปรก หรือไม่ครบ</small></span></label>
+          <label id="vRedoWrap"><input type="radio" name="vResult" value="redo"><span><b data-t>↩️ ไม่ผ่าน ให้ส่งใหม่</b><small data-t>รูปไม่ชัด ไม่เห็นหน้า หรือยังไม่ได้รับของจริง</small></span></label>
         </div>
       </div>
-      <label class="help" id="vRepairWrap" hidden><input type="checkbox" id="vRepair"> ตั้งอุปกรณ์นี้เป็น “ชำรุด / ส่งซ่อม” (ยืมต่อไม่ได้จนกว่าจะแก้)</label>
-      <label class="field"><span class="lbl" id="vNoteLbl">ข้อความถึงผู้ยืม (ไม่ใส่ก็ได้)</span><textarea id="vNote" maxlength="400" placeholder="เช่น ขอบคุณที่คืนตรงเวลา"></textarea></label>
-      <label class="help" id="vMailWrap"><input type="checkbox" id="vMail" checked> ส่งอีเมลแจ้งผู้ยืมด้วย</label>
-      <p class="help" id="vNoAcct" hidden>ผู้ยืมรายนี้ไม่มีบัญชีในแอป จึงจะไม่ได้รับแจ้งเตือน</p>
+      <div class="field" id="vPermChoices" hidden><span class="lbl" data-t>ผลการพิจารณา</span>
+        <div class="choices" role="radiogroup">
+          <label><input type="radio" name="vDecision" value="approve"><span><b data-t>✅ อนุมัติยืมถาวร</b><small data-t>ผู้ขอใช้ได้โดยไม่มีกำหนดคืน จนกว่าจะแจ้งคืน</small></span></label>
+          <label><input type="radio" name="vDecision" value="reject"><span><b data-t>✖️ ไม่อนุมัติ</b><small data-t>ของจะกลับมาว่างให้คนอื่นยืม</small></span></label>
+        </div>
+      </div>
+      <label class="help" id="vRepairWrap" hidden><input type="checkbox" id="vRepair"> <span data-t>ตั้งอุปกรณ์นี้เป็น “ชำรุด / ส่งซ่อม” (ยืมต่อไม่ได้จนกว่าจะแก้)</span></label>
+      <p class="help" id="vScoreHint"></p>
+      <label class="field"><span class="lbl" id="vNoteLbl"></span><textarea id="vNote" maxlength="400"></textarea></label>
+      <label class="help" id="vMailWrap"><input type="checkbox" id="vMail" checked> <span data-t>ส่งอีเมลแจ้งผู้ยืมด้วย</span></label>
+      <p class="help" id="vNoAcct" hidden data-t>ผู้ยืมรายนี้ไม่มีบัญชีในแอป จึงจะไม่ได้รับแจ้งเตือน</p>
       <p class="err" id="vErr" hidden></p>
     </div>
-    <div class="sh-foot"><button class="btn" type="button" data-close>ยกเลิก</button><button class="btn primary" type="submit" id="vSubmit">บันทึกและแจ้งผู้ยืม</button></div>
+    <div class="sh-foot"><button class="btn" type="button" data-close data-t>ยกเลิก</button><button class="btn primary" type="submit" id="vSubmit"></button></div>
   </form>
 </dialog>
 
 <!-- item form -->
 <dialog class="sheet" id="dlgItem" aria-labelledby="iTitle">
   <form id="fItem" novalidate>
-    <div class="sh-head"><h2 id="iTitle">เพิ่มอุปกรณ์</h2><button class="x" type="button" data-close aria-label="ปิด">×</button></div>
+    <div class="sh-head"><h2 id="iTitle"></h2><button class="x" type="button" data-close data-ta="ปิด" aria-label="ปิด">×</button></div>
     <div class="sh-body">
-      <label class="field"><span class="lbl">ชื่ออุปกรณ์</span><input type="text" id="iName" placeholder="เช่น โปรเจกเตอร์ Epson" maxlength="80"></label>
-      <label class="field"><span class="lbl">หมวดหมู่</span><select id="iCat"></select></label>
-      <div class="field"><span class="lbl">รูปอุปกรณ์ (ไม่ใส่ก็ได้)</span>
+      <label class="field"><span class="lbl" data-t>ชื่ออุปกรณ์</span><input type="text" id="iName" data-tp="เช่น GNSS Receiver" placeholder="เช่น GNSS Receiver" maxlength="80"></label>
+      <label class="field"><span class="lbl" data-t>หมวดหมู่</span><select id="iCat"></select></label>
+      <div class="field"><span class="lbl" data-t>เป็นของใคร</span>
+        <div class="kind-seg" role="radiogroup">
+          <label><input type="radio" name="iOwn" value="office"><span><span id="iOwnOffice"></span><small data-t>มีเลขครุภัณฑ์</small></span></label>
+          <label><input type="radio" name="iOwn" value="personal"><span><span id="iOwnPersonal"></span><small data-t>ระบุชื่อเจ้าของ</small></span></label>
+        </div>
+      </div>
+      <label class="field" id="iAssetField"><span class="lbl" data-t>เลขครุภัณฑ์</span><input type="text" id="iAsset" maxlength="60" data-tp="เช่น 7440-001-0001/66" placeholder="เช่น 7440-001-0001/66" autocomplete="off"></label>
+      <div class="field" id="iOwnerField" hidden>
+        <span class="lbl" data-t>ชื่อเจ้าของ</span>
+        <select id="iOwnerUser"></select>
+        <input type="text" id="iOwner" maxlength="80" data-tp="ชื่อเจ้าของ" placeholder="ชื่อเจ้าของ">
+        <span class="help" data-t>ถ้าเจ้าของมีบัญชีในแอป ให้เลือกจากรายชื่อ เจ้าของจะได้รับแจ้งเตือนเมื่อมีคนยืมหรือคืนของชิ้นนี้</span>
+      </div>
+      <label class="field"><span class="lbl" data-t>ที่เก็บ / ตำแหน่งของอุปกรณ์</span><input type="text" id="iLocation" list="locList" maxlength="120" data-tp="เช่น ห้อง 302 ตู้ A ชั้น 2" placeholder="เช่น ห้อง 302 ตู้ A ชั้น 2" autocomplete="off"></label>
+      <div class="field"><span class="lbl" data-t>รูปอุปกรณ์ (ไม่ใส่ก็ได้)</span>
         <div class="img-edit">
           <div class="img-prev" id="iImgPrev"></div>
           <div class="img-actions">
-            <button class="btn" type="button" id="btnICam">📷 ถ่ายรูป</button>
-            <label class="btn" for="iFile">🖼️ เลือกจากคลังรูป</label>
+            <button class="btn" type="button" id="btnICam" data-t>📷 ถ่ายรูป</button>
+            <label class="btn" for="iFile" data-t>🖼️ เลือกจากคลังรูป</label>
             <input type="file" id="iFile" accept="image/*" class="vh" tabindex="-1">
-            <button class="btn small danger" type="button" id="btnIRemove" hidden>ลบรูป</button>
+            <button class="btn small danger" type="button" id="btnIRemove" hidden data-t>ลบรูป</button>
           </div>
         </div>
       </div>
-      <div class="field"><span class="lbl">รหัสสำหรับสแกน</span>
+      <div class="field"><span class="lbl" data-t>รหัสสำหรับสแกน</span>
         <div class="codebox" id="iAuto">
-          <label class="field"><span class="help">ตัวอักษรนำหน้า</span><input type="text" id="iPrefix" maxlength="10" autocomplete="off" placeholder="EQ"></label>
-          <div class="code-prev" id="iCodePrevBox"><span class="help">รหัสที่จะได้</span><b id="iCodePrev">–</b></div>
+          <label class="field"><span class="help" data-t>ตัวอักษรนำหน้า</span><input type="text" id="iPrefix" maxlength="10" autocomplete="off" placeholder="EQ"></label>
+          <div class="code-prev" id="iCodePrevBox"><span class="help" data-t>รหัสที่จะได้</span><b id="iCodePrev">–</b></div>
         </div>
-        <div class="row"><input class="grow" type="text" id="iCode" placeholder="หรือพิมพ์รหัสเอง / ใช้บาร์โค้ดเดิม" maxlength="40" autocomplete="off">
-        <button class="btn" type="button" id="btnScanCode">สแกนบาร์โค้ดเดิม</button></div>
-        <span class="help" id="iCodeHelp">เว้นช่องรหัสว่างไว้ ระบบจะรันเลขต่อจากตัวอักษรนำหน้าให้เอง</span>
+        <div class="row"><input class="grow" type="text" id="iCode" data-tp="หรือพิมพ์รหัสเอง / ใช้บาร์โค้ดเดิม" placeholder="หรือพิมพ์รหัสเอง / ใช้บาร์โค้ดเดิม" maxlength="40" autocomplete="off">
+        <button class="btn" type="button" id="btnScanCode" data-t>สแกนบาร์โค้ดเดิม</button></div>
+        <span class="help" id="iCodeHelp"></span>
       </div>
       <div class="two-col">
-        <div class="field"><span class="lbl">มีทั้งหมดกี่ชิ้น</span>
-          <div class="stepper"><button type="button" data-step="-1" data-for="iQty" aria-label="ลด">−</button><input type="number" id="iQty" min="1" max="999" inputmode="numeric"><button type="button" data-step="1" data-for="iQty" aria-label="เพิ่ม">+</button></div></div>
-        <div class="field"><span class="lbl">ยืมได้นานสุดกี่วัน</span>
-          <div class="stepper"><button type="button" data-step="-1" data-for="iMax" aria-label="ลด">−</button><input type="number" id="iMax" min="1" max="365" inputmode="numeric"><button type="button" data-step="1" data-for="iMax" aria-label="เพิ่ม">+</button></div></div>
+        <div class="field"><span class="lbl" data-t>มีทั้งหมดกี่ชิ้น</span>
+          <div class="stepper"><button type="button" data-step="-1" data-for="iQty" data-ta="ลด" aria-label="ลด">−</button><input type="number" id="iQty" min="1" max="999" inputmode="numeric"><button type="button" data-step="1" data-for="iQty" data-ta="เพิ่ม" aria-label="เพิ่ม">+</button></div></div>
+        <div class="field"><span class="lbl" data-t>ยืมได้นานสุดกี่วัน</span>
+          <div class="stepper"><button type="button" data-step="-1" data-for="iMax" data-ta="ลด" aria-label="ลด">−</button><input type="number" id="iMax" min="1" max="365" inputmode="numeric"><button type="button" data-step="1" data-for="iMax" data-ta="เพิ่ม" aria-label="เพิ่ม">+</button></div></div>
       </div>
-      <div class="field"><span class="lbl">ให้ยืมได้ไหม</span>
-        <div class="seg" role="radiogroup" aria-label="สถานะการให้ยืม">
-          <label><input type="radio" name="iStatus" value="lendable"><span>ให้ยืมได้</span></label>
-          <label><input type="radio" name="iStatus" value="locked"><span>ห้ามยืมออก<small>ใช้ในห้องเท่านั้น</small></span></label>
-          <label><input type="radio" name="iStatus" value="repair"><span>ชำรุด / ส่งซ่อม<small>ยืมไม่ได้ชั่วคราว</small></span></label>
+      <label class="accept"><input type="checkbox" id="iPerm"><span data-t>เปิดให้ขอยืมถาวรได้ (ผู้ดูแลต้องอนุมัติทุกครั้ง)</span></label>
+      <div class="field"><span class="lbl" data-t>ให้ยืมได้ไหม</span>
+        <div class="seg" role="radiogroup">
+          <label><input type="radio" name="iStatus" value="lendable"><span data-t>ให้ยืมได้</span></label>
+          <label><input type="radio" name="iStatus" value="locked"><span><span data-t>ห้ามยืมออก</span><small data-t>ใช้ในห้องเท่านั้น</small></span></label>
+          <label><input type="radio" name="iStatus" value="repair"><span><span data-t>ชำรุด / ส่งซ่อม</span><small data-t>ยืมไม่ได้ชั่วคราว</small></span></label>
         </div>
       </div>
-      <label class="field"><span class="lbl">หมายเหตุ (ไม่ใส่ก็ได้)</span><input type="text" id="iNote" placeholder="เช่น อยู่ตู้ซ้ายชั้น 2" maxlength="200"></label>
+      <label class="field"><span class="lbl" data-t>หมายเหตุ (ไม่ใส่ก็ได้)</span><input type="text" id="iNote" maxlength="300"></label>
       <p class="err" id="iErr" hidden></p>
     </div>
-    <div class="sh-foot"><button class="btn" type="button" data-close>ยกเลิก</button><button class="btn primary" type="submit" id="iSubmit">บันทึก</button></div>
+    <div class="sh-foot"><button class="btn" type="button" data-close data-t>ยกเลิก</button><button class="btn primary" type="submit" id="iSubmit" data-t>บันทึก</button></div>
   </form>
 </dialog>
 
 <!-- category form -->
 <dialog class="sheet" id="dlgCat" aria-labelledby="cTitle">
   <form id="fCat" novalidate>
-    <div class="sh-head"><h2 id="cTitle">เพิ่มหมวดหมู่</h2><button class="x" type="button" data-close aria-label="ปิด">×</button></div>
+    <div class="sh-head"><h2 id="cTitle"></h2><button class="x" type="button" data-close data-ta="ปิด" aria-label="ปิด">×</button></div>
     <div class="sh-body">
-      <label class="field"><span class="lbl">ชื่อหมวดหมู่</span><input type="text" id="cName" placeholder="เช่น อุปกรณ์กล้อง" maxlength="60"></label>
-      <label class="field"><span class="lbl">ตัวอักษรนำหน้ารหัส (ไม่ใส่ก็ได้)</span><input type="text" id="cPrefix" maxlength="10" placeholder="เช่น CAM → CAM-0001" autocomplete="off" style="text-transform:uppercase;font-family:var(--f-code)"><span class="help" id="cPrefixHelp">เว้นว่าง = ใช้ค่าเริ่มต้นในชีต “ตั้งค่า”</span></label>
-      <div class="field"><span class="lbl">ไอคอน</span>
-        <div class="row"><input type="text" id="cIcon" maxlength="4" style="width:84px;text-align:center;font-size:22px" aria-label="ไอคอน"><div class="icons grow" id="cIcons"></div></div>
+      <label class="field"><span class="lbl" data-t>ชื่อหมวดหมู่</span><input type="text" id="cName" data-tp="เช่น อุปกรณ์กล้อง" placeholder="เช่น อุปกรณ์กล้อง" maxlength="60"></label>
+      <label class="field"><span class="lbl" data-t>ตัวอักษรนำหน้ารหัส (ไม่ใส่ก็ได้)</span><input type="text" id="cPrefix" maxlength="10" data-tp="เช่น CAM → CAM-0001" placeholder="เช่น CAM → CAM-0001" autocomplete="off" style="text-transform:uppercase;font-family:var(--f-code)"><span class="help" id="cPrefixHelp"></span></label>
+      <div class="field"><span class="lbl" data-t>ไอคอน</span>
+        <div class="row"><input type="text" id="cIcon" maxlength="4" style="width:84px;text-align:center;font-size:22px" data-ta="ไอคอน" aria-label="ไอคอน"><div class="icons grow" id="cIcons"></div></div>
       </div>
       <p class="err" id="cErr" hidden></p>
     </div>
-    <div class="sh-foot"><button class="btn" type="button" data-close>ยกเลิก</button><button class="btn primary" type="submit" id="cSubmit">บันทึก</button></div>
+    <div class="sh-foot"><button class="btn" type="button" data-close data-t>ยกเลิก</button><button class="btn primary" type="submit" id="cSubmit" data-t>บันทึก</button></div>
   </form>
 </dialog>
 
 <!-- settings -->
 <dialog class="sheet" id="dlgSettings" aria-labelledby="sTitle">
   <form id="fSettings" novalidate>
-    <div class="sh-head"><h2 id="sTitle">ตั้งค่าการเชื่อมต่อ</h2><button class="x" type="button" data-close aria-label="ปิด">×</button></div>
+    <div class="sh-head"><h2 id="sTitle" data-t>ตั้งค่าการเชื่อมต่อ</h2><button class="x" type="button" data-close data-ta="ปิด" aria-label="ปิด">×</button></div>
     <div class="sh-body">
-      <label class="field"><span class="lbl">ลิงก์เว็บแอปจาก Apps Script</span>
+      <label class="field"><span class="lbl" data-t>ลิงก์เว็บแอปจาก Apps Script</span>
         <input type="url" id="sUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" inputmode="url">
         <span class="help" id="sUrlHelp"></span></label>
       <p class="err" id="sErr" hidden></p>
     </div>
-    <div class="sh-foot"><button class="btn" type="button" data-close>ปิด</button><button class="btn primary" type="submit" id="sSubmit">บันทึกและทดสอบ</button></div>
+    <div class="sh-foot"><button class="btn" type="button" data-close data-t>ปิด</button><button class="btn primary" type="submit" id="sSubmit" data-t>บันทึกและทดสอบ</button></div>
   </form>
 </dialog>
 
 <!-- labels -->
 <dialog class="sheet" id="dlgLabels" aria-labelledby="lTitle">
   <div class="sheet-wrap">
-    <div class="sh-head"><h2 id="lTitle">ป้าย QR ติดอุปกรณ์</h2><button class="x" type="button" data-close aria-label="ปิด">×</button></div>
+    <div class="sh-head"><h2 id="lTitle" data-t>ป้าย QR ติดอุปกรณ์</h2><button class="x" type="button" data-close data-ta="ปิด" aria-label="ปิด">×</button></div>
     <div class="sh-body">
       <div class="two-col">
-        <label class="field"><span class="lbl">หมวดหมู่</span><select id="lCat"></select></label>
-        <label class="field"><span class="lbl">ขนาดป้าย</span><select id="lSize"><option value="small">เล็ก (4 ป้ายต่อแถว)</option><option value="big">ใหญ่ (3 ป้ายต่อแถว)</option></select></label>
+        <label class="field"><span class="lbl" data-t>หมวดหมู่</span><select id="lCat"></select></label>
+        <label class="field"><span class="lbl" data-t>ขนาดป้าย</span><select id="lSize"><option value="small" data-t>เล็ก (4 ป้ายต่อแถว)</option><option value="big" data-t>ใหญ่ (3 ป้ายต่อแถว)</option></select></label>
       </div>
-      <p class="help">ป้ายละ 1 แผ่นต่ออุปกรณ์ 1 รายการ ถ้ามีหลายชิ้นใช้ป้ายเดียวกันได้ พิมพ์แล้วตัดตามเส้นประ ติดเทปใสทับกันลอก</p>
+      <p class="help" data-t>ป้ายละ 1 แผ่นต่ออุปกรณ์ 1 รายการ พิมพ์แล้วตัดตามเส้นประ ติดเทปใสทับกันลอก</p>
       <div class="labels-grid" id="lGrid"></div>
     </div>
-    <div class="sh-foot"><button class="btn" type="button" data-close>ปิด</button><button class="btn primary" type="button" id="btnPrint">🖨️ พิมพ์ป้าย</button></div>
+    <div class="sh-foot"><button class="btn" type="button" data-close data-t>ปิด</button><button class="btn primary" type="button" id="btnPrint" data-t>🖨️ พิมพ์ป้าย</button></div>
   </div>
 </dialog>
 
 <!-- scanner -->
 <dialog class="scanner" id="dlgScan" aria-labelledby="scTitle">
   <div class="sc-wrap">
-    <div class="sc-top"><h2 id="scTitle">สแกนอุปกรณ์</h2><button class="x" type="button" id="btnScanClose" aria-label="ปิดกล้อง">×</button></div>
+    <div class="sc-top"><h2 id="scTitle"></h2><button class="x" type="button" id="btnScanClose" data-ta="ปิดกล้อง" aria-label="ปิดกล้อง">×</button></div>
     <div class="sc-stage"><div id="reader"></div></div>
-    <p class="sc-msg" id="scMsg">กำลังเปิดกล้อง…</p>
+    <p class="sc-msg" id="scMsg"></p>
     <div class="sc-bottom">
-      <form class="sc-manual" id="fManual"><input type="text" id="manualCode" placeholder="หรือพิมพ์รหัส เช่น EQ-0001" autocomplete="off" aria-label="พิมพ์รหัส"><button class="btn" type="submit">ค้นหา</button></form>
-      <label class="btn" for="scanFile">📷 ถ่ายรูปแทน (ถ้ากล้องเปิดไม่ได้)</label>
+      <form class="sc-manual" id="fManual"><input type="text" id="manualCode" data-tp="หรือพิมพ์รหัส / เลขครุภัณฑ์" placeholder="หรือพิมพ์รหัส / เลขครุภัณฑ์" autocomplete="off"><button class="btn" type="submit" data-t>ค้นหา</button></form>
+      <label class="btn" for="scanFile" data-t>📷 ถ่ายรูปแทน (ถ้ากล้องเปิดไม่ได้)</label>
       <input type="file" id="scanFile" class="vh" accept="image/*" capture="environment" tabindex="-1">
     </div>
   </div>
@@ -771,67 +443,120 @@ dialog.lightbox{width:100vw;height:100dvh;max-width:none;max-height:none;margin:
 <!-- account -->
 <dialog class="sheet" id="dlgAccount" aria-labelledby="aTitle">
   <div class="sheet-wrap">
-    <div class="sh-head"><h2 id="aTitle">บัญชีของฉัน</h2><button class="x" type="button" data-close aria-label="ปิด">×</button></div>
+    <div class="sh-head"><h2 id="aTitle" data-t>บัญชีของฉัน</h2><button class="x" type="button" data-close data-ta="ปิด" aria-label="ปิด">×</button></div>
     <div class="sh-body">
       <div class="me-card"><span class="avatar" id="aAvatar"></span><div><b id="aName"></b><span id="aMeta"></span></div></div>
+      <div class="field"><span class="lbl">ภาษา / Language</span>
+        <div class="seg-lang"><button type="button" data-set-lang="th" aria-pressed="false">ไทย</button><button type="button" data-set-lang="en" aria-pressed="false">English</button></div>
+      </div>
+      <div class="field"><p class="sec-title" data-t>คะแนนของฉัน</p>
+        <div class="score-card" id="aScore"></div>
+        <div class="slog" id="aScoreLog"></div>
+      </div>
+      <div class="linkline"><button type="button" class="linkbtn" data-open-policy data-t>📜 อ่านนโยบายการยืม</button></div>
       <form id="fProfile" class="field" novalidate>
-        <p class="sec-title">ข้อมูลของฉัน</p>
-        <label class="field"><span class="lbl">ชื่อที่ใช้ในแอป</span><input type="text" id="pName" maxlength="60"></label>
-        <label class="field"><span class="lbl">ห้อง / แผนก</span><input type="text" id="pGroup" maxlength="80"></label>
-        <button class="btn" type="submit" id="pSubmit">บันทึกข้อมูล</button>
+        <p class="sec-title" data-t>ข้อมูลของฉัน</p>
+        <label class="field"><span class="lbl" data-t>ชื่อที่ใช้ในแอป</span><input type="text" id="pName" maxlength="60"></label>
+        <label class="field"><span class="lbl" data-t>ห้อง / แผนก</span><input type="text" id="pGroup" maxlength="80"></label>
+        <button class="btn" type="submit" id="pSubmit" data-t>บันทึกข้อมูล</button>
       </form>
       <form id="fPw" class="field" novalidate>
-        <p class="sec-title" id="pwTitle">เปลี่ยนรหัสผ่าน</p>
-        <label class="field" id="pwCurWrap"><span class="lbl">รหัสผ่านปัจจุบัน</span><span class="pw"><input type="password" id="pwCur" autocomplete="current-password"><button type="button" data-eye="pwCur">แสดง</button></span></label>
-        <label class="field"><span class="lbl">รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)</span><span class="pw"><input type="password" id="pwNew" autocomplete="new-password"><button type="button" data-eye="pwNew">แสดง</button></span></label>
+        <p class="sec-title" id="pwTitle"></p>
+        <label class="field" id="pwCurWrap"><span class="lbl" data-t>รหัสผ่านปัจจุบัน</span><span class="pw"><input type="password" id="pwCur" autocomplete="current-password"><button type="button" data-eye="pwCur" data-t>แสดง</button></span></label>
+        <label class="field"><span class="lbl" data-t>รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)</span><span class="pw"><input type="password" id="pwNew" autocomplete="new-password"><button type="button" data-eye="pwNew" data-t>แสดง</button></span></label>
         <p class="err" id="pwErr" hidden></p>
-        <button class="btn" type="submit" id="pwSubmit">บันทึกรหัสผ่าน</button>
+        <button class="btn" type="submit" id="pwSubmit" data-t>บันทึกรหัสผ่าน</button>
       </form>
     </div>
-    <div class="sh-foot"><button class="btn" type="button" id="btnLogoutAll">ออกจากระบบทุกเครื่อง</button><button class="btn danger" type="button" id="btnLogout">ออกจากระบบ</button></div>
+    <div class="sh-foot"><button class="btn" type="button" id="btnLogoutAll" data-t>ออกจากระบบทุกเครื่อง</button><button class="btn danger" type="button" id="btnLogout" data-t>ออกจากระบบ</button></div>
   </div>
 </dialog>
 
 <!-- temporary password -->
 <dialog class="sheet" id="dlgTemp" aria-labelledby="tTitle">
   <div class="sheet-wrap">
-    <div class="sh-head"><h2 id="tTitle">รหัสผ่านชั่วคราว</h2><button class="x" type="button" data-close aria-label="ปิด">×</button></div>
+    <div class="sh-head"><h2 id="tTitle" data-t>รหัสผ่านชั่วคราว</h2><button class="x" type="button" data-close data-ta="ปิด" aria-label="ปิด">×</button></div>
     <div class="sh-body">
       <p id="tFor" class="muted"></p>
       <div class="temp-pw" id="tPw"></div>
-      <p class="help">บอกรหัสนี้ให้สมาชิกใช้เข้าสู่ระบบ แล้วให้เปลี่ยนรหัสเองที่ “บัญชีของฉัน” รหัสนี้จะแสดงแค่ครั้งเดียว</p>
+      <p class="help" data-t>บอกรหัสนี้ให้สมาชิกใช้เข้าสู่ระบบ แล้วให้เปลี่ยนรหัสเองที่ “บัญชีของฉัน” รหัสนี้จะแสดงแค่ครั้งเดียว</p>
     </div>
-    <div class="sh-foot"><button class="btn" type="button" id="btnCopyTemp">คัดลอกรหัส</button><button class="btn primary" type="button" data-close>เสร็จแล้ว</button></div>
+    <div class="sh-foot"><button class="btn" type="button" id="btnCopyTemp" data-t>คัดลอกรหัส</button><button class="btn primary" type="button" data-close data-t>เสร็จแล้ว</button></div>
   </div>
+</dialog>
+
+<!-- score adjust (admin) -->
+<dialog class="sheet" id="dlgScore" aria-labelledby="scoreTitle">
+  <form id="fScore" novalidate>
+    <div class="sh-head"><h2 id="scoreTitle" data-t>ปรับคะแนน</h2><button class="x" type="button" data-close data-ta="ปิด" aria-label="ปิด">×</button></div>
+    <div class="sh-body">
+      <div class="score-card" id="scWho"></div>
+      <div class="field"><span class="lbl" data-t>เพิ่มหรือลดกี่คะแนน (ใส่ลบเพื่อหักคะแนน)</span>
+        <div class="stepper"><button type="button" data-step="-1" data-for="scDelta" data-ta="ลด" aria-label="ลด">−</button><input type="number" id="scDelta" inputmode="numeric" min="-100" max="100"><button type="button" data-step="1" data-for="scDelta" data-ta="เพิ่ม" aria-label="เพิ่ม">+</button></div>
+        <div class="quick" id="scQuick"><button type="button" data-sc="-10">−10</button><button type="button" data-sc="-5">−5</button><button type="button" data-sc="5">+5</button><button type="button" data-sc="10">+10</button></div>
+      </div>
+      <p class="help" data-t>การปรับคะแนนโดยผู้ดูแลทำได้ไม่จำกัดครั้ง และไม่นับรวมในโควตาคะแนนเพิ่มต่อเดือนของผู้ใช้</p>
+      <label class="field"><span class="lbl" data-t>เหตุผล (ผู้ใช้จะเห็นข้อความนี้)</span><input type="text" id="scReason" maxlength="200" data-tp="เช่น ช่วยดูแลจัดเก็บอุปกรณ์" placeholder="เช่น ช่วยดูแลจัดเก็บอุปกรณ์"></label>
+      <p class="err" id="scErr" hidden></p>
+    </div>
+    <div class="sh-foot"><button class="btn" type="button" data-close data-t>ยกเลิก</button><button class="btn primary" type="submit" id="scSubmit" data-t>บันทึกคะแนน</button></div>
+  </form>
+</dialog>
+
+<!-- policy view -->
+<dialog class="sheet" id="dlgPolicy" aria-labelledby="polTitle">
+  <div class="sheet-wrap">
+    <div class="sh-head"><h2 id="polTitle" data-t>นโยบายการยืม</h2><button class="x" type="button" data-close data-ta="ปิด" aria-label="ปิด">×</button></div>
+    <div class="sh-body"><div class="policy-text" id="polText"></div><p class="help" id="polAt"></p></div>
+    <div class="sh-foot"><button class="btn" type="button" id="btnPolEdit" hidden data-t>แก้ไข</button><button class="btn primary" type="button" data-close data-t>เข้าใจแล้ว</button></div>
+  </div>
+</dialog>
+
+<!-- policy edit (admin) -->
+<dialog class="sheet" id="dlgPolicyEdit" aria-labelledby="peTitle">
+  <form id="fPolicy" novalidate>
+    <div class="sh-head"><h2 id="peTitle" data-t>แก้ไขนโยบายการยืม</h2><button class="x" type="button" data-close data-ta="ปิด" aria-label="ปิด">×</button></div>
+    <div class="sh-body">
+      <p class="help" data-t>ผู้ยืมต้องกดยอมรับนโยบายนี้ทุกครั้งก่อนยืม ถ้าลบข้อความออกทั้งหมด จะไม่ต้องกดยอมรับ</p>
+      <label class="field"><span class="lbl" data-t>ภาษาไทย</span><textarea id="peTh" maxlength="20000" style="min-height:240px"></textarea></label>
+      <label class="field"><span class="lbl" data-t>ภาษาอังกฤษ (สำหรับผู้ใช้ที่เลือก English)</span><textarea id="peEn" maxlength="20000" style="min-height:200px"></textarea></label>
+      <p class="err" id="peErr" hidden></p>
+    </div>
+    <div class="sh-foot"><button class="btn" type="button" data-close data-t>ยกเลิก</button><button class="btn primary" type="submit" id="peSubmit" data-t>บันทึกนโยบาย</button></div>
+  </form>
 </dialog>
 
 <!-- notifications -->
 <dialog class="sheet" id="dlgNotifs" aria-labelledby="nTitle">
   <div class="sheet-wrap">
-    <div class="sh-head"><h2 id="nTitle">การแจ้งเตือน</h2><button class="x" type="button" data-close aria-label="ปิด">×</button></div>
+    <div class="sh-head"><h2 id="nTitle" data-t>การแจ้งเตือน</h2><button class="x" type="button" data-close data-ta="ปิด" aria-label="ปิด">×</button></div>
     <div class="sh-body"><div class="nlist" id="nList"></div></div>
   </div>
 </dialog>
 
-<!-- camera -->
+<!-- camera (one shot or several angles) -->
 <dialog class="cam" id="dlgCam" aria-labelledby="camTitle">
   <div class="cam-wrap">
-    <div class="sc-top"><h2 id="camTitle">ถ่ายรูป</h2><button class="x" type="button" id="btnCamClose" aria-label="ปิดกล้อง" style="background:rgba(255,255,255,.18);color:#fff">×</button></div>
+    <div class="sc-top"><h2 id="camTitle"></h2><button class="x" type="button" id="btnCamClose" data-ta="ปิดกล้อง" aria-label="ปิดกล้อง" style="background:rgba(255,255,255,.18);color:#fff">×</button></div>
     <div class="cam-stage">
       <video id="camVideo" playsinline muted autoplay></video>
-      <img id="camShot" alt="รูปที่ถ่าย" hidden>
-      <div class="cam-guide" id="camGuide" hidden><div class="g-frame"><span class="g-t g-t1">หน้าของคุณ</span><div class="g-oval"></div><span class="g-t g-t2">อุปกรณ์</span><div class="g-box"></div></div></div>
+      <img id="camShot" alt="" hidden>
+      <div class="cam-guide" id="camGuide" hidden><div class="g-frame"><span class="g-t g-t1" data-t>หน้าของคุณ</span><div class="g-oval"></div><span class="g-t g-t2" data-t>อุปกรณ์</span><div class="g-box"></div></div></div>
+      <div class="cam-flash" id="camFlash"></div>
+      <span class="cam-count" id="camCount" hidden></span>
       <p class="cam-err" id="camErr" hidden></p>
     </div>
     <p class="sc-msg" id="camHint"></p>
+    <div class="cam-strip" id="camStrip" hidden></div>
     <div class="cam-bar" id="camLive">
-      <span class="cam-side" aria-hidden="true" style="visibility:hidden"></span>
-      <button class="shutter" id="btnShutter" type="button" aria-label="ถ่ายรูป" disabled></button>
-      <button class="cam-side" id="btnFlip" type="button" aria-label="สลับกล้องหน้า/หลัง">⟲</button>
+      <button class="cam-side" id="btnFlip" type="button" data-ta="สลับกล้องหน้า/หลัง" aria-label="สลับกล้องหน้า/หลัง">⟲</button>
+      <button class="shutter" id="btnShutter" type="button" data-ta="ถ่ายรูป" aria-label="ถ่ายรูป" disabled></button>
+      <button class="cam-done" id="btnCamDone" type="button" hidden></button>
+      <span class="cam-side" id="camSpacer" aria-hidden="true" style="visibility:hidden"></span>
     </div>
     <div class="cam-bar" id="camReview" hidden>
-      <button class="btn" id="btnRetake" type="button">ถ่ายใหม่</button>
-      <button class="btn primary" id="btnUseShot" type="button">ใช้รูปนี้</button>
+      <button class="btn" id="btnRetake" type="button" data-t>ถ่ายใหม่</button>
+      <button class="btn primary" id="btnUseShot" type="button" data-t>ใช้รูปนี้</button>
     </div>
   </div>
 </dialog>
@@ -839,1327 +564,17 @@ dialog.lightbox{width:100vw;height:100dvh;max-width:none;max-height:none;margin:
 <!-- photo viewer -->
 <dialog class="lightbox" id="dlgPhoto" aria-labelledby="phTitle">
   <div class="lb-wrap">
-    <div class="sc-top"><h2 id="phTitle" style="color:#fff;font-size:18px">รูปภาพ</h2><button class="x" type="button" data-close aria-label="ปิด">×</button></div>
-    <div class="lb-img"><img id="phImg" alt=""></div>
+    <div class="sc-top"><h2 id="phTitle" style="color:#fff;font-size:18px" data-t>รูปภาพ</h2><button class="x" type="button" data-close data-ta="ปิด" aria-label="ปิด">×</button></div>
+    <div class="lb-img"><img id="phImg" alt=""><button class="lb-nav prev" id="phPrev" type="button" data-ta="รูปก่อนหน้า" aria-label="รูปก่อนหน้า" hidden>‹</button><button class="lb-nav next" id="phNext" type="button" data-ta="รูปถัดไป" aria-label="รูปถัดไป" hidden>›</button></div>
     <p class="lb-cap" id="phCap"></p>
   </div>
 </dialog>
 
 <datalist id="nameList"></datalist>
 <datalist id="groupList"></datalist>
+<datalist id="locList"></datalist>
 <div id="printArea"></div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
-
-<script>
-(function(){
-'use strict';
-const VERSION = '3.0.0';
-const NEED_BACKEND = 3;
-const $ = s => document.querySelector(s);
-const $$ = s => Array.from(document.querySelectorAll(s));
-const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
-const DAY = 86400000;
-const LS = {
-  get(k, d){ try { const v = localStorage.getItem('lend.' + k); return v == null ? d : JSON.parse(v); } catch (e){ return d; } },
-  set(k, v){ try { localStorage.setItem('lend.' + k, JSON.stringify(v)); return true; } catch (e){ return false; } },
-  del(k){ try { localStorage.removeItem('lend.' + k); } catch (e){} }
-};
-
-/* ---------- dates (th-TH = พ.ศ.) ---------- */
-const startOfDay = ms => { const d = new Date(ms); d.setHours(0,0,0,0); return d.getTime(); };
-const endOfDay = ms => { const d = new Date(ms); d.setHours(23,59,59,0); return d.getTime(); };
-const addDays = (ms, n) => { const d = new Date(ms); d.setDate(d.getDate() + n); return d.getTime(); };
-const dayDiff = (a, b) => Math.round((startOfDay(b) - startOfDay(a)) / DAY);
-const fmtDate = ms => new Date(ms).toLocaleDateString('th-TH', {day:'numeric', month:'short', year:'2-digit'});
-const fmtDateLong = ms => new Date(ms).toLocaleDateString('th-TH', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
-const fmtTime = ms => new Date(ms).toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'});
-const fmtWhen = ms => {
-  const d = dayDiff(ms, Date.now());
-  return (d === 0 ? 'วันนี้' : d === 1 ? 'เมื่อวาน' : fmtDate(ms)) + ' ' + fmtTime(ms) + ' น.';
-};
-
-/* ---------- state ---------- */
-const S = {
-  api: '', info: null, token: '', me: null, pending: false, pendingMsg: '',
-  data: null, loading: false, lastSync: 0, error: '', offline: !navigator.onLine,
-  tab: 'items', authMode: 'login', resetEmail: '',
-  cat: 'all', onlyFree: false, qItems: '', qLoans: '', qHist: '', loanFilter: 'all',
-  confirm: null, installEvt: null, gReady: '', seenNotif: LS.get('seenNotif', '')
-};
-const TH = LS.get('thumbs', {});          // imageId → thumbnail data URL
-const IMGS = new Map();                   // fileId → full image data URL (in memory)
-const ICONS = ['💻','🖥️','📽️','📷','🎤','🎧','🔌','🔋','🔧','🪛','✂️','✏️','📐','📚','📦','🧪','🪑','🛰️'];
-
-const D = () => S.data || {cats: [], items: [], loans: [], users: [], notifs: [], unread: 0};
-const catByName = n => D().cats.find(c => c.name === n);
-const catOf = it => it ? catByName(it.category) : null;
-const catLabel = c => c ? c.name : 'ไม่มีหมวด';
-const catIcon = c => (c && c.icon) || '📦';
-const itemById = id => D().items.find(i => i.id === id);
-const loanById = id => D().loans.find(l => l.id === id);
-const isOpen = l => l.status === 'active' || l.status === 'review';
-const openLoans = () => D().loans.filter(isOpen);
-const openFor = id => openLoans().filter(l => l.itemId === id);
-const borrowedOf = it => openFor(it.id).reduce((s, l) => s + (l.qty || 1), 0);
-const availableOf = it => Math.max(0, (it.qty || 1) - borrowedOf(it));
-const loanItemName = l => { const it = itemById(l.itemId); return it ? it.name : (l.itemName || 'อุปกรณ์ที่ถูกลบ'); };
-const sortedCats = () => D().cats.slice().sort((a, b) => (a.order || 999) - (b.order || 999) || a.name.localeCompare(b.name, 'th'));
-const isAdmin = () => !!(S.data && S.data.isAdmin);
-const isMine = l => !!l.mine;
-const visibleLoans = () => D().loans.filter(l => !l.other);          // สมาชิกได้รับเฉพาะของตัวเองแบบเต็ม
-const initial = n => (String(n || '?').trim().charAt(0) || '?').toUpperCase();
-const thumbOf = it => (it && it.imageId && TH[it.imageId]) || '';
-const backendOld = () => { const v = (S.data && S.data.version) || (S.info && S.info.version) || 0; return !!S.token && !!(S.data || S.info) && v < NEED_BACKEND; };
-
-function loanState(l, now){
-  if (l.status === 'returned' || l.status === 'problem'){
-    const late = l.returnedAt && l.dueAt ? dayDiff(l.dueAt, l.returnedAt) : 0;
-    if (l.status === 'problem') return {k:'problem', cls:'warn', text:'คืนแล้ว (มีปัญหา)' + (late > 0 ? ' · ช้า ' + late + ' วัน' : '')};
-    return late > 0 ? {k:'late', cls:'warn', text:'คืนช้า ' + late + ' วัน'} : {k:'returned', cls:'ok', text:'คืนตรงเวลา'};
-  }
-  if (l.status === 'review') return {k:'review', cls:'info', text:'อยู่ระหว่างตรวจสอบ'};
-  if (now > l.dueAt){ const d = dayDiff(l.dueAt, now); return {k:'overdue', cls:'bad', text:'เกินกำหนด ' + d + ' วัน', days: d}; }
-  const left = dayDiff(now, l.dueAt);
-  if (left <= 0) return {k:'today', cls:'warn', text:'ต้องคืนวันนี้'};
-  if (left === 1) return {k:'soon', cls:'warn', text:'ต้องคืนพรุ่งนี้'};
-  return {k:'ok', cls:'ok', text:'เหลืออีก ' + left + ' วัน'};
-}
-
-/* ---------- toast ---------- */
-let toastT = null;
-function toast(msg, kind){
-  const t = $('#toast'); t.textContent = msg; t.className = 'toast' + (kind ? ' ' + kind : ''); t.hidden = false;
-  clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 3800);
-}
-function vibrate(ms){ try { navigator.vibrate && navigator.vibrate(ms); } catch (e){} }
-function busy(btn, on, label){
-  if (!btn) return;
-  if (on){ btn.dataset.label = btn.dataset.label || btn.textContent; btn.disabled = true; btn.textContent = label || 'กำลังบันทึก…'; }
-  else { btn.disabled = false; if (btn.dataset.label) btn.textContent = btn.dataset.label; }
-}
-
-/* ---------- API ---------- */
-class ApiError extends Error { constructor(msg, code){ super(msg); this.code = code || 'ERR'; } }
-/** ลิงก์ที่คัดลอกตอนล็อกอินหลายบัญชีจะมี /u/1/ ซึ่งใช้ไม่ได้ ตัดออกให้อัตโนมัติ */
-function normApi(u){ return String(u || '').trim().replace(/\/macros\/u\/\d+\/s\//, '/macros/s/').replace(/[?#].*$/, ''); }
-function validApi(u){ return /^https:\/\/script\.google(usercontent)?\.com\/.+/.test(u || ''); }
-async function call(body, apiOverride, timeoutMs){
-  const api = apiOverride || S.api;
-  if (!api) throw new ApiError('ยังไม่ได้ใส่ลิงก์เว็บแอป', 'NOAPI');
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), timeoutMs || 40000);
-  try {
-    const payload = Object.assign({token: S.token}, body);
-    if (S.token && !('haveThumbs' in payload) && body.action !== 'image') payload.haveThumbs = Object.keys(TH);
-    const res = await fetch(api, {method: 'POST', body: JSON.stringify(payload), headers: {'Content-Type': 'text/plain;charset=utf-8'}, signal: ctrl.signal, redirect: 'follow'});
-    const txt = await res.text();
-    let j;
-    try { j = JSON.parse(txt); }
-    catch (e){ throw new ApiError(/<html/i.test(txt) ? 'ลิงก์นี้ไม่ใช่หลังบ้านของสมุดยืม หรือยังไม่ได้ตั้งสิทธิ์เป็น “ทุกคน”' : 'อ่านข้อมูลจากหลังบ้านไม่ได้', 'BADJSON'); }
-    if (!j.ok){
-      if (/ไม่รู้จักคำสั่ง/.test(j.error || '')) throw new ApiError('หลังบ้านยังเป็นเวอร์ชันเก่า ผู้ดูแลต้องอัปเดต Code.gs ก่อน (ดูคู่มือหัวข้อ “อัปเดตแอป”)', 'OLDBACKEND');
-      throw new ApiError(j.error || 'เกิดข้อผิดพลาด', j.code);
-    }
-    return j;
-  } catch (e){
-    if (e instanceof ApiError) throw e;
-    if (e && e.name === 'AbortError') throw new ApiError('หลังบ้านตอบช้าเกินไป ลองใหม่อีกครั้ง', 'TIMEOUT');
-    throw new ApiError(navigator.onLine ? 'เชื่อมต่อหลังบ้านไม่ได้ ตรวจว่าลิงก์ถูกต้องและตั้งสิทธิ์เว็บแอปเป็น “ทุกคน”' : 'ไม่มีอินเทอร์เน็ต', 'NETWORK');
-  } finally { clearTimeout(timer); }
-}
-function handleAuthError(e){
-  if (e.code === 'AUTH' || e.code === 'SUSPENDED'){ logout(true); toast(e.message, 'bad'); return true; }
-  if (e.code === 'PENDING'){ logout(true); S.pending = true; S.pendingMsg = e.message; render(); return true; }
-  return false;
-}
-function saveThumbs(items){
-  let changed = false;
-  const used = new Set();
-  items.forEach(it => {
-    if (it.imageId) used.add(it.imageId);
-    if (it.thumb){ TH[it.imageId] = it.thumb; changed = true; delete it.thumb; }
-  });
-  Object.keys(TH).forEach(k => { if (!used.has(k)){ delete TH[k]; changed = true; } });
-  if (changed && !LS.set('thumbs', TH)) LS.del('thumbs');
-}
-function applyData(j){
-  if (j.token){ S.token = j.token; LS.set('token', j.token); }
-  if (j.me) S.me = j.me;
-  const items = j.items || [];
-  saveThumbs(items);
-  const prevTop = S.data && S.data.notifs && S.data.notifs[0] ? S.data.notifs[0].id : S.seenNotif;
-  S.data = {version: j.version || 2, roomName: j.roomName || '', isAdmin: !!j.isAdmin, sheetUrl: j.sheetUrl || '', settings: j.settings || null,
-    cats: j.cats || [], items, loans: j.loans || [], users: j.users || [], notifs: j.notifs || [], unread: j.unread || 0};
-  S.lastSync = Date.now(); S.error = '';
-  LS.set('cache', {at: S.lastSync, api: S.api, me: S.me, data: S.data});
-  const top = S.data.notifs[0];
-  if (top && !top.read && prevTop && top.id !== prevTop){ toast('🔔 ' + top.title, top.kind === 'bad' ? 'bad' : (top.kind === 'ok' ? 'ok' : '')); vibrate([60, 80, 60]); }
-  if (top){ S.seenNotif = top.id; LS.set('seenNotif', top.id); }
-}
-async function loadInfo(){
-  try { S.info = await call({action: 'info'}); LS.set('info', S.info); }
-  catch (e){ S.info = S.info || LS.get('info', null); if (!S.info) S.error = e.message; }
-}
-async function refresh(silent){
-  if (!S.api || !S.token) return;
-  if (S.loading){ if (!silent) S.again = true; return; }
-  S.loading = true; if (!silent) renderHeader();
-  try { applyData(await call({action: 'all'})); }
-  catch (e){ if (!handleAuthError(e)){ S.error = e.message; if (!silent) toast(e.message, 'bad'); } }
-  finally {
-    S.loading = false; render();
-    if (S.again){ S.again = false; setTimeout(() => refresh(true), 30); }
-  }
-}
-/** Send a write; on success the server returns fresh data. */
-async function write(body, btn, label, quiet){
-  busy(btn, true, label);
-  try {
-    const j = await call(body, null, body.photo || (body.item && body.item.image) ? 90000 : 40000);
-    applyData(j); render();
-    if (j.message && !quiet) toast(j.message, 'ok');
-    return j;
-  } catch (e){
-    if (!handleAuthError(e)) toast(e.message, 'bad');
-    return null;
-  } finally { busy(btn, false); }
-}
-
-/* ---------- full-size images (served privately by the backend) ---------- */
-const imgQueue = []; let imgActive = 0;
-function loadImg(fileId){
-  if (!fileId) return Promise.reject(new Error('no id'));
-  const hit = IMGS.get(fileId);
-  if (hit) return Promise.resolve(hit);
-  return new Promise((resolve, reject) => { imgQueue.push({fileId, resolve, reject}); pumpImgs(); });
-}
-function pumpImgs(){
-  while (imgActive < 2 && imgQueue.length){
-    const job = imgQueue.shift();
-    if (IMGS.has(job.fileId)){ job.resolve(IMGS.get(job.fileId)); continue; }
-    imgActive++;
-    call({action: 'image', fileId: job.fileId}, null, 60000)
-      .then(j => { IMGS.set(job.fileId, j.dataUrl); job.resolve(j.dataUrl); })
-      .catch(job.reject)
-      .finally(() => { imgActive--; pumpImgs(); });
-  }
-}
-/** <img data-file="ID"> → โหลดรูปเต็มมาใส่ */
-function hydrate(root){
-  (root || document).querySelectorAll('img[data-file]').forEach(img => {
-    const id = img.dataset.file; if (!id || img.dataset.loaded) return;
-    img.dataset.loaded = '1';
-    const tag = img.parentElement && img.parentElement.querySelector('.loading-tag');
-    loadImg(id).then(src => { img.src = src; if (tag) tag.remove(); })
-      .catch(e => { if (tag) tag.textContent = 'โหลดรูปไม่สำเร็จ'; delete img.dataset.loaded; });
-  });
-}
-function heroImg(fileId, thumb, caption){
-  if (!fileId) return '';
-  return '<button type="button" class="hero-img" data-photo="' + esc(fileId) + '" data-cap="' + esc(caption || '') + '" aria-label="ดูรูปขนาดใหญ่">' +
-    '<img alt="" ' + (IMGS.has(fileId) ? 'src="' + IMGS.get(fileId) + '"' : (thumb ? 'src="' + thumb + '" ' : '') + 'data-file="' + esc(fileId) + '"') + '>' +
-    (IMGS.has(fileId) ? '' : '<span class="loading-tag">กำลังโหลดรูป…</span>') + '</button>';
-}
-function iconHtml(it, c){
-  const t = thumbOf(it);
-  return t ? '<span class="cat-ic img"><img src="' + t + '" alt=""></span>' : '<span class="cat-ic">' + esc(catIcon(c || catOf(it))) + '</span>';
-}
-function openPhoto(fileId, caption){
-  $('#phCap').textContent = caption || '';
-  const img = $('#phImg'); img.removeAttribute('src');
-  openDlg($('#dlgPhoto'));
-  loadImg(fileId).then(src => { img.src = src; }).catch(() => { $('#phCap').textContent = 'โหลดรูปไม่สำเร็จ'; });
-}
-
-/* ---------- image processing ---------- */
-function drawToJpeg(src, sw, sh, max, q, stamp){
-  const scale = Math.min(1, max / Math.max(sw, sh));
-  const w = Math.round(sw * scale), h = Math.round(sh * scale);
-  const c = document.createElement('canvas'); c.width = w; c.height = h;
-  const g = c.getContext('2d');
-  g.drawImage(src, 0, 0, w, h);
-  if (stamp){
-    const fs = Math.max(14, Math.round(Math.min(w, h) * 0.035));
-    const lines = [stamp, new Date().toLocaleString('th-TH', {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}) + ' น.'];
-    const band = fs * 1.35 * lines.length + fs * 0.8;
-    g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(0, h - band, w, band);
-    g.fillStyle = '#fff'; g.font = '600 ' + fs + 'px "IBM Plex Sans Thai", Tahoma, sans-serif'; g.textBaseline = 'top';
-    lines.forEach((t, i) => g.fillText(t, fs * 0.6, h - band + fs * 0.4 + i * fs * 1.35, w - fs * 1.2));
-  }
-  const full = c.toDataURL('image/jpeg', q);
-  const ts = Math.min(1, 240 / Math.max(w, h));
-  const t = document.createElement('canvas'); t.width = Math.round(w * ts); t.height = Math.round(h * ts);
-  t.getContext('2d').drawImage(c, 0, 0, t.width, t.height);
-  return {full, thumb: t.toDataURL('image/jpeg', 0.72)};
-}
-function processFile(file){
-  return new Promise((resolve, reject) => {
-    if (!file || !/^image\//.test(file.type)) return reject(new Error('ไฟล์นี้ไม่ใช่รูปภาพ'));
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => { try { resolve(drawToJpeg(img, img.naturalWidth, img.naturalHeight, 1280, 0.85)); } catch (e){ reject(e); } finally { URL.revokeObjectURL(url); } };
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('เปิดรูปนี้ไม่ได้ ลองรูปอื่น')); };
-    img.src = url;
-  });
-}
-
-/* ---------- in-app camera (live only — no gallery) ---------- */
-const CAM = {stream: null, facing: 'environment', resolve: null, opts: {}, shot: null};
-function takePhoto(opts){
-  return new Promise(resolve => {
-    CAM.resolve = resolve; CAM.opts = opts || {}; CAM.facing = CAM.opts.facing || 'environment'; CAM.shot = null;
-    $('#camTitle').textContent = CAM.opts.title || 'ถ่ายรูป';
-    $('#camHint').textContent = CAM.opts.hint || '';
-    $('#camGuide').hidden = CAM.opts.guide !== 'face';
-    camLiveMode();
-    openDlg($('#dlgCam'));
-    startCam();
-  });
-}
-function camLiveMode(){
-  $('#camVideo').hidden = false; $('#camShot').hidden = true;
-  $('#camLive').hidden = false; $('#camReview').hidden = true;
-  if (CAM.opts.guide === 'face') $('#camGuide').hidden = false;
-}
-function camErr(msg){ const e = $('#camErr'); e.textContent = msg || ''; e.hidden = !msg; }
-async function startCam(){
-  stopCam(); camErr(''); $('#btnShutter').disabled = true;
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-    camErr(location.protocol !== 'https:' && location.hostname !== 'localhost' ? 'ต้องเปิดแอปผ่าน https จึงจะใช้กล้องได้' : 'เบราว์เซอร์นี้เปิดกล้องไม่ได้ ลองใช้ Chrome (Android) หรือ Safari (iPhone)');
-    return;
-  }
-  try {
-    const s = await navigator.mediaDevices.getUserMedia({video: {facingMode: {ideal: CAM.facing}, width: {ideal: 1280}, height: {ideal: 960}}, audio: false});
-    if (!$('#dlgCam').open){ s.getTracks().forEach(t => t.stop()); return; }
-    CAM.stream = s;
-    const v = $('#camVideo');
-    v.srcObject = s; v.classList.toggle('mirror', CAM.facing === 'user');
-    try { await v.play(); } catch (e){}
-    $('#btnShutter').disabled = false;
-  } catch (e){ camErr(camErrText(e)); }
-}
-function stopCam(){
-  if (CAM.stream){ CAM.stream.getTracks().forEach(t => t.stop()); CAM.stream = null; }
-  const v = $('#camVideo'); if (v) v.srcObject = null;
-}
-function snap(){
-  const v = $('#camVideo');
-  if (!v.videoWidth){ camErr('กล้องยังไม่พร้อม รอสักครู่แล้วกดอีกครั้ง'); return; }
-  CAM.shot = drawToJpeg(v, v.videoWidth, v.videoHeight, 1280, 0.82, CAM.opts.stamp);
-  const img = $('#camShot'); img.src = CAM.shot.full; img.hidden = false;
-  v.hidden = true; $('#camGuide').hidden = true;
-  $('#camLive').hidden = true; $('#camReview').hidden = false;
-  vibrate(40); stopCam();
-}
-function finishCam(result){
-  stopCam(); if ($('#dlgCam').open) rawClose($('#dlgCam'));
-  const r = CAM.resolve; CAM.resolve = null;
-  if (r) r(result || null);
-}
-
-/* ---------- session ---------- */
-function setSession(j){
-  S.token = j.token; LS.set('token', j.token);
-  S.me = j.me || null; S.pending = false; S.data = null;
-  ['lPw','regPw','f2Pw','f2Code'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  toast(j.message || 'เข้าสู่ระบบแล้ว', 'ok');
-  S.tab = 'items'; render(); refresh(false);
-}
-function logout(quiet){
-  S.token = ''; S.me = null; S.data = null; S.confirm = null;
-  LS.del('token'); LS.del('cache');
-  try { window.google && google.accounts && google.accounts.id.disableAutoSelect(); } catch (e){}
-  closeAll(); S.authMode = 'login'; render();
-  if (!quiet) toast('ออกจากระบบแล้ว');
-}
-
-/* ---------- header / nav ---------- */
-function currentView(){
-  if (!S.api) return 'setup';
-  if (S.pending) return 'pending';
-  if (!S.token) return 'auth';
-  return S.tab;
-}
-const reviewCount = () => isAdmin() ? D().loans.filter(l => l.status === 'review').length : 0;
-function renderHeader(){
-  const rl = $('#roomLine'), view = currentView();
-  const room = (S.data && S.data.roomName) || (S.info && S.info.roomName) || '';
-  let dot = 'ok', txt;
-  if (!S.api){ dot = 'wait'; txt = 'ยังไม่ได้เชื่อมต่อ'; }
-  else if (!S.token){ dot = S.error ? 'off' : 'wait'; txt = room || 'ยังไม่ได้เข้าสู่ระบบ'; }
-  else if (S.loading && !S.data){ dot = 'wait'; txt = 'กำลังโหลดข้อมูล…'; }
-  else if (S.error || S.offline){ dot = 'off'; txt = (S.offline ? 'ออฟไลน์' : 'เชื่อมต่อไม่ได้') + (S.lastSync ? ' · ข้อมูลเมื่อ ' + fmtTime(S.lastSync) + ' น.' : ''); }
-  else { txt = (room ? room + ' · ' : '') + 'อัปเดต ' + fmtTime(S.lastSync || Date.now()) + ' น.'; }
-  rl.innerHTML = '<span class="sync-dot ' + dot + '"></span>' + esc(txt);
-  $('#btnRefresh').classList.toggle('spin', S.loading);
-  $('#btnRefresh').hidden = !S.token;
-  const av = $('#btnAccount'); av.hidden = !(S.token && S.me); if (S.me) av.textContent = initial(S.me.name);
-  $('#btnBell').hidden = !(S.token && S.me);
-  $('#bellDot').textContent = D().unread ? (D().unread > 9 ? '9+' : D().unread) : '';
-  document.body.classList.toggle('no-nav', ['setup','auth','pending'].includes(view));
-  const now = Date.now(), mineOpen = isAdmin() ? openLoans() : openLoans().filter(isMine);
-  const over = mineOpen.filter(l => l.status === 'active' && now > l.dueAt).length, rev = reviewCount();
-  const b = $('#badgeLoans');
-  if (rev){ b.textContent = rev; b.className = 'dot bad'; }
-  else { b.textContent = mineOpen.length ? mineOpen.length : ''; b.className = 'dot' + (over ? ' bad' : ''); }
-  const pend = isAdmin() ? (D().users || []).filter(u => u.status === 'pending').length : 0;
-  $('#badgeManage').textContent = pend ? pend : '';
-  $$('.nb[data-tab]').forEach(n => { if (n.dataset.tab === S.tab) n.setAttribute('aria-current', 'page'); else n.removeAttribute('aria-current'); });
-  const bn = $('#banner');
-  let msg = '', cls = '';
-  if (backendOld()){ msg = isAdmin() ? 'หลังบ้านยังเป็นเวอร์ชันเก่า กรุณาอัปเดต Code.gs และรัน setup ตามคู่มือหัวข้อ “อัปเดตแอป” ก่อนใช้งานฟีเจอร์ใหม่' : 'ระบบกำลังอัปเดต บางเมนูอาจยังใช้ไม่ได้ชั่วคราว'; cls = 'bad'; }
-  else if (S.token && S.data && S.error){ msg = 'ซิงก์ข้อมูลไม่ได้: ' + S.error; cls = 'bad'; }
-  else if (S.offline && S.data){ msg = 'ไม่มีอินเทอร์เน็ต กำลังแสดงข้อมูลล่าสุดที่มี (ยืม-คืนไม่ได้จนกว่าจะออนไลน์)'; }
-  else if (!S.token && S.api && S.error && !S.info){ msg = S.error; cls = 'bad'; }
-  bn.textContent = msg; bn.className = 'banner ' + cls; bn.hidden = !msg;
-}
-function setTab(t){
-  if (!['items','loans','history','manage'].includes(t)) t = 'items';
-  S.tab = t; S.confirm = null; LS.set('tab', t);
-  render(); window.scrollTo({top: 0});
-}
-function render(){
-  renderHeader();
-  const current = currentView();
-  ['setup','auth','pending','items','loans','history','manage'].forEach(v => { $('#view-' + v).hidden = v !== current; });
-  if (current === 'setup') return;
-  if (current === 'auth') return renderAuth();
-  if (current === 'pending'){ $('#pendingMsg').textContent = S.pendingMsg || 'สมัครเรียบร้อยแล้ว เมื่อผู้ดูแลอนุมัติ ให้กลับมาเข้าสู่ระบบอีกครั้ง'; return; }
-  if (current === 'items') renderItems();
-  else if (current === 'loans') renderLoans();
-  else if (current === 'history') renderHistory();
-  else renderManage();
-  if ($('#dlgNotifs').open) renderNotifs();
-}
-const notReady = el => {
-  if (S.data) return false;
-  el.innerHTML = S.error
-    ? '<div class="empty"><h3>เชื่อมต่อหลังบ้านไม่ได้</h3><p>' + esc(S.error) + '</p><button class="btn primary" type="button" data-refresh>ลองใหม่</button><button class="btn" type="button" data-open-settings>ตรวจลิงก์ในหน้าตั้งค่า</button></div>'
-    : '<div class="loading">กำลังโหลดข้อมูลจาก Google Sheets…</div>';
-  return true;
-};
-
-/* ---------- auth screen ---------- */
-function renderAuth(){
-  const info = S.info || {};
-  $('#authRoom').textContent = info.roomName || 'สมุดยืมอุปกรณ์';
-  const mode = S.authMode;
-  $('#authTabs').hidden = !(mode === 'login' || mode === 'register');
-  $$('#authTabs [data-auth]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.auth === mode)));
-  $('#fLogin').hidden = mode !== 'login';
-  $('#fRegister').hidden = mode !== 'register';
-  $('#fReset1').hidden = mode !== 'reset1';
-  $('#fReset2').hidden = mode !== 'reset2';
-  const reg = info.registration;
-  const note = reg === 'closed' ? 'ตอนนี้ปิดรับสมัครสมาชิกใหม่ ติดต่อผู้ดูแลของห้อง' :
-    (reg === 'approve' ? 'สมัครแล้วต้องรอผู้ดูแลอนุมัติก่อนจึงจะเข้าใช้ได้' : '') +
-    (info.domain ? (reg === 'approve' ? ' · ' : '') + 'ใช้ได้เฉพาะอีเมล @' + info.domain : '');
-  $('#regNote').textContent = note; $('#regNote').hidden = !note;
-  $('#f2Note').textContent = 'ส่งรหัสไปที่ ' + (S.resetEmail || 'อีเมลของคุณ') + ' แล้ว (ดูในจดหมายขยะด้วย) รหัสใช้ได้ 15 นาที';
-  const showG = !!info.googleClientId && (mode === 'login' || mode === 'register');
-  $('#gWrap').hidden = !showG;
-  if (showG) renderGoogle(info.googleClientId);
-}
-function loadScript(src){
-  return new Promise((res, rej) => {
-    const old = document.querySelector('script[data-src="' + src + '"]');
-    if (old){ if (old.dataset.loaded) return res(); old.addEventListener('load', () => res()); old.addEventListener('error', () => rej(new Error('load'))); return; }
-    const s = document.createElement('script'); s.src = src; s.async = true; s.dataset.src = src;
-    s.onload = () => { s.dataset.loaded = '1'; res(); }; s.onerror = () => rej(new Error('load ' + src));
-    document.head.appendChild(s);
-  });
-}
-async function renderGoogle(clientId){
-  const box = $('#gBtn');
-  try { await loadScript('https://accounts.google.com/gsi/client'); }
-  catch (e){ box.innerHTML = ''; showErr($('#gErr'), 'โหลดปุ่ม Google ไม่สำเร็จ ใช้อีเมลแทนได้'); return; }
-  if (!window.google || !google.accounts || !google.accounts.id) return;
-  if (S.gReady !== clientId){
-    google.accounts.id.initialize({client_id: clientId, callback: onGoogleCredential, auto_select: false, cancel_on_tap_outside: true, ux_mode: 'popup'});
-    S.gReady = clientId;
-  }
-  box.innerHTML = '';
-  const w = Math.min(380, Math.max(220, Math.floor(box.clientWidth || 320)));
-  google.accounts.id.renderButton(box, {theme: 'outline', size: 'large', shape: 'pill', text: S.authMode === 'register' ? 'signup_with' : 'signin_with', logo_alignment: 'center', width: w, locale: 'th'});
-}
-async function onGoogleCredential(resp){
-  showErr($('#gErr'), '');
-  try { afterLogin(await call({action: 'googleLogin', credential: resp && resp.credential})); }
-  catch (e){
-    if (e.code === 'PENDING'){ S.pending = true; S.pendingMsg = e.message; render(); return; }
-    showErr($('#gErr'), e.message);
-  }
-}
-function afterLogin(j){
-  if (j.pending){ S.pending = true; S.pendingMsg = j.message; render(); return; }
-  setSession(j);
-}
-async function submitLogin(e){
-  e.preventDefault();
-  const email = $('#lEmail').value.trim(), pw = $('#lPw').value;
-  if (!email || !pw){ showErr($('#lErr'), 'กรุณาใส่อีเมลและรหัสผ่าน'); return; }
-  showErr($('#lErr'), ''); busy($('#lSubmit'), true, 'กำลังเข้าสู่ระบบ…');
-  try { afterLogin(await call({action: 'login', email, password: pw})); }
-  catch (e2){ if (e2.code === 'PENDING'){ S.pending = true; S.pendingMsg = e2.message; render(); } else showErr($('#lErr'), e2.message); }
-  finally { busy($('#lSubmit'), false); }
-}
-async function submitRegister(e){
-  e.preventDefault();
-  const name = $('#regName').value.trim(), email = $('#regEmail').value.trim(), pw = $('#regPw').value;
-  if (!name){ showErr($('#regErr'), 'กรุณาใส่ชื่อของคุณ'); $('#regName').focus(); return; }
-  if (!email){ showErr($('#regErr'), 'กรุณาใส่อีเมล'); $('#regEmail').focus(); return; }
-  if (pw.length < 6){ showErr($('#regErr'), 'รหัสผ่านต้องยาวอย่างน้อย 6 ตัว'); $('#regPw').focus(); return; }
-  showErr($('#regErr'), ''); busy($('#regSubmit'), true, 'กำลังสมัคร…');
-  try { afterLogin(await call({action: 'register', name, group: $('#regGroup').value.trim(), email, password: pw})); }
-  catch (e2){ showErr($('#regErr'), e2.message); }
-  finally { busy($('#regSubmit'), false); }
-}
-async function submitReset1(e){
-  e.preventDefault();
-  const email = $('#f1Email').value.trim();
-  if (!email){ showErr($('#f1Err'), 'กรุณาใส่อีเมล'); return; }
-  showErr($('#f1Err'), ''); busy($('#f1Submit'), true, 'กำลังส่ง…');
-  try { await call({action: 'requestReset', email}); S.resetEmail = email; S.authMode = 'reset2'; render(); setTimeout(() => $('#f2Code').focus(), 60); }
-  catch (e2){ showErr($('#f1Err'), e2.message); }
-  finally { busy($('#f1Submit'), false); }
-}
-async function submitReset2(e){
-  e.preventDefault();
-  const code = $('#f2Code').value.trim(), pw = $('#f2Pw').value;
-  if (!/^\d{6}$/.test(code)){ showErr($('#f2Err'), 'ใส่รหัส 6 หลักจากอีเมล'); return; }
-  if (pw.length < 6){ showErr($('#f2Err'), 'รหัสผ่านใหม่ต้องยาวอย่างน้อย 6 ตัว'); return; }
-  showErr($('#f2Err'), ''); busy($('#f2Submit'), true);
-  try {
-    const j = await call({action: 'resetPassword', email: S.resetEmail, code, password: pw});
-    if (j.token) setSession(j);
-    else { S.authMode = 'login'; $('#lEmail').value = S.resetEmail; if (j.pending){ S.pending = true; S.pendingMsg = 'ตั้งรหัสผ่านใหม่แล้ว บัญชียังรอผู้ดูแลอนุมัติ'; } render(); toast(j.message || 'ตั้งรหัสผ่านใหม่แล้ว', 'ok'); }
-  } catch (e2){ showErr($('#f2Err'), e2.message); }
-  finally { busy($('#f2Submit'), false); }
-}
-
-/* ---------- items ---------- */
-function renderItems(){
-  const d = D(), now = Date.now();
-  let total = 0, free = 0;
-  d.items.forEach(it => { total += it.qty || 1; if (it.status === 'lendable') free += availableOf(it); });
-  const open = openLoans(), borrowed = open.reduce((s, l) => s + (l.qty || 1), 0);
-  const mine = open.filter(isMine), over = (isAdmin() ? open : mine).filter(l => l.status === 'active' && now > l.dueAt).length;
-  $('#stats').innerHTML = S.data ? '<span class="stat">ทั้งหมด <b>' + total + '</b> ชิ้น</span><span class="stat">ว่าง <b>' + free + '</b></span><span class="stat">ถูกยืม <b>' + borrowed + '</b></span>' +
-    (mine.length ? '<button type="button" class="stat" data-goto-mine>ฉันยืมอยู่ <b>' + mine.length + '</b></button>' : '') +
-    (over ? '<button type="button" class="stat is-bad" data-goto-overdue>เกินกำหนด <b>' + over + '</b></button>' : '') : '';
-  const rev = reviewCount(), strip = $('#reviewStrip');
-  strip.hidden = !rev;
-  if (rev) strip.innerHTML = '<span>📷 มี <b>' + rev + ' รายการ</b> รอตรวจสอบการคืน</span><b>ตรวจเลย ›</b>';
-  const cats = sortedCats(), counts = {all: d.items.length};
-  d.items.forEach(it => { const k = catOf(it) ? it.category : '_none'; counts[k] = (counts[k] || 0) + 1; });
-  if (S.cat !== 'all' && S.cat !== '_none' && !catByName(S.cat)) S.cat = 'all';
-  let chips = '<button type="button" class="chip" data-cat="all" aria-pressed="' + (S.cat === 'all') + '">ทั้งหมด <span class="n">' + counts.all + '</span></button>';
-  cats.forEach(c => { if (counts[c.name]) chips += '<button type="button" class="chip" data-cat="' + esc(c.name) + '" aria-pressed="' + (S.cat === c.name) + '">' + esc(catIcon(c)) + ' ' + esc(c.name) + ' <span class="n">' + counts[c.name] + '</span></button>'; });
-  if (counts._none) chips += '<button type="button" class="chip" data-cat="_none" aria-pressed="' + (S.cat === '_none') + '">ไม่มีหมวด <span class="n">' + counts._none + '</span></button>';
-  $('#catChips').innerHTML = chips; $('#catChips').hidden = !d.items.length;
-
-  const box = $('#itemList');
-  if (notReady(box)) return;
-  if (!d.items.length){
-    box.innerHTML = isAdmin()
-      ? '<div class="empty"><h3>ยังไม่มีอุปกรณ์ในสมุด</h3><p>เพิ่มอุปกรณ์ที่แท็บ “จัดการ” แล้วพิมพ์ป้าย QR ไปติดที่ของ จากนั้นทุกคนกด “สแกน” เพื่อยืม-คืนได้เลย</p><button class="btn primary" type="button" data-goto="manage">ไปที่จัดการ</button></div>'
-      : '<div class="empty"><h3>ยังไม่มีอุปกรณ์ในสมุด</h3><p>ผู้ดูแลยังไม่ได้เพิ่มอุปกรณ์ เมื่อเพิ่มแล้วจะขึ้นที่นี่</p></div>';
-    return;
-  }
-  const q = S.qItems.trim().toLowerCase(), order = {};
-  cats.forEach((c, i) => order[c.name] = i);
-  const list = d.items.filter(it => {
-    if (S.cat === '_none' && catOf(it)) return false;
-    if (S.cat !== 'all' && S.cat !== '_none' && it.category !== S.cat) return false;
-    if (S.onlyFree && !(it.status === 'lendable' && availableOf(it) > 0)) return false;
-    if (q && ![it.name, it.code, it.note, it.category].join(' ').toLowerCase().includes(q)) return false;
-    return true;
-  }).sort((a, b) => (order[a.category] ?? 999) - (order[b.category] ?? 999) || a.name.localeCompare(b.name, 'th'));
-  if (!list.length){ box.innerHTML = '<div class="empty"><h3>ไม่พบอุปกรณ์</h3><p>ลองเปลี่ยนคำค้นหา หรือเลือก “ทั้งหมด”</p></div>'; return; }
-  box.innerHTML = list.map(it => itemCard(it, now)).join('');
-}
-function itemStatus(it){
-  const qty = it.qty || 1, avail = availableOf(it), open = openFor(it.id).sort((a, b) => a.dueAt - b.dueAt);
-  if (it.status === 'locked') return {pill: '<span class="pill off">ห้ามยืมออก · ใช้ในห้องเท่านั้น</span>', ok: false, reason: 'อุปกรณ์นี้ใช้ได้ในห้องเท่านั้น'};
-  if (it.status === 'repair') return {pill: '<span class="pill bad">ชำรุด / ส่งซ่อม</span>', ok: false, reason: 'ยืมไม่ได้จนกว่าจะซ่อมเสร็จ'};
-  if (avail > 0) return {pill: '<span class="pill ok">ว่าง ' + avail + ' จาก ' + qty + ' ชิ้น</span>', ok: true, reason: ''};
-  return {pill: '<span class="pill warn">ถูกยืมหมดแล้ว</span>', ok: false, reason: open.length ? 'จะว่างเร็วสุด ' + fmtDate(open[0].dueAt) : 'ไม่มีชิ้นที่ว่าง'};
-}
-function whoList(it, now, max){
-  const open = openFor(it.id).sort((a, b) => a.dueAt - b.dueAt);
-  if (!open.length) return '';
-  const shown = open.filter(l => !l.other);
-  const others = open.filter(l => l.other).reduce((s, l) => s + (l.qty || 1), 0);
-  const row = l => '<li><b>' + esc(l.borrower) + '</b>' + (isMine(l) ? '<span class="tag">ฉัน</span>' : '') + ((l.qty || 1) > 1 ? ' ×' + l.qty : '') + ' · ' +
-    (l.status === 'review' ? '<span>รอตรวจคืน</span>' : now > l.dueAt ? '<span class="late">เกินกำหนด</span>' : 'คืน ' + esc(fmtDate(l.dueAt))) + '</li>';
-  return '<ul class="who">' + shown.slice(0, max).map(row).join('') +
-    (shown.length > max ? '<li class="muted">และอีก ' + (shown.length - max) + ' รายการ</li>' : '') +
-    (others ? '<li class="muted">คนอื่นกำลังยืมอยู่ ' + others + ' ชิ้น</li>' : '') + '</ul>';
-}
-function itemCard(it, now){
-  const c = catOf(it), st = itemStatus(it), canGo = st.ok && !S.offline;
-  return '<article class="card"><div class="card-head">' + iconHtml(it, c) + '<div class="txt">' +
-    '<button type="button" class="linkish" data-detail="' + esc(it.id) + '"><h3>' + esc(it.name) + '</h3></button>' +
-    '<div class="meta">' + (it.code ? '<span class="code">' + esc(it.code) + '</span>' : '') + '<span>' + esc(catLabel(c)) + '</span>' + (it.status === 'lendable' ? '<span>ยืมได้ ' + it.maxDays + ' วัน</span>' : '') + '</div>' +
-    st.pill + '</div></div>' + whoList(it, now, 2) +
-    '<button type="button" class="btn primary big" data-borrow="' + esc(it.id) + '"' + (canGo ? '' : ' disabled') + '>ยืม</button>' +
-    (st.reason ? '<p class="reason">' + esc(st.reason) + '</p>' : '') + '</article>';
-}
-
-/* ---------- loans ---------- */
-function returnButton(l){
-  const dis = S.offline ? ' disabled' : '';
-  if (isAdmin()){
-    if (l.status === 'review') return '<button type="button" class="btn primary" data-review="' + esc(l.id) + '"' + dis + '>📷 ตรวจสอบการคืน</button>';
-    return '<button type="button" class="btn ok" data-review="' + esc(l.id) + '"' + dis + '>รับคืน</button>';
-  }
-  if (!isMine(l)) return '';
-  if (l.status === 'review') return '<button type="button" class="btn" disabled>อยู่ระหว่างตรวจสอบ</button>';
-  return '<button type="button" class="btn ok" data-return="' + esc(l.id) + '"' + dis + '>📷 แจ้งคืน</button>';
-}
-function adminMsgHtml(l){
-  if (!l.adminNote) return '';
-  const cls = l.status === 'active' ? 'bad' : (l.status === 'problem' ? '' : 'ok');
-  const head = l.status === 'active' ? 'การคืนยังไม่ผ่าน · ข้อความจากผู้ดูแล' : 'ข้อความจากผู้ดูแล';
-  return '<p class="admin-msg ' + cls + '"><b>' + head + ':</b> ' + esc(l.adminNote) + '</p>';
-}
-function renderLoans(){
-  const now = Date.now(), admin = isAdmin();
-  const act = visibleLoans().filter(isOpen);
-  const isOver = l => l.status === 'active' && now > l.dueAt, isSoon = l => l.status === 'active' && !isOver(l) && dayDiff(now, l.dueAt) <= 1;
-  const n = {all: act.length, review: act.filter(l => l.status === 'review').length, overdue: act.filter(isOver).length, soon: act.filter(isSoon).length};
-  const chips = [['all', admin ? 'ทั้งหมด' : 'ของที่ฉันยืม'], ['review', admin ? 'รอตรวจสอบ' : 'รอตรวจคืน'], ['overdue','เกินกำหนด'], ['soon','ต้องคืนวันนี้–พรุ่งนี้']];
-  if (!['all','review','overdue','soon'].includes(S.loanFilter)) S.loanFilter = 'all';
-  $('#loanChips').innerHTML = chips.map(([k, t]) =>
-    '<button type="button" class="chip" data-loanf="' + k + '" aria-pressed="' + (S.loanFilter === k) + '">' + t + ' <span class="n">' + n[k] + '</span></button>').join('');
-  const box = $('#loanList');
-  if (notReady(box)) return;
-  if (!act.length){
-    box.innerHTML = admin ? '<div class="empty"><h3>ตอนนี้ไม่มีใครยืมของอยู่</h3><p>อุปกรณ์อยู่ครบทุกชิ้น เมื่อมีคนยืม รายการจะขึ้นที่นี่พร้อมวันกำหนดคืน</p></div>'
-      : '<div class="empty"><h3>คุณไม่ได้ยืมอะไรอยู่</h3><p>เมื่อยืมของ รายการของคุณจะขึ้นที่นี่ ตอนคืนให้กด “แจ้งคืน” แล้วถ่ายรูปคู่กับอุปกรณ์</p></div>';
-    return;
-  }
-  const q = S.qLoans.trim().toLowerCase();
-  const list = act.filter(l => {
-    if (S.loanFilter === 'review' && l.status !== 'review') return false;
-    if (S.loanFilter === 'overdue' && !isOver(l)) return false;
-    if (S.loanFilter === 'soon' && !isSoon(l)) return false;
-    if (q && ![l.borrower, l.group, loanItemName(l), l.code, l.note].join(' ').toLowerCase().includes(q)) return false;
-    return true;
-  }).sort((a, b) => (a.status === 'review' ? 0 : 1) - (b.status === 'review' ? 0 : 1) || a.dueAt - b.dueAt);
-  if (!list.length){ box.innerHTML = '<div class="empty"><h3>ไม่พบรายการ</h3><p>ลองเปลี่ยนคำค้นหา หรือกด “' + (admin ? 'ทั้งหมด' : 'ของที่ฉันยืม') + '”</p></div>'; return; }
-  box.innerHTML = list.map(l => {
-    const s = loanState(l, now), it = itemById(l.itemId), c = it ? catOf(it) : null;
-    const stampCls = s.k === 'review' ? '' : s.cls;
-    return '<article class="slip' + (s.k === 'overdue' ? ' is-bad' : '') + '"><div class="slip-main">' +
-      '<div class="slip-item">' + (thumbOf(it) ? '<span class="cat-ic img" style="width:40px;height:40px"><img src="' + thumbOf(it) + '" alt=""></span>' : '<span>' + esc(catIcon(c)) + '</span>') + '<span>' + esc(loanItemName(l)) + '</span>' + ((l.qty || 1) > 1 ? '<span class="qty">×' + l.qty + ' ชิ้น</span>' : '') + '</div>' +
-      '<div class="slip-who"><span class="lbl">คนยืม</span><b>' + esc(l.borrower) + '</b>' + (isMine(l) ? '<span class="tag">ฉัน</span>' : '') + (l.group ? ' <span class="muted">· ' + esc(l.group) + '</span>' : '') + '</div>' +
-      '<dl class="kv"><div><dt>ยืมเมื่อ</dt><dd>' + esc(fmtDate(l.borrowedAt)) + ' · ' + esc(fmtTime(l.borrowedAt)) + ' น.</dd></div><div><dt>จำนวนวันที่ยืม</dt><dd>' + l.days + ' วัน</dd></div>' +
-      (l.status === 'review' && l.returnReqAt ? '<div><dt>ส่งหลักฐานคืนเมื่อ</dt><dd>' + esc(fmtWhen(l.returnReqAt)) + '</dd></div>' : '') + '</dl>' +
-      (l.note ? '<p class="note">หมายเหตุ: ' + esc(l.note) + '</p>' : '') +
-      (l.status === 'active' ? adminMsgHtml(l) : '') + '</div>' +
-      '<div class="slip-side"><div class="stamp ' + stampCls + '"><span class="stamp-k">กำหนดคืน</span><span class="stamp-d">' + esc(fmtDate(l.dueAt)) + '</span></div>' +
-      '<p class="state ' + (s.cls === 'info' ? '' : s.cls) + '">' + s.text + '</p>' + returnButton(l) + '</div></article>';
-  }).join('');
-}
-
-/* ---------- history ---------- */
-function renderHistory(){
-  const box = $('#histList'), admin = isAdmin();
-  $('#histNote').textContent = admin ? 'ผู้ดูแลเห็นประวัติของทุกคน' : 'แสดงเฉพาะประวัติการยืมของคุณ';
-  if (notReady(box)) return;
-  const now = Date.now(), q = S.qHist.trim().toLowerCase();
-  const all = visibleLoans().slice().sort((a, b) => b.borrowedAt - a.borrowedAt);
-  if (!all.length){ box.innerHTML = '<div class="empty"><h3>ยังไม่มีประวัติการยืม</h3><p>' + (admin ? 'ทุกครั้งที่ยืมและคืน จะบันทึกลง Google Sheets และแสดงที่นี่' : 'เมื่อคุณยืมและคืนของ ประวัติจะแสดงที่นี่') + '</p></div>'; return; }
-  const list = all.filter(l => !q || [l.borrower, l.group, loanItemName(l), l.code, l.note, l.returnNote, l.adminNote].join(' ').toLowerCase().includes(q));
-  if (!list.length){ box.innerHTML = '<div class="empty"><h3>ไม่พบรายการ</h3><p>ลองใช้คำค้นหาอื่น</p></div>'; return; }
-  box.innerHTML = list.slice(0, 300).map(l => {
-    const s0 = loanState(l, now);
-    const s = isOpen(l) && s0.k !== 'review' ? {cls: s0.k === 'overdue' ? 'bad' : 'off', text: s0.k === 'overdue' ? 'ยังไม่คืน · ' + s0.text : 'ยังไม่คืน'} : s0;
-    const key = 'loan:' + l.id;
-    const del = !admin || S.offline ? '' : (S.confirm === key
-      ? '<div class="row"><span class="err grow">ลบรายการนี้ใช่ไหม?</span><button type="button" class="btn small danger solid" data-do-del="' + esc(key) + '">ลบเลย</button><button type="button" class="btn small" data-cancel-del>ไม่ลบ</button></div>'
-      : '<div class="row"><button type="button" class="btn small" data-ask-del="' + esc(key) + '">ลบ (บันทึกผิด)</button></div>');
-    return '<div class="hrow"><div class="hrow-top"><div><b>' + esc(loanItemName(l)) + ((l.qty || 1) > 1 ? ' ×' + l.qty : '') + '</b><div class="muted">' + esc(l.borrower) + (isMine(l) && admin ? '<span class="tag">ฉัน</span>' : '') + (l.group ? ' · ' + esc(l.group) : '') + '</div></div>' +
-      '<span class="pill ' + s.cls + '">' + esc(s.text) + '</span></div>' +
-      '<div class="dates">ยืม ' + esc(fmtDate(l.borrowedAt)) + ' ' + esc(fmtTime(l.borrowedAt)) + ' น. · ' + l.days + ' วัน · กำหนดคืน ' + esc(fmtDate(l.dueAt)) +
-      (l.returnedAt ? ' · คืน ' + esc(fmtDate(l.returnedAt)) + ' ' + esc(fmtTime(l.returnedAt)) + ' น.' : '') + '</div>' +
-      (l.returnNote ? '<p class="note">ผู้ยืมแจ้งสภาพ: ' + esc(l.returnNote) + '</p>' : '') +
-      (l.adminNote ? adminMsgHtml(l) : '') +
-      (l.photoId ? '<button type="button" class="ph-btn" data-photo="' + esc(l.photoId) + '" data-cap="รูปตอนคืน · ' + esc(loanItemName(l) + ' · ' + l.borrower) + '">📷 ดูรูปตอนคืน</button>' : '') + del + '</div>';
-  }).join('') + '<p class="help">แสดงล่าสุด ' + Math.min(list.length, 300) + ' รายการ' + (admin ? ' · ประวัติทั้งหมดอยู่ในชีต “การยืม”' : '') + '</p>';
-}
-
-/* ---------- manage ---------- */
-function renderManage(){
-  const gate = $('#manageGate'), body = $('#manageBody');
-  if (!S.data){ gate.hidden = true; body.hidden = false; ['#manageItems','#manageCats','#manageUsers'].forEach(s => { $(s).innerHTML = ''; }); notReady($('#manageItems')); return; }
-  const admin = isAdmin();
-  gate.hidden = admin; body.hidden = !admin;
-  if (!admin) return;
-  const lnk = $('#lnkSheet'); lnk.href = S.data.sheetUrl || '#'; lnk.hidden = !S.data.sheetUrl;
-  $('#btnInstall').hidden = !S.installEvt;
-  const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
-  $('#installHint').textContent = standalone ? 'ติดตั้งเป็นแอปในเครื่องนี้แล้ว' :
-    (/iphone|ipad|ipod/i.test(navigator.userAgent) ? 'iPhone/iPad: เปิดใน Safari → กดปุ่มแชร์ → “เพิ่มไปยังหน้าจอโฮม”' : (S.installEvt ? '' : 'Android: เปิดใน Chrome → เมนู ⋮ → “ติดตั้งแอป” หรือ “เพิ่มลงในหน้าจอหลัก”'));
-  const cats = sortedCats(), order = {};
-  cats.forEach((c, i) => order[c.name] = i);
-  const items = D().items.slice().sort((a, b) => (order[a.category] ?? 999) - (order[b.category] ?? 999) || a.name.localeCompare(b.name, 'th'));
-  const dis = S.offline ? ' disabled' : '';
-  const confirmRow = (key, text) => '<div class="mrow confirm"><span class="ask">' + text + '</span><div class="mrow-act"><button type="button" class="btn small danger solid" data-do-del="' + esc(key) + '">ลบเลย</button><button type="button" class="btn small" data-cancel-del>ไม่ลบ</button></div></div>';
-  $('#manageItems').innerHTML = !items.length ? '<div class="mrow"><div class="mrow-main"><b>ยังไม่มีอุปกรณ์</b><span>กด “+ เพิ่มอุปกรณ์” เพื่อเริ่ม</span></div></div>' : items.map(it => {
-    const key = 'item:' + it.id, out = borrowedOf(it);
-    if (S.confirm === key) return confirmRow(key, 'ลบ “' + esc(it.name) + '” ใช่ไหม? (รูปของอุปกรณ์จะถูกย้ายไปถังขยะใน Drive)');
-    const pill = it.status === 'locked' ? '<span class="pill off">ห้ามยืมออก</span>' : it.status === 'repair' ? '<span class="pill bad">ส่งซ่อม</span>' : '<span class="pill ok">ให้ยืมได้</span>';
-    return '<div class="mrow">' + iconHtml(it) + '<div class="mrow-main"><b>' + esc(it.name) + '</b><span>' + esc(it.code) + ' · ' + esc(catLabel(catOf(it))) + ' · มี ' + it.qty + ' ชิ้น' + (out ? ' (ถูกยืม ' + out + ')' : '') + ' · ยืมได้ ' + it.maxDays + ' วัน</span></div>' + pill +
-      '<div class="mrow-act"><button type="button" class="btn small" data-edit-item="' + esc(it.id) + '"' + dis + '>แก้ไข</button><button type="button" class="btn small danger" data-ask-del="' + esc(key) + '"' + dis + '>ลบ</button></div></div>';
-  }).join('');
-  const defPrefix = (S.data.settings && S.data.settings.codePrefix) || 'EQ';
-  $('#manageCats').innerHTML = !cats.length ? '<div class="mrow"><div class="mrow-main"><b>ยังไม่มีหมวดหมู่</b></div></div>' : cats.map(c => {
-    const key = 'cat:' + c.id, n = D().items.filter(i => i.category === c.name).length;
-    if (S.confirm === key) return confirmRow(key, 'ลบหมวด “' + esc(c.name) + '” ใช่ไหม?');
-    return '<div class="mrow"><span class="cat-ic">' + esc(catIcon(c)) + '</span><div class="mrow-main"><b>' + esc(c.name) + '</b><span>' + n + ' รายการ · รหัสขึ้นต้น <span class="code">' + esc((c.prefix || defPrefix) + '-') + '</span></span></div>' +
-      '<div class="mrow-act"><button type="button" class="btn small" data-edit-cat="' + esc(c.id) + '"' + dis + '>แก้ไข</button><button type="button" class="btn small danger" data-ask-del="' + esc(key) + '"' + dis + '>ลบ</button></div></div>';
-  }).join('');
-  renderUsers(dis);
-  $$('#manageBody [data-add-item],#manageBody [data-add-cat]').forEach(b => { b.disabled = S.offline; });
-}
-function renderUsers(dis){
-  const users = (D().users || []).slice();
-  const rank = u => (u.status === 'pending' ? 0 : u.status === 'active' ? (u.role === 'admin' ? 1 : 2) : 3);
-  users.sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name, 'th'));
-  const pend = users.filter(u => u.status === 'pending').length;
-  $('#pendTag').textContent = pend ? 'รออนุมัติ ' + pend : ''; $('#pendTag').hidden = !pend;
-  $('#boxUsers').style.order = pend ? '-1' : '';
-  const st = S.data.settings || {};
-  $('#regMode').textContent = 'การสมัคร: ' + ({open: 'เปิด', approve: 'ต้องอนุมัติ', closed: 'ปิด'}[st.registration] || '-') + (st.domain ? ' · @' + st.domain : '') + ' (แก้ได้ในชีต “ตั้งค่า”)';
-  $('#manageUsers').innerHTML = !users.length ? '<div class="mrow"><div class="mrow-main"><b>ยังไม่มีสมาชิก</b></div></div>' : users.map(u => {
-    const me = S.me && u.id === S.me.id;
-    const rolePill = u.role === 'admin' ? '<span class="pill ok">ผู้ดูแล</span>' : '';
-    const statPill = u.status === 'pending' ? '<span class="pill warn">รออนุมัติ</span>' : u.status === 'suspended' ? '<span class="pill bad">ระงับ</span>' : '';
-    let acts = '';
-    if (u.status === 'pending') acts = '<button type="button" class="btn small primary" data-uset="' + esc(u.id) + '" data-status="active"' + dis + '>อนุมัติ</button><button type="button" class="btn small danger" data-uset="' + esc(u.id) + '" data-status="suspended"' + dis + '>ไม่อนุมัติ</button>';
-    else if (u.status === 'suspended') acts = '<button type="button" class="btn small" data-uset="' + esc(u.id) + '" data-status="active"' + dis + '>เปิดใช้งาน</button>';
-    else if (!me) acts = '<button type="button" class="btn small" data-uset="' + esc(u.id) + '" data-role="' + (u.role === 'admin' ? 'member' : 'admin') + '"' + dis + '>' + (u.role === 'admin' ? 'เป็นสมาชิก' : 'ตั้งเป็นผู้ดูแล') + '</button>' +
-      '<button type="button" class="btn small" data-ureset="' + esc(u.id) + '"' + dis + '>รีเซ็ตรหัสผ่าน</button>' +
-      '<button type="button" class="btn small danger" data-uset="' + esc(u.id) + '" data-status="suspended"' + dis + '>ระงับ</button>';
-    return '<div class="mrow"><span class="avatar" style="cursor:default;width:38px;height:38px;font-size:16px">' + esc(initial(u.name)) + '</span><div class="mrow-main"><b>' + esc(u.name) + (me ? '<span class="tag">คุณ</span>' : '') + '</b><span>' + esc(u.email) + (u.group ? ' · ' + esc(u.group) : '') + ' · ' + esc(u.method || 'อีเมล') + '</span></div>' +
-      rolePill + statPill + (acts ? '<div class="mrow-act">' + acts + '</div>' : '') + '</div>';
-  }).join('');
-}
-
-/* ---------- notifications ---------- */
-function renderNotifs(){
-  const list = D().notifs || [];
-  const icon = k => k === 'ok' ? '✅' : k === 'bad' ? '↩️' : k === 'warn' ? '⚠️' : '🔔';
-  $('#nList').innerHTML = !list.length ? '<div class="empty"><h3>ยังไม่มีการแจ้งเตือน</h3><p>เมื่อผู้ดูแลตรวจการคืนของคุณ ผลจะแจ้งที่นี่และทางอีเมล</p></div>'
-    : list.map(n => '<div class="nitem' + (n.read ? '' : ' unread') + '"><span class="ic">' + icon(n.kind) + '</span><div><b>' + esc(n.title) + '</b><p>' + esc(n.msg) + '</p><time>' + (n.time ? esc(fmtWhen(n.time)) : '') + '</time></div></div>').join('');
-}
-async function openNotifs(){
-  renderNotifs(); openDlg($('#dlgNotifs'));
-  if (D().unread && !S.offline){
-    try { applyData(await call({action: 'readNotifs'})); renderHeader(); } catch (e){ handleAuthError(e); }
-  }
-}
-
-/* ---------- dialogs ---------- */
-function openDlg(d){ if (d.open) return; try { d.showModal(); } catch (e){ d.setAttribute('open', ''); } }
-function rawClose(d){ try { d.close(); } catch (e){ d.removeAttribute('open'); } }
-function closeDlg(d){ if (!d) return; if (d.id === 'dlgCam'){ finishCam(null); return; } rawClose(d); }
-function closeAll(){ $$('dialog[open]').forEach(d => { if (d.id === 'dlgScan') closeScanner(); else closeDlg(d); }); }
-function showErr(el, msg){ el.textContent = msg || ''; el.hidden = !msg; }
-
-/* detail */
-let DET = null;
-function openDetail(id){
-  const it = itemById(id); if (!it) return toast('ไม่พบอุปกรณ์นี้', 'bad');
-  DET = id; fillDetail(); openDlg($('#dlgDetail'));
-}
-function fillDetail(){
-  const it = itemById(DET); if (!it){ closeDlg($('#dlgDetail')); return; }
-  const c = catOf(it), st = itemStatus(it), now = Date.now();
-  const open = openFor(it.id).sort((a, b) => a.dueAt - b.dueAt);
-  const shown = open.filter(l => !l.other), others = open.filter(l => l.other);
-  $('#dBody').innerHTML = heroImg(it.imageId, thumbOf(it), it.name + (it.code ? ' · ' + it.code : '')) +
-    '<div class="detail-head">' + (it.imageId ? '' : '<span class="cat-ic">' + esc(catIcon(c)) + '</span>') + '<div><h3>' + esc(it.name) + '</h3><div class="muted">' +
-      (it.code ? '<span class="code">' + esc(it.code) + '</span> ' : '') + esc(catLabel(c)) + '</div></div></div>' + st.pill +
-    (it.status === 'lendable' ? '<p class="muted">ยืมได้นานสุด ' + it.maxDays + ' วัน · มีทั้งหมด ' + it.qty + ' ชิ้น</p>' : '') +
-    (it.note ? '<p class="note">' + esc(it.note) + '</p>' : '') +
-    (shown.length ? '<div class="field"><span class="lbl">' + (isAdmin() ? 'กำลังถูกยืม' : 'ที่คุณยืมอยู่') + '</span>' + shown.map(l => {
-      const s = loanState(l, now);
-      return '<div class="loanrow"><div class="t"><b>' + esc(l.borrower) + (isMine(l) && isAdmin() ? '<span class="tag">ฉัน</span>' : '') + ((l.qty || 1) > 1 ? ' ×' + l.qty : '') + '</b><span class="' + (s.k === 'overdue' ? 'late' : '') + '">คืน ' + esc(fmtDate(l.dueAt)) + ' · ' + esc(s.text) + '</span></div>' +
-        returnButton(l).replace('class="btn ', 'class="btn small ') + '</div>';
-    }).join('') + '</div>' : '') +
-    (others.length ? '<p class="muted">คนอื่นกำลังยืมอยู่ ' + others.reduce((s, l) => s + (l.qty || 1), 0) + ' ชิ้น</p>' : '');
-  hydrate($('#dBody'));
-  const canGo = st.ok && !S.offline;
-  $('#dFoot').innerHTML = (isAdmin() ? '<button type="button" class="btn" data-edit-item="' + esc(it.id) + '"' + (S.offline ? ' disabled' : '') + '>แก้ไข</button>' : '') +
-    '<button type="button" class="btn primary" data-borrow="' + esc(it.id) + '"' + (canGo ? '' : ' disabled') + '>' + (st.ok ? 'ยืมชิ้นนี้' : esc(st.reason || 'ยืมไม่ได้')) + '</button>';
-}
-
-/* borrow */
-let B = null;
-function openBorrow(id){
-  const it = itemById(id); if (!it) return;
-  const avail = availableOf(it), max = it.maxDays || 7;
-  if (it.status !== 'lendable' || avail < 1) return toast('ตอนนี้ยืมชิ้นนี้ไม่ได้', 'bad');
-  B = {id};
-  const ic = $('#bIcon');
-  const t = thumbOf(it);
-  ic.className = 'cat-ic' + (t ? ' img' : '');
-  ic.innerHTML = t ? '<img src="' + t + '" alt="">' : esc(catIcon(catOf(it)));
-  ic.style.cursor = it.imageId ? 'zoom-in' : '';
-  ic.dataset.photo = it.imageId || ''; ic.dataset.cap = it.name;
-  $('#bItem').textContent = it.name;
-  $('#bAvail').textContent = (it.code ? it.code + ' · ' : '') + 'ว่าง ' + avail + ' จาก ' + it.qty + ' ชิ้น';
-  $('#bQtyField').hidden = avail <= 1;
-  const q = $('#bQty'); q.value = 1; q.max = avail;
-  const dd = $('#bDays'); dd.max = max; dd.value = Math.min(7, max);
-  $('#bMaxNote').textContent = 'วัน (นานสุด ' + max + ')';
-  const quick = [1, 3, 7, 14, 30].filter(x => x <= max); if (!quick.includes(max)) quick.push(max);
-  $('#bQuick').innerHTML = quick.map(x => '<button type="button" class="chip" data-days="' + x + '">' + x + ' วัน</button>').join('');
-  $('#bMe').textContent = S.me ? S.me.name + (S.me.group ? ' · ' + S.me.group : '') : '';
-  $('#bForOther').checked = false; $('#bOther').hidden = true;
-  $('#bName').value = ''; $('#bGroup').value = ''; $('#bNote').value = '';
-  fillDatalists(); showErr($('#bErr'), '');
-  updateBorrowPreview(false);
-  closeDlg($('#dlgDetail'));
-  openDlg($('#dlgBorrow'));
-}
-function updateBorrowPreview(anim){
-  const it = B && itemById(B.id); if (!it) return;
-  const max = it.maxDays || 7, days = clamp(parseInt($('#bDays').value, 10) || 1, 1, max);
-  const due = endOfDay(addDays(Date.now(), days));
-  $('#bStamp').textContent = fmtDate(due);
-  $('#bDueLong').textContent = fmtDateLong(due) + ' (' + days + ' วัน)';
-  $$('#bQuick .chip').forEach(c => c.setAttribute('aria-pressed', String(+c.dataset.days === days)));
-  if (anim){ const s = $('#bStampBox'); s.classList.remove('thunk'); void s.offsetWidth; s.classList.add('thunk'); }
-}
-function fillDatalists(){
-  const ls = visibleLoans();
-  const names = [...new Set(ls.map(l => (l.borrower || '').trim()).filter(Boolean))].slice(0, 200);
-  const groups = [...new Set(ls.map(l => (l.group || '').trim()).filter(Boolean))].slice(0, 100);
-  $('#nameList').innerHTML = names.map(n => '<option value="' + esc(n) + '"></option>').join('');
-  $('#groupList').innerHTML = groups.map(n => '<option value="' + esc(n) + '"></option>').join('');
-}
-async function submitBorrow(e){
-  e.preventDefault();
-  const it = B && itemById(B.id); if (!it) return;
-  const forOther = $('#bForOther').checked;
-  const name = $('#bName').value.trim();
-  if (forOther && !name){ showErr($('#bErr'), 'กรุณาใส่ชื่อคนที่ยืม'); $('#bName').focus(); return; }
-  const avail = availableOf(it);
-  const qty = clamp(parseInt($('#bQty').value, 10) || 1, 1, Math.max(1, avail));
-  const days = clamp(parseInt($('#bDays').value, 10) || 1, 1, it.maxDays || 7);
-  const j = await write({action: 'borrow', itemId: it.id, forOther, borrower: name, group: forOther ? $('#bGroup').value.trim() : '', qty, days, note: $('#bNote').value.trim()}, $('#bSubmit'));
-  if (j){ closeDlg($('#dlgBorrow')); vibrate([40, 60, 40]); }
-}
-
-/* return (member): live photo with face + item */
-let R = null;
-function sumRows(l, extra){
-  return [
-    ['อุปกรณ์', loanItemName(l) + ((l.qty || 1) > 1 ? ' ×' + l.qty : '') + (l.code ? ' (' + l.code + ')' : '')],
-    ['คนยืม', l.borrower + (l.group ? ' (' + l.group + ')' : '')],
-    ['ยืมเมื่อ', fmtDate(l.borrowedAt) + ' · ' + fmtTime(l.borrowedAt) + ' น.'],
-    ['จำนวนวันที่ยืม', l.days + ' วัน'],
-    ['กำหนดคืน', fmtDate(l.dueAt)]
-  ].concat(extra || []).map(([k, v]) => '<div><dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd></div>').join('');
-}
-function openReturn(id){
-  const l = loanById(id); if (!l) return;
-  if (isAdmin()) return openReview(id);
-  R = {id, shot: null};
-  const now = Date.now(), s = loanState(l, now);
-  $('#rSum').innerHTML = sumRows(l, [['คืนวันนี้', fmtDate(now) + ' · ' + fmtTime(now) + ' น.']]);
-  const st = $('#rState');
-  st.textContent = s.k === 'overdue' ? 'คืนช้ากว่ากำหนด ' + s.days + ' วัน' : 'คืนตรงเวลา 👍';
-  st.className = 'state ' + (s.k === 'overdue' ? 'bad' : 'ok');
-  const an = $('#rAdminNote');
-  an.innerHTML = l.adminNote ? '<b>ครั้งก่อนยังไม่ผ่าน · ข้อความจากผู้ดูแล:</b> ' + esc(l.adminNote) : '';
-  an.hidden = !l.adminNote;
-  $('#rNote').value = ''; showErr($('#rErr'), '');
-  renderReturnPhoto();
-  closeDlg($('#dlgDetail'));
-  openDlg($('#dlgReturn'));
-}
-function renderReturnPhoto(){
-  const box = $('#rPhotoBox');
-  box.innerHTML = R && R.shot
-    ? '<img src="' + R.shot.full + '" alt="รูปหลักฐานการคืน"><button type="button" class="btn" id="btnRPhoto">📷 ถ่ายใหม่</button>'
-    : '<button type="button" class="btn primary big" id="btnRPhoto">📷 เปิดกล้องถ่ายรูป</button>';
-  $('#rSubmit').disabled = !(R && R.shot);
-}
-async function shootReturn(){
-  const l = R && loanById(R.id); if (!l) return;
-  const shot = await takePhoto({
-    title: 'ถ่ายรูปคืนอุปกรณ์', facing: 'user', guide: 'face',
-    hint: 'ถือ “' + loanItemName(l) + '” ไว้ข้างหน้า ให้เห็นหน้าคุณและอุปกรณ์ชัดเจน',
-    stamp: 'คืน ' + (l.code || loanItemName(l)) + ' · ' + l.borrower
-  });
-  if (shot && R){ R.shot = shot; showErr($('#rErr'), ''); }
-  renderReturnPhoto();
-}
-async function submitReturn(e){
-  e.preventDefault();
-  const l = R && loanById(R.id); if (!l) return;
-  if (!R.shot){ showErr($('#rErr'), 'กรุณาถ่ายรูปตัวคุณคู่กับอุปกรณ์ก่อนส่ง'); return; }
-  const j = await write({action: 'requestReturn', loanId: l.id, photo: R.shot.full, returnNote: $('#rNote').value.trim()}, $('#rSubmit'), 'กำลังส่งรูป…');
-  if (j){ IMGS.clear(); closeDlg($('#dlgReturn')); vibrate([40, 60, 40]); }
-  else $('#rSubmit').disabled = !(R && R.shot);
-}
-
-/* review (admin) */
-let V = null;
-function openReview(id){
-  const l = loanById(id); if (!l) return;
-  const mode = l.status === 'review' ? 'review' : 'direct';
-  V = {id, mode};
-  $('#vTitle').textContent = mode === 'review' ? 'ตรวจสอบการคืน' : 'รับคืนอุปกรณ์ (ต่อหน้า)';
-  $('#vPhoto').innerHTML = mode === 'review'
-    ? (l.photoId ? heroImg(l.photoId, '', 'รูปตอนคืน · ' + loanItemName(l) + ' · ' + l.borrower) + '<p class="help">ตรวจว่าเห็นหน้าผู้ยืมและอุปกรณ์ชัดเจน แตะรูปเพื่อดูขนาดใหญ่</p>' : '<p class="note-box">ไม่มีรูปแนบ</p>')
-    : '<p class="note-box">ผู้ดูแลรับของคืนด้วยตัวเอง ไม่ต้องถ่ายรูป</p>';
-  const now = Date.now(), s = loanState(l, now);
-  const extra = [];
-  if (mode === 'review' && l.returnReqAt) extra.push(['ส่งหลักฐานเมื่อ', fmtWhen(l.returnReqAt)]);
-  const lateAt = mode === 'review' && l.returnReqAt ? l.returnReqAt : now;
-  const late = dayDiff(l.dueAt, lateAt);
-  extra.push(['สถานะเวลา', late > 0 ? 'คืนช้ากว่ากำหนด ' + late + ' วัน' : 'คืนตรงเวลา']);
-  if (l.returnNote) extra.push(['ผู้ยืมแจ้งสภาพ', l.returnNote]);
-  $('#vSum').innerHTML = sumRows(l, extra);
-  $('#vRedoWrap').hidden = mode !== 'review';
-  $$('input[name=vResult]').forEach(r => { r.checked = mode === 'direct' && r.value === 'ok'; });
-  $('#vRepair').checked = false; $('#vNote').value = ''; showErr($('#vErr'), '');
-  const users = D().users || [];
-  const hasAcct = !!l.userId || (!!l.recordedBy && users.some(u => u.email === l.recordedBy));
-  const mailOn = !!(S.data.settings && S.data.settings.mailOn);
-  $('#vMailWrap').hidden = !(hasAcct && mailOn); $('#vMail').checked = true;
-  $('#vNoAcct').hidden = hasAcct;
-  $('#vSubmit').textContent = hasAcct ? 'บันทึกและแจ้งผู้ยืม' : 'บันทึกผล';
-  $('#vSubmit').dataset.label = '';
-  updateReviewForm();
-  closeDlg($('#dlgDetail'));
-  openDlg($('#dlgReview'));
-  hydrate($('#vPhoto'));
-}
-function updateReviewForm(){
-  const r = (document.querySelector('input[name=vResult]:checked') || {}).value;
-  $('#vRepairWrap').hidden = r !== 'problem';
-  const lbl = $('#vNoteLbl'), ta = $('#vNote');
-  if (r === 'problem'){ lbl.textContent = 'พบปัญหาอะไร (จำเป็น · ผู้ยืมจะเห็นข้อความนี้)'; ta.placeholder = 'เช่น สาย HDMI หายไป 1 เส้น / เลนส์มีรอยขีดข่วน'; }
-  else if (r === 'redo'){ lbl.textContent = 'เหตุผลที่ยังไม่ผ่าน (จำเป็น · ผู้ยืมจะเห็นข้อความนี้)'; ta.placeholder = 'เช่น รูปไม่เห็นหน้า กรุณาถ่ายใหม่ให้เห็นหน้าและอุปกรณ์'; }
-  else { lbl.textContent = 'ข้อความถึงผู้ยืม (ไม่ใส่ก็ได้)'; ta.placeholder = 'เช่น ขอบคุณที่คืนตรงเวลา'; }
-}
-async function submitReview(e){
-  e.preventDefault();
-  const l = V && loanById(V.id); if (!l) return;
-  const result = (document.querySelector('input[name=vResult]:checked') || {}).value;
-  if (!result){ showErr($('#vErr'), 'กรุณาเลือกผลการตรวจสอบ'); return; }
-  const note = $('#vNote').value.trim();
-  if ((result === 'problem' || result === 'redo') && !note){ showErr($('#vErr'), result === 'problem' ? 'กรุณาเขียนว่าพบปัญหาอะไร' : 'กรุณาเขียนเหตุผล เพื่อให้ผู้ยืมส่งใหม่ได้ถูกต้อง'); $('#vNote').focus(); return; }
-  showErr($('#vErr'), '');
-  const j = await write({action: 'reviewReturn', loanId: l.id, result, note, markRepair: result === 'problem' && $('#vRepair').checked, sendEmail: !$('#vMailWrap').hidden && $('#vMail').checked}, $('#vSubmit'));
-  if (j){ closeDlg($('#dlgReview')); vibrate(40); }
-}
-
-/* item form */
-let I = null;
-const cleanPrefix = p => String(p || '').toUpperCase().replace(/[^A-Z0-9ก-๙]/g, '').slice(0, 10);
-function nextCode(prefix){
-  const digits = (S.data.settings && S.data.settings.codeDigits) || 4;
-  const re = new RegExp('^' + prefix + '-(\\d+)$', 'i');
-  let max = 0;
-  D().items.forEach(it => { const m = re.exec(it.code || ''); if (m) max = Math.max(max, parseInt(m[1], 10)); });
-  return prefix + '-' + String(max + 1).padStart(digits, '0');
-}
-function catPrefix(name){ const c = catByName(name); return (c && c.prefix) || (S.data.settings && S.data.settings.codePrefix) || 'EQ'; }
-function updateCodePreview(){
-  if (!I || I.id) return;
-  const typed = $('#iCode').value.trim();
-  const p = cleanPrefix($('#iPrefix').value) || catPrefix($('#iCat').value);
-  $('#iCodePrev').textContent = nextCode(p);
-  $('#iCodePrevBox').classList.toggle('off', !!typed);
-  $('#iCodeHelp').textContent = typed ? 'จะใช้รหัสที่พิมพ์ไว้: ' + typed : 'เว้นช่องรหัสว่างไว้ ระบบจะรันเลขต่อจากตัวอักษรนำหน้าให้เอง';
-}
-function renderItemImage(){
-  const prev = $('#iImgPrev');
-  let src = '';
-  if (I.img === 'new') src = I.thumb;
-  else if (I.img === 'keep' && I.imageId) src = TH[I.imageId] || '';
-  prev.innerHTML = src ? '<img src="' + src + '" alt="รูปอุปกรณ์">' : '<span>' + (I.img === 'remove' ? 'จะลบรูปเมื่อกดบันทึก' : (I.img === 'keep' && I.imageId ? 'มีรูปอยู่แล้ว' : 'ยังไม่มีรูป')) + '</span>';
-  $('#btnIRemove').hidden = !(I.img === 'new' || (I.img === 'keep' && I.imageId));
-}
-function openItem(id, preset){
-  const it = id ? itemById(id) : null;
-  I = {id: it ? it.id : null, img: 'keep', imageId: it ? it.imageId : '', full: '', thumb: '', prefixTouched: false};
-  $('#iTitle').textContent = it ? 'แก้ไขอุปกรณ์' : 'เพิ่มอุปกรณ์';
-  const cats = sortedCats();
-  $('#iCat').innerHTML = cats.map(c => '<option value="' + esc(c.name) + '">' + esc(catIcon(c) + ' ' + c.name) + '</option>').join('') + '<option value="">ไม่มีหมวด</option>';
-  const cur = it ? it.category : (S.cat !== 'all' && S.cat !== '_none' ? S.cat : (cats[0] ? cats[0].name : ''));
-  $('#iCat').value = catByName(cur) ? cur : '';
-  $('#iName').value = it ? it.name : '';
-  $('#iCode').value = it ? it.code : ((preset && preset.code) || '');
-  $('#iAuto').hidden = !!it;
-  $('#iPrefix').value = it ? '' : catPrefix($('#iCat').value);
-  if (it) $('#iCodeHelp').textContent = 'แก้รหัสได้ ถ้าแก้แล้วต้องพิมพ์ป้าย QR ใหม่';
-  $('#iQty').value = it ? it.qty : 1;
-  $('#iMax').value = it ? it.maxDays : 7;
-  const st = it ? it.status : 'lendable';
-  $$('input[name=iStatus]').forEach(r => { r.checked = r.value === st; });
-  $('#iNote').value = it ? it.note : '';
-  $('#iFile').value = '';
-  showErr($('#iErr'), '');
-  renderItemImage(); updateCodePreview();
-  closeDlg($('#dlgDetail'));
-  openDlg($('#dlgItem'));
-}
-function setItemShot(shot){ if (!shot || !I) return; I.img = 'new'; I.full = shot.full; I.thumb = shot.thumb; renderItemImage(); }
-async function submitItem(e){
-  e.preventDefault();
-  const name = $('#iName').value.trim();
-  if (!name){ showErr($('#iErr'), 'กรุณาใส่ชื่ออุปกรณ์'); $('#iName').focus(); return; }
-  const item = {
-    id: I.id || '', name, category: $('#iCat').value, code: $('#iCode').value.trim(), prefix: I.id ? '' : cleanPrefix($('#iPrefix').value),
-    qty: clamp(parseInt($('#iQty').value, 10) || 1, 1, 999), maxDays: clamp(parseInt($('#iMax').value, 10) || 7, 1, 365),
-    status: (document.querySelector('input[name=iStatus]:checked') || {}).value || 'lendable', note: $('#iNote').value.trim()
-  };
-  if (I.img === 'new'){ item.image = I.full; item.thumb = I.thumb; }
-  if (I.img === 'remove') item.removeImage = true;
-  if (await write({action: 'saveItem', item}, $('#iSubmit'), I.img === 'new' ? 'กำลังอัปโหลดรูป…' : '')) closeDlg($('#dlgItem'));
-}
-
-/* category form */
-let C = null;
-function openCat(id){
-  const c = id ? D().cats.find(x => x.id === id) : null; C = c ? c.id : null;
-  $('#cTitle').textContent = c ? 'แก้ไขหมวดหมู่' : 'เพิ่มหมวดหมู่';
-  $('#cName').value = c ? c.name : '';
-  $('#cPrefix').value = c ? (c.prefix || '') : '';
-  $('#cPrefixHelp').textContent = 'เว้นว่าง = ใช้ค่าเริ่มต้น ' + ((S.data.settings && S.data.settings.codePrefix) || 'EQ') + ' (แก้ค่าเริ่มต้นได้ในชีต “ตั้งค่า”) · รหัสของอุปกรณ์เดิมจะไม่เปลี่ยน';
-  $('#cIcon').value = c ? (c.icon || '') : '📦';
-  $('#cIcons').innerHTML = ICONS.map(x => '<button type="button" data-icon="' + x + '" aria-label="ใช้ไอคอน ' + x + '">' + x + '</button>').join('');
-  showErr($('#cErr'), '');
-  openDlg($('#dlgCat'));
-}
-async function submitCat(e){
-  e.preventDefault();
-  const name = $('#cName').value.trim();
-  if (!name){ showErr($('#cErr'), 'กรุณาใส่ชื่อหมวดหมู่'); $('#cName').focus(); return; }
-  if (await write({action: 'saveCat', cat: {id: C || '', name, icon: $('#cIcon').value.trim() || '📦', prefix: cleanPrefix($('#cPrefix').value)}}, $('#cSubmit'))) closeDlg($('#dlgCat'));
-}
-
-async function doDelete(key){
-  const i = key.indexOf(':'), kind = key.slice(0, i), id = key.slice(i + 1);
-  S.confirm = null;
-  const action = {item: 'deleteItem', cat: 'deleteCat', loan: 'deleteLoan'}[kind];
-  render();
-  if (action) await write({action, id});
-}
-
-/* members (admin) */
-async function setUser(id, patch, btn){ await write(Object.assign({action: 'setUser', id}, patch), btn); }
-async function resetUserPw(id, btn){
-  const u = (D().users || []).find(x => x.id === id);
-  const j = await write({action: 'resetUserPassword', id}, btn);
-  if (j && j.tempPassword){
-    $('#tFor').textContent = 'สำหรับ ' + (u ? u.name + ' (' + u.email + ')' : 'สมาชิก');
-    $('#tPw').textContent = j.tempPassword;
-    openDlg($('#dlgTemp'));
-  }
-}
-
-/* account */
-function openAccount(){
-  if (!S.me) return;
-  const m = S.me;
-  $('#aAvatar').textContent = initial(m.name);
-  $('#aName').textContent = m.name;
-  $('#aMeta').textContent = m.email + ' · ' + (m.role === 'admin' ? 'ผู้ดูแล' : 'สมาชิก') + (m.method ? ' · เข้าด้วย ' + m.method : '') + ' · แอปเวอร์ชัน ' + VERSION;
-  $('#pName').value = m.name || ''; $('#pGroup').value = m.group || '';
-  $('#pwTitle').textContent = m.hasPassword ? 'เปลี่ยนรหัสผ่าน' : 'ตั้งรหัสผ่าน (เพื่อเข้าด้วยอีเมลได้ด้วย)';
-  $('#pwCurWrap').hidden = !m.hasPassword;
-  $('#pwCur').value = ''; $('#pwNew').value = ''; showErr($('#pwErr'), '');
-  openDlg($('#dlgAccount'));
-}
-async function submitProfile(e){
-  e.preventDefault();
-  const name = $('#pName').value.trim();
-  if (!name){ toast('กรุณาใส่ชื่อ', 'bad'); return; }
-  if (await write({action: 'updateProfile', name, group: $('#pGroup').value.trim()}, $('#pSubmit'))) closeDlg($('#dlgAccount'));
-}
-async function submitPw(e){
-  e.preventDefault();
-  const pw = $('#pwNew').value;
-  if (S.me.hasPassword && !$('#pwCur').value){ showErr($('#pwErr'), 'กรุณาใส่รหัสผ่านปัจจุบัน'); return; }
-  if (pw.length < 6){ showErr($('#pwErr'), 'รหัสผ่านใหม่ต้องยาวอย่างน้อย 6 ตัว'); return; }
-  showErr($('#pwErr'), '');
-  if (await write({action: 'changePassword', current: $('#pwCur').value, password: pw}, $('#pwSubmit'))) closeDlg($('#dlgAccount'));
-}
-async function logoutAll(){
-  try { await call({action: 'logoutAll'}); } catch (e){}
-  logout(true); toast('ออกจากระบบทุกเครื่องแล้ว', 'ok');
-}
-
-/* settings */
-function openSettings(){
-  $('#sUrl').value = S.api || '';
-  $('#sUrlHelp').textContent = (window.LEND_CONFIG && window.LEND_CONFIG.API_URL) ? 'ไฟล์ config.js มีลิงก์ตั้งไว้แล้ว ถ้าแก้ตรงนี้จะใช้เฉพาะในเครื่องนี้' : 'ลิงก์นี้จะถูกจำไว้ในเครื่องนี้';
-  showErr($('#sErr'), '');
-  openDlg($('#dlgSettings'));
-}
-async function connect(url, errEl, btn){
-  url = normApi(url);
-  if (!validApi(url)){ showErr(errEl, 'ลิงก์ต้องขึ้นต้นด้วย https://script.google.com/ และลงท้ายด้วย /exec'); return false; }
-  if (/\/dev(\?|$)/.test(url)){ showErr(errEl, 'นี่คือลิงก์ทดสอบ (/dev) ให้ใช้ลิงก์ที่ลงท้ายด้วย /exec'); return false; }
-  showErr(errEl, ''); busy(btn, true, 'กำลังทดสอบ…');
-  try {
-    const info = await call({action: 'info'}, url);
-    if (url !== S.api){ logout(true); }
-    S.api = url; S.info = info; LS.set('api', url); LS.set('info', info); S.error = '';
-    toast('เชื่อมต่อสำเร็จ', 'ok'); render();
-    if (S.token) refresh(false);
-    return true;
-  } catch (e){ showErr(errEl, e.message); return false; }
-  finally { busy(btn, false); }
-}
-
-/* ---------- QR labels ---------- */
-function qrSvg(text, cell){
-  if (typeof qrcode !== 'function') return '<p class="err">โหลดตัวสร้าง QR ไม่สำเร็จ</p>';
-  const q = qrcode(0, 'M'); q.addData(String(text)); q.make();
-  return q.createSvgTag({cellSize: cell || 4, margin: 2, scalable: true});
-}
-function openLabels(){
-  const cats = sortedCats();
-  $('#lCat').innerHTML = '<option value="all">ทุกหมวด</option>' + cats.map(c => '<option value="' + esc(c.name) + '">' + esc(c.name) + '</option>').join('');
-  renderLabels(); openDlg($('#dlgLabels'));
-}
-function labelItems(){
-  const cat = $('#lCat').value;
-  return D().items.filter(it => it.code && (cat === 'all' || it.category === cat)).sort((a, b) => a.code.localeCompare(b.code));
-}
-function labelsHtml(list){
-  return '<div class="labels-grid">' + list.map(it => '<div class="label">' + qrSvg(it.code) + '<div class="ln">' + esc(it.name) + '</div><div class="lc">' + esc(it.code) + '</div></div>').join('') + '</div>';
-}
-function renderLabels(){
-  const list = labelItems();
-  $('#lGrid').outerHTML = list.length ? labelsHtml(list).replace('class="labels-grid"', 'class="labels-grid" id="lGrid"') : '<div class="labels-grid" id="lGrid"><p class="muted">ยังไม่มีอุปกรณ์ในหมวดนี้</p></div>';
-  $('#btnPrint').disabled = !list.length;
-}
-function printLabels(){
-  const list = labelItems(); if (!list.length) return;
-  const pa = $('#printArea');
-  pa.className = $('#lSize').value === 'big' ? 'big' : '';
-  pa.innerHTML = labelsHtml(list);
-  closeDlg($('#dlgLabels'));
-  setTimeout(() => { window.print(); }, 150);
-}
-window.addEventListener('afterprint', () => { $('#printArea').innerHTML = ''; });
-
-/* ---------- scanner ---------- */
-let scanner = null, scanMode = 'lookup', scanBusy = false;
-function setScanMsg(t){ $('#scMsg').textContent = t; }
-function camErrText(e){
-  const m = String((e && (e.name || e.message)) || e || '');
-  if (/NotAllowed|Permission/i.test(m)) return 'แอปยังไม่ได้รับสิทธิ์ใช้กล้อง ให้กดอนุญาตกล้องในการตั้งค่าเบราว์เซอร์ แล้วลองใหม่';
-  if (/NotFound|no camera|Requested device|Overconstrained/i.test(m)) return 'ไม่พบกล้องในเครื่องนี้';
-  if (/NotReadable|Could not start/i.test(m)) return 'กล้องถูกแอปอื่นใช้อยู่ ปิดแอปนั้นแล้วลองใหม่';
-  if (location.protocol !== 'https:' && location.hostname !== 'localhost') return 'ต้องเปิดแอปผ่าน https เท่านั้นจึงจะใช้กล้องได้';
-  return 'เปิดกล้องไม่ได้ ลองปิดแล้วเปิดแอปใหม่';
-}
-async function ensureScanner(){
-  await loadScript('vendor/html5-qrcode.min.js');
-  if (!scanner){
-    const F = window.Html5QrcodeSupportedFormats;
-    const formats = F ? [F.QR_CODE, F.CODE_128, F.CODE_39, F.CODE_93, F.EAN_13, F.EAN_8, F.UPC_A, F.UPC_E, F.ITF, F.DATA_MATRIX] : undefined;
-    scanner = new window.Html5Qrcode('reader', {verbose: false, formatsToSupport: formats, experimentalFeatures: {useBarCodeDetectorIfSupported: true}});
-  }
-  return scanner;
-}
-async function openScanner(mode){
-  scanMode = mode || 'lookup'; scanBusy = false;
-  $('#scTitle').textContent = scanMode === 'assign' ? 'สแกนบาร์โค้ดเดิมบนของ' : 'สแกนอุปกรณ์';
-  $('#manualCode').value = '';
-  openDlg($('#dlgScan'));
-  setScanMsg('กำลังเปิดกล้อง…');
-  let sc;
-  try { sc = await ensureScanner(); } catch (e){ setScanMsg('โหลดตัวสแกนไม่สำเร็จ ตรวจอินเทอร์เน็ตแล้วลองใหม่'); return; }
-  if (!$('#dlgScan').open) return;
-  try {
-    await sc.start({facingMode: 'environment'}, {
-      fps: 10,
-      qrbox: (w, h) => { const base = Math.min(w || 300, h > 0 ? h : (w || 300)); const s = Math.max(150, Math.floor(base * 0.72)); return {width: s, height: Math.max(120, Math.floor(s * 0.8))}; }
-    }, onScanned, () => {});
-    setScanMsg('หันกล้องไปที่ QR หรือบาร์โค้ดบนอุปกรณ์');
-    if (!$('#dlgScan').open) stopScanCam();
-  } catch (e){ setScanMsg(camErrText(e) + ' หรือพิมพ์รหัสแทน'); }
-}
-async function stopScanCam(){ if (scanner && scanner.isScanning){ try { await scanner.stop(); } catch (e){} } }
-async function closeScanner(){ await stopScanCam(); try { $('#dlgScan').close(); } catch (e){ $('#dlgScan').removeAttribute('open'); } }
-function onScanned(text){
-  if (scanBusy) return; scanBusy = true;
-  vibrate(80);
-  closeScanner().then(() => handleCode(String(text || '').trim()));
-}
-async function scanPhoto(file){
-  if (!file) return;
-  setScanMsg('กำลังอ่านรหัสจากรูป…');
-  try {
-    const sc = await ensureScanner();
-    await stopScanCam();
-    onScanned(await sc.scanFile(file, false));
-  } catch (e){ setScanMsg('อ่านรหัสจากรูปไม่ได้ ลองถ่ายให้ใกล้และชัดขึ้น หรือพิมพ์รหัสแทน'); }
-  finally { $('#scanFile').value = ''; }
-}
-function handleCode(code){
-  if (!code) return;
-  if (scanMode === 'assign'){ $('#iCode').value = code; updateCodePreview(); toast('ใช้รหัส ' + code, 'ok'); return; }
-  if (!S.data) return toast('ยังโหลดข้อมูลไม่เสร็จ ลองใหม่อีกครั้ง', 'bad');
-  const low = code.toLowerCase();
-  const it = D().items.find(i => (i.code || '').toLowerCase() === low) || D().items.find(i => i.id === code);
-  if (it){ openDetail(it.id); return; }
-  if (isAdmin() && !S.offline){ toast('ไม่พบรหัส ' + code + ' เพิ่มเป็นอุปกรณ์ใหม่ได้เลย'); openItem(null, {code}); }
-  else toast('ไม่พบอุปกรณ์รหัส ' + code, 'bad');
-}
-
-/* ---------- events ---------- */
-function bind(){
-  $$('.nb[data-tab]').forEach(n => n.addEventListener('click', () => setTab(n.dataset.tab)));
-  $('#btnRefresh').addEventListener('click', () => refresh(false));
-  $('#btnAccount').addEventListener('click', openAccount);
-  $('#btnBell').addEventListener('click', openNotifs);
-  $('#qItems').addEventListener('input', e => { S.qItems = e.target.value; renderItems(); });
-  $('#qLoans').addEventListener('input', e => { S.qLoans = e.target.value; renderLoans(); });
-  $('#qHist').addEventListener('input', e => { S.qHist = e.target.value; renderHistory(); });
-  $('#onlyFree').addEventListener('change', e => { S.onlyFree = e.target.checked; renderItems(); });
-  $('#fLogin').addEventListener('submit', submitLogin);
-  $('#fRegister').addEventListener('submit', submitRegister);
-  $('#fReset1').addEventListener('submit', submitReset1);
-  $('#fReset2').addEventListener('submit', submitReset2);
-  $('#btnPendingBack').addEventListener('click', () => { S.pending = false; S.authMode = 'login'; render(); });
-  $('#fBorrow').addEventListener('submit', submitBorrow);
-  $('#fReturn').addEventListener('submit', submitReturn);
-  $('#fReview').addEventListener('submit', submitReview);
-  $$('input[name=vResult]').forEach(r => r.addEventListener('change', () => { updateReviewForm(); showErr($('#vErr'), ''); }));
-  $('#fItem').addEventListener('submit', submitItem);
-  $('#fCat').addEventListener('submit', submitCat);
-  $('#fProfile').addEventListener('submit', submitProfile);
-  $('#fPw').addEventListener('submit', submitPw);
-  $('#btnLogout').addEventListener('click', () => logout(false));
-  $('#btnLogoutAll').addEventListener('click', logoutAll);
-  $('#btnCopyTemp').addEventListener('click', async () => {
-    const t = $('#tPw').textContent;
-    try { await navigator.clipboard.writeText(t); toast('คัดลอกแล้ว', 'ok'); }
-    catch (e){ const r = document.createRange(); r.selectNodeContents($('#tPw')); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); toast('เลือกข้อความไว้แล้ว กดคัดลอกได้เลย'); }
-  });
-  $('#fSettings').addEventListener('submit', async e => { e.preventDefault(); if (await connect($('#sUrl').value, $('#sErr'), $('#sSubmit'))) closeDlg($('#dlgSettings')); });
-  $('#btnSetup').addEventListener('click', () => connect($('#setupUrl').value, $('#setupErr'), $('#btnSetup')));
-  $('#setupUrl').addEventListener('keydown', e => { if (e.key === 'Enter') connect($('#setupUrl').value, $('#setupErr'), $('#btnSetup')); });
-  $('#bForOther').addEventListener('change', e => { $('#bOther').hidden = !e.target.checked; if (e.target.checked) setTimeout(() => $('#bName').focus(), 30); showErr($('#bErr'), ''); });
-  $('#bDays').addEventListener('input', () => updateBorrowPreview(true));
-  $('#bName').addEventListener('input', () => showErr($('#bErr'), ''));
-  // item form
-  $('#iCat').addEventListener('change', () => { if (I && !I.id && !I.prefixTouched) $('#iPrefix').value = catPrefix($('#iCat').value); updateCodePreview(); });
-  $('#iPrefix').addEventListener('input', () => { if (I) I.prefixTouched = true; updateCodePreview(); });
-  $('#iCode').addEventListener('input', updateCodePreview);
-  $('#btnICam').addEventListener('click', async () => setItemShot(await takePhoto({title: 'ถ่ายรูปอุปกรณ์', facing: 'environment', hint: 'ถ่ายให้เห็นอุปกรณ์ทั้งชิ้น บนพื้นเรียบ แสงสว่าง'})));
-  $('#iFile').addEventListener('change', async e => {
-    const f = e.target.files && e.target.files[0]; if (!f) return;
-    try { setItemShot(await processFile(f)); } catch (err){ toast(err.message || 'เปิดรูปไม่ได้', 'bad'); }
-    e.target.value = '';
-  });
-  $('#btnIRemove').addEventListener('click', () => { if (!I) return; I.full = I.thumb = ''; I.img = I.imageId ? 'remove' : 'keep'; renderItemImage(); });
-  // camera
-  $('#btnShutter').addEventListener('click', snap);
-  $('#btnFlip').addEventListener('click', () => { CAM.facing = CAM.facing === 'user' ? 'environment' : 'user'; startCam(); });
-  $('#btnRetake').addEventListener('click', () => { CAM.shot = null; camLiveMode(); startCam(); });
-  $('#btnUseShot').addEventListener('click', () => finishCam(CAM.shot));
-  $('#btnCamClose').addEventListener('click', () => finishCam(null));
-  $('#dlgCam').addEventListener('cancel', e => { e.preventDefault(); finishCam(null); });
-  // labels + scanner
-  $('#btnLabels').addEventListener('click', openLabels);
-  $('#lCat').addEventListener('change', renderLabels);
-  $('#btnPrint').addEventListener('click', printLabels);
-  $('#btnScanCode').addEventListener('click', () => openScanner('assign'));
-  $('#btnScanClose').addEventListener('click', closeScanner);
-  $('#dlgScan').addEventListener('cancel', e => { e.preventDefault(); closeScanner(); });
-  $('#scanFile').addEventListener('change', e => scanPhoto(e.target.files && e.target.files[0]));
-  $('#fManual').addEventListener('submit', e => { e.preventDefault(); const v = $('#manualCode').value.trim(); if (v) onScanned(v); });
-  $('#btnInstall').addEventListener('click', async () => { if (!S.installEvt) return; S.installEvt.prompt(); try { await S.installEvt.userChoice; } catch (e){} S.installEvt = null; render(); });
-  $$('dialog.sheet').forEach(d => d.addEventListener('click', e => { if (e.target === d) closeDlg(d); }));
-
-  document.addEventListener('click', e => {
-    const t = e.target.closest('button,a,[data-photo]'); if (!t) return;
-    const ds = t.dataset;
-    if (t.id === 'btnRPhoto'){ shootReturn(); return; }
-    if ('close' in ds){ closeDlg(t.closest('dialog')); return; }
-    if (ds.photo){ openPhoto(ds.photo, ds.cap); return; }
-    if (ds.auth){ S.authMode = ds.auth; ['lErr','regErr','f1Err','f2Err','gErr'].forEach(id => showErr($('#' + id), '')); if (ds.auth === 'reset1') $('#f1Email').value = $('#lEmail').value; render(); return; }
-    if (ds.eye){ const inp = document.getElementById(ds.eye); const show = inp.type === 'password'; inp.type = show ? 'text' : 'password'; t.textContent = show ? 'ซ่อน' : 'แสดง'; return; }
-    if ('scan' in ds){ if (!S.token) return; openScanner('lookup'); return; }
-    if (ds.step){
-      const inp = document.getElementById(ds.for), lo = +inp.min || 1, hi = inp.max ? +inp.max : 9999;
-      inp.value = clamp((parseInt(inp.value, 10) || lo) + (+ds.step), lo, hi);
-      if (ds.for === 'bDays') updateBorrowPreview(true);
-      return;
-    }
-    if (ds.days){ $('#bDays').value = ds.days; updateBorrowPreview(true); return; }
-    if (ds.icon){ $('#cIcon').value = ds.icon; return; }
-    if (ds.cat){ S.cat = ds.cat; renderItems(); return; }
-    if (ds.loanf){ S.loanFilter = ds.loanf; renderLoans(); return; }
-    if ('gotoOverdue' in ds){ S.loanFilter = 'overdue'; setTab('loans'); return; }
-    if ('gotoMine' in ds){ S.loanFilter = 'all'; setTab('loans'); return; }
-    if ('gotoReview' in ds){ S.loanFilter = 'review'; setTab('loans'); return; }
-    if (ds.goto){ setTab(ds.goto); return; }
-    if ('refresh' in ds){ refresh(false); return; }
-    if ('openSettings' in ds){ openSettings(); return; }
-    if ('openAccount' in ds){ openAccount(); return; }
-    if (ds.detail){ openDetail(ds.detail); return; }
-    if (ds.borrow){ openBorrow(ds.borrow); return; }
-    if (ds.return){ openReturn(ds.return); return; }
-    if (ds.review){ openReview(ds.review); return; }
-    if ('addItem' in ds){ openItem(null); return; }
-    if ('addCat' in ds){ openCat(null); return; }
-    if (ds.editItem){ openItem(ds.editItem); return; }
-    if (ds.editCat){ openCat(ds.editCat); return; }
-    if (ds.uset){ const patch = {}; if (ds.role) patch.role = ds.role; if (ds.status) patch.status = ds.status; setUser(ds.uset, patch, t); return; }
-    if (ds.ureset){ resetUserPw(ds.ureset, t); return; }
-    if (ds.askDel){ S.confirm = ds.askDel; render(); return; }
-    if ('cancelDel' in ds){ S.confirm = null; render(); return; }
-    if (ds.doDel){ doDelete(ds.doDel); return; }
-  });
-
-  window.addEventListener('online', () => { S.offline = false; refresh(true); });
-  window.addEventListener('offline', () => { S.offline = true; render(); });
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Date.now() - S.lastSync > 15000) refresh(true); });
-  setInterval(() => { if (document.visibilityState === 'visible' && !$$('dialog[open]').length) refresh(true); }, 45000);
-  setInterval(() => { if (!$$('dialog[open]').length) renderHeader(); }, 60000);
-  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); S.installEvt = e; if (S.tab === 'manage') render(); });
-}
-
-/* ---------- start ---------- */
-async function boot(){
-  const params = new URLSearchParams(location.search);
-  const fromUrl = normApi(params.get('api'));
-  if (fromUrl && validApi(fromUrl)){ LS.set('api', fromUrl); params.delete('api'); history.replaceState(null, '', location.pathname + (params.toString() ? '?' + params : '') + location.hash); }
-  const cfg = normApi(window.LEND_CONFIG && window.LEND_CONFIG.API_URL);
-  S.api = normApi(LS.get('api', '')) || (validApi(cfg) ? cfg : '');
-  S.token = LS.get('token', '');
-  S.info = LS.get('info', null);
-  const h = location.hash.slice(1), saved = LS.get('tab', 'items');
-  S.tab = ['items','loans','history','manage'].includes(h) ? h : (['items','loans','history','manage'].includes(saved) ? saved : 'items');
-  const cache = LS.get('cache', null);
-  if (S.token && cache && cache.api === S.api && cache.data){ S.data = cache.data; S.me = cache.me || null; S.lastSync = cache.at || 0; }
-  bind(); render();
-  if (S.api){
-    loadInfo().then(() => { if (!S.token) render(); else renderHeader(); });
-    if (S.token) refresh(!!S.data);
-  }
-  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
-}
-boot();
-})();
-</script>
+<script src="app.js"></script>
 </body>
 </html>
